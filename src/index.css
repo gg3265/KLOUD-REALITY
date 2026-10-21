@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+  
+  body {
+    background-color: #101010;
+    color: #F4F1EA;
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbar for luxury feel */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0d0d0d;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #282828;
+    border-radius: 4px;
+    border: 1px solid rgba(200, 164, 93, 0.2);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #C8A45D;
+  }
+}
+
+@layer utilities {
+  .gold-gradient-text {
+    background: linear-gradient(135deg, #F2E8D2 0%, #C8A45D 50%, #A98242 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .cyan-gradient-text {
+    background: linear-gradient(135deg, #38C8EE 0%, #01B6E5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .border-gold-subtle {
+    border-color: rgba(200, 164, 93, 0.25);
+  }
+
+  .bg-glass-dark {
+    background: rgba(16, 16, 16, 0.82);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .bg-glass-card {
+    background: rgba(22, 22, 22, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .bg-glass-card:hover {
+    border-color: rgba(200, 164, 93, 0.35);
+  }
+}
