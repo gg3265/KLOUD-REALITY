@@ -164,6 +164,7 @@ export const AdminDashboard: React.FC = () => {
       l.fullName.toLowerCase().includes(q) ||
       l.phone.includes(q) ||
       l.email.toLowerCase().includes(q) ||
+      (l.propertyRequirement && l.propertyRequirement.toLowerCase().includes(q)) ||
       (l.propertyTitle && l.propertyTitle.toLowerCase().includes(q)) ||
       (l.preferredLocation && l.preferredLocation.toLowerCase().includes(q));
 
@@ -415,8 +416,12 @@ export const AdminDashboard: React.FC = () => {
                         </td>
 
                         <td className="py-3.5 px-4">
-                          <span className="font-medium text-white">{lead.serviceVertical}</span>
-                          <span className="block text-[10px] text-gold-400/80">{lead.enquirySource}</span>
+                          <span className="font-medium text-white block">
+                            {lead.propertyRequirement || lead.serviceVertical}
+                          </span>
+                          <span className="block text-[10px] text-gold-400/80">
+                            {lead.serviceVertical} • {lead.enquirySource}
+                          </span>
                         </td>
 
                         <td className="py-3.5 px-4">
@@ -601,6 +606,10 @@ VITE_ADMIN_ACCESS_PIN=kloud2026`}
                 <div>
                   <span className="text-warmGray block">Service Vertical:</span>
                   <span className="text-white font-medium">{selectedLead.serviceVertical}</span>
+                </div>
+                <div>
+                  <span className="text-warmGray block">Requirement:</span>
+                  <span className="text-gold-300 font-medium">{selectedLead.propertyRequirement || selectedLead.serviceVertical}</span>
                 </div>
                 <div>
                   <span className="text-warmGray block">Budget Range:</span>

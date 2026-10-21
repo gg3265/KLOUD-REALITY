@@ -28,7 +28,9 @@ export const LeadModal: React.FC<LeadModalProps> = ({
       ? 'Purchase a Second Home or Plot'
       : initialVertical === 'Rental'
       ? 'Rent a Property'
-      : 'Buy a New Property'
+      : initialVertical === 'Secondary Market'
+      ? 'Buy a Resale Property'
+      : 'Buy a New Property (Primary Market)'
   );
   const [location, setLocation] = useState('Mazgaon, Mumbai');
   const [budget, setBudget] = useState('₹2–₹5 Crore');
@@ -46,7 +48,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
       else if (initialVertical === 'Second Homes & Land') setLookingTo('Purchase a Second Home or Plot');
       else if (initialVertical === 'Rental') setLookingTo('Rent a Property');
       else if (initialVertical === 'Secondary Market') setLookingTo('Buy a Resale Property');
-      else setLookingTo('Buy a New Property');
+      else setLookingTo('Buy a New Property (Primary Market)');
     }
     if (initialPropertyTitle) {
       setCustomMessage(`Regarding property: ${initialPropertyTitle}`);
@@ -79,7 +81,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
 
     // Map lookingTo to ServiceVertical
     let mappedVertical: ServiceVertical = 'General Consultation';
-    if (lookingTo.includes('New Property')) mappedVertical = 'Primary Market';
+    if (lookingTo.includes('New Property') || lookingTo.includes('Primary Market')) mappedVertical = 'Primary Market';
     else if (lookingTo.includes('Resale')) mappedVertical = 'Secondary Market';
     else if (lookingTo.includes('Rent')) mappedVertical = 'Rental';
     else if (lookingTo.includes('Second Home') || lookingTo.includes('Plot')) mappedVertical = 'Second Homes & Land';
@@ -95,12 +97,13 @@ export const LeadModal: React.FC<LeadModalProps> = ({
         email,
         enquirySource: source,
         serviceVertical: mappedVertical,
+        propertyRequirement: lookingTo,
         preferredLocation: location,
         budgetRange: budget,
         preferredContactMethod: contactMethod,
         propertyId: initialPropertyId,
         propertyTitle: initialPropertyTitle,
-        message: customMessage || `Looking to: ${lookingTo} in ${location}`
+        message: customMessage ? `Requirement: ${lookingTo} | ${customMessage}` : `Requirement: ${lookingTo} in ${location}`
       });
 
       if (result.success && result.leadId) {
@@ -132,14 +135,14 @@ export const LeadModal: React.FC<LeadModalProps> = ({
 
       {/* Modal Dialog Container */}
       <div 
-        className="relative w-full max-w-4xl bg-cream-100 text-charcoal-900 rounded-sm shadow-luxury overflow-hidden z-10 my-auto animate-in fade-in zoom-in-95 duration-200 border border-gold-500/30"
+        className="relative w-full max-w-4xl max-h-[92vh] sm:max-h-[90vh] bg-cream-100 text-charcoal-900 rounded-sm shadow-luxury overflow-hidden z-10 my-auto flex flex-col border border-gold-500/30"
         role="dialog"
         aria-modal="true"
       >
         {/* Close Button Top Right */}
         <button
           onClick={handleDismiss}
-          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-charcoal-900/10 hover:bg-charcoal-900/20 text-charcoal-800 hover:text-charcoal-950 transition-colors"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 p-2 rounded-full bg-charcoal-900/10 hover:bg-charcoal-900/20 text-charcoal-800 hover:text-charcoal-950 transition-colors cursor-pointer"
           aria-label="Close dialog"
         >
           <X className="w-5 h-5" />
@@ -229,7 +232,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
             </div>
 
             {/* Right Column: Clean Warm-White Consultation Form */}
-            <div className="md:col-span-7 p-6 sm:p-8 md:p-10 flex flex-col justify-between max-h-[88vh] md:max-h-[640px] overflow-y-auto">
+            <div className="md:col-span-7 p-5 sm:p-8 md:p-10 flex flex-col justify-between max-h-[85vh] sm:max-h-[88vh] md:max-h-[640px] overflow-y-auto">
               <div>
                 
                 {/* Header */}
@@ -309,14 +312,15 @@ export const LeadModal: React.FC<LeadModalProps> = ({
                     <select
                       value={lookingTo}
                       onChange={(e) => setLookingTo(e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded border border-charcoal-300 focus:border-gold-600 focus:ring-1 focus:ring-gold-600 outline-none bg-white text-charcoal-950 transition-all font-sans"
+                      className="w-full px-3 py-2 text-xs sm:text-[13px] rounded border border-charcoal-300 focus:border-gold-600 focus:ring-1 focus:ring-gold-600 outline-none bg-white text-charcoal-950 transition-all font-sans cursor-pointer"
                     >
-                      <option value="Buy a New Property">Buy a New Property (Primary Market)</option>
+                      <option value="Buy a New Property (Primary Market)">Buy a New Property (Primary Market)</option>
                       <option value="Buy a Resale Property">Buy a Resale Property</option>
                       <option value="Rent a Property">Rent a Property</option>
                       <option value="Purchase a Second Home or Plot">Purchase a Second Home or Plot</option>
                       <option value="Explore Redevelopment Opportunities">Explore Redevelopment Opportunities</option>
                       <option value="Sell My Property">Sell My Property</option>
+                      <option value="Consultancy for Redevelopment">Consultancy for Redevelopment</option>
                       <option value="I'm Exploring My Options">I'm Exploring My Options</option>
                     </select>
                   </div>

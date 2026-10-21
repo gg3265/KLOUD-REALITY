@@ -22,6 +22,7 @@ export interface CreateLeadInput {
   propertyId?: string;
   propertyTitle?: string;
   message?: string;
+  propertyRequirement?: string;
   roleInSociety?: string;
   buildingAge?: string;
   numberOfUnits?: string;
@@ -50,6 +51,7 @@ const defaultDemoLeads: Lead[] = [
     propertyId: 'prop-demo-01',
     propertyTitle: 'The Harbour Crest Tower',
     message: 'Requesting a private presentation and floor plans for the higher floor 3 BHK harbour facing inventory.',
+    propertyRequirement: 'Buy a New Property (Primary Market)',
     leadStatus: 'Qualified',
     assignedTo: 'Abhishek Gupta',
     notes: ['Spoke on WhatsApp. Client is keen on 25th floor or above. Site visit coordinated for Saturday.'],
@@ -63,6 +65,7 @@ const defaultDemoLeads: Lead[] = [
     email: 'merchant.farhan@gmail.com',
     enquirySource: 'Entry Modal',
     serviceVertical: 'Secondary Market',
+    propertyRequirement: 'Buy a Resale Property',
     preferredLocation: 'Mazgaon',
     budgetRange: '₹2–₹5 Crore',
     preferredContactMethod: 'Phone Call',
@@ -80,6 +83,7 @@ const defaultDemoLeads: Lead[] = [
     email: 'silverarch.secretary@gmail.com',
     enquirySource: 'Redevelopment',
     serviceVertical: 'Redevelopment Consulting',
+    propertyRequirement: 'Consultancy for Redevelopment',
     preferredLocation: 'Mazgaon, Mumbai',
     budgetRange: 'Not Decided Yet',
     preferredContactMethod: 'Phone Call',
@@ -148,6 +152,7 @@ export const leadService = {
       assignedTo: 'Abhishek Gupta',
       notes: [],
       consentStatus: true,
+      propertyRequirement: input.propertyRequirement,
       roleInSociety: input.roleInSociety,
       buildingAge: input.buildingAge,
       numberOfUnits: input.numberOfUnits

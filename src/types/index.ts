@@ -95,6 +95,7 @@ export interface Lead {
   assignedTo?: string;
   notes?: string[];
   consentStatus: boolean;
+  propertyRequirement?: string; // e.g. Consultancy for Redevelopment, Explore Redevelopment Opportunities
   roleInSociety?: string; // For redevelopment enquiries
   buildingAge?: string; // For redevelopment enquiries
   numberOfUnits?: string; // For redevelopment enquiries
