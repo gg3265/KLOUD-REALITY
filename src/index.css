@@ -3,14 +3,34 @@
 @tailwind utilities;
 
 @layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
   html {
     scroll-behavior: smooth;
     color-scheme: dark;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
   
   body {
     background-color: #101010;
     color: #F4F1EA;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
     overflow-x: hidden;
   }
 

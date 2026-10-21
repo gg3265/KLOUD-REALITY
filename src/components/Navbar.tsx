@@ -60,28 +60,28 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation, currentPath 
     <>
       <header 
         role="banner"
-        className={`fixed top-0 left-0 right-0 z-40 h-[90px] sm:h-[96px] lg:h-[100px] transition-all duration-300 flex items-center ${
+        className={`fixed top-0 left-0 right-0 z-40 h-[88px] sm:h-[92px] lg:h-[96px] transition-all duration-300 flex items-center w-full max-w-full ${
           isScrolled || !isHome 
             ? 'bg-charcoal-900/98 backdrop-blur-md border-b border-white/10 shadow-luxury' 
             : 'bg-gradient-to-b from-charcoal-950/90 via-charcoal-900/60 to-transparent backdrop-blur-[2px]'
         }`}
       >
-        <div className="w-full max-w-[1550px] mx-auto px-6 sm:px-8 lg:px-10 xl:px-12 h-full flex items-center justify-between gap-4 xl:gap-8">
+        <div className="w-full max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-5 xl:px-8 2xl:px-12 h-full flex items-center justify-between gap-2 lg:gap-3 xl:gap-5 min-w-0">
           
           {/* 1. LEFT SECTION: Logo and Brand Name (Natural, unboxed, balanced) */}
-          <a href="#/" className="flex items-center gap-3.5 group focus:outline-none shrink-0">
+          <a href="#/" className="flex items-center gap-2.5 sm:gap-3 group focus:outline-none shrink-0 min-w-0">
             <img 
               src="/images/logo_badge.png" 
               alt="KLOUD REALTY Logo" 
-              className="h-10 sm:h-11 lg:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-md" 
+              className="h-9 sm:h-10 lg:h-10 xl:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-md shrink-0" 
             />
             <div className="flex flex-col justify-center">
               <div className="flex items-center leading-none">
-                <span className="font-serif tracking-wider font-semibold text-lg sm:text-[19px] lg:text-xl text-gold-400 group-hover:text-gold-300 transition-colors">
+                <span className="font-serif tracking-wider font-semibold text-base sm:text-lg lg:text-[17px] xl:text-xl text-gold-400 group-hover:text-gold-300 transition-colors">
                   KLOUD <span className="text-cyanBrand">REALTY</span>
                 </span>
               </div>
-              <span className="text-[8.5px] sm:text-[9.5px] tracking-[0.2em] uppercase text-warmGray/80 font-sans font-medium mt-1 whitespace-nowrap">
+              <span className="text-[8px] sm:text-[8.5px] lg:text-[8.5px] xl:text-[9.5px] tracking-[0.14em] xl:tracking-[0.18em] uppercase text-warmGray/80 font-sans font-medium mt-0.5 whitespace-nowrap">
                 The Place to Find Your Place
               </span>
             </div>
@@ -90,7 +90,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation, currentPath 
           {/* 2. CENTER SECTION: Desktop Horizontal Navigation (Visible on all desktop/laptop viewports >= 1024px) */}
           <nav 
             aria-label="Main Navigation" 
-            className="hidden lg:flex items-center justify-center gap-3.5 xl:gap-5 2xl:gap-7 flex-1 px-2"
+            className="hidden lg:flex items-center justify-center gap-1.5 lg:gap-2.5 xl:gap-4 2xl:gap-6 flex-1 px-1 min-w-0"
           >
             {navLinks.map((link) => {
               const isActive = currentPath === link.href.replace('#', '');
@@ -105,7 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation, currentPath 
                   >
                     <a
                       href={link.href}
-                      className={`text-[12px] xl:text-[13px] 2xl:text-[13.5px] uppercase tracking-[0.06em] xl:tracking-[0.08em] font-medium transition-colors flex items-center gap-1 whitespace-nowrap py-1 ${
+                      className={`text-[11.5px] lg:text-[12px] xl:text-[12.5px] 2xl:text-[13.5px] uppercase tracking-[0.04em] lg:tracking-[0.05em] xl:tracking-[0.07em] 2xl:tracking-[0.08em] font-medium transition-colors flex items-center gap-1 whitespace-nowrap py-1 ${
                         isActive 
                           ? 'text-gold-400 font-semibold' 
                           : 'text-softWhite/90 hover:text-gold-400'
@@ -140,7 +140,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation, currentPath 
                 <a
                   key={link.label}
                   href={link.href}
-                  className={`text-[12px] xl:text-[13px] 2xl:text-[13.5px] uppercase tracking-[0.06em] xl:tracking-[0.08em] font-medium transition-all relative py-1 whitespace-nowrap ${
+                  className={`text-[11.5px] lg:text-[12px] xl:text-[12.5px] 2xl:text-[13.5px] uppercase tracking-[0.04em] lg:tracking-[0.05em] xl:tracking-[0.07em] 2xl:tracking-[0.08em] font-medium transition-all relative py-1 whitespace-nowrap ${
                     isActive 
                       ? 'text-gold-400 font-semibold' 
                       : 'text-softWhite/90 hover:text-gold-400'
@@ -156,10 +156,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation, currentPath 
           </nav>
 
           {/* 3. RIGHT SECTION: Compact Luxury CTA & Mobile Hamburger Trigger */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 lg:gap-3 shrink-0 min-w-0">
             <button
               onClick={() => onOpenConsultation('General Consultation')}
-              className="hidden sm:inline-flex items-center gap-2 px-4 xl:px-4.5 py-2.5 rounded text-[11px] xl:text-xs uppercase tracking-[0.12em] font-semibold border border-gold-500/70 text-gold-400 bg-charcoal-900/90 hover:bg-gold-500 hover:text-charcoal-950 transition-all duration-300 shadow-sm hover:shadow-gold-glow group whitespace-nowrap"
+              className="hidden sm:inline-flex items-center gap-1.5 lg:gap-2 px-3 lg:px-3.5 xl:px-4 py-2 lg:py-2.5 rounded text-[10.5px] lg:text-[11px] xl:text-xs uppercase tracking-[0.08em] lg:tracking-[0.1em] xl:tracking-[0.12em] font-semibold border border-gold-500/70 text-gold-400 bg-charcoal-900/90 hover:bg-gold-500 hover:text-charcoal-950 transition-all duration-300 shadow-sm hover:shadow-gold-glow group whitespace-nowrap shrink-0"
             >
               <span>Book a Consultation</span>
               <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" />
@@ -180,8 +180,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation, currentPath 
 
       {/* Mobile Slide-Out Drawer: STRICTLY hidden on desktop (lg and above: >= 1024px) */}
       <div 
-        className={`fixed inset-0 z-50 lg:hidden transition-all duration-300 ${
-          isMobileMenuOpen ? 'opacity-100 pointer-events-auto visible' : 'opacity-0 pointer-events-none invisible'
+        className={`fixed inset-0 z-50 lg:hidden overflow-hidden transition-all duration-300 ${
+          isMobileMenuOpen ? 'opacity-100 pointer-events-auto visible' : 'opacity-0 pointer-events-none invisible hidden'
         }`}
       >
         {/* Backdrop */}

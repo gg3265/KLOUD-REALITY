@@ -30,10 +30,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, initialIntent = 
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto bg-charcoal-900/90 backdrop-blur-xl border border-gold-500/30 rounded-sm shadow-luxury p-4 sm:p-6 text-softWhite">
+    <div className="w-full max-w-5xl mx-auto bg-charcoal-900/90 backdrop-blur-xl border border-gold-500/30 rounded-sm shadow-luxury p-4 sm:p-6 text-softWhite overflow-hidden">
       
       {/* Intent Tabs */}
-      <div className="flex items-center gap-2 mb-4 border-b border-white/10 pb-3">
+      <div className="flex items-center gap-2 mb-4 border-b border-white/10 pb-3 overflow-x-auto no-scrollbar">
         {[
           { id: 'buy', label: 'Buy Properties' },
           { id: 'rent', label: 'Rent Residences' },
@@ -43,7 +43,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, initialIntent = 
             key={tab.id}
             type="button"
             onClick={() => setIntent(tab.id as 'buy' | 'rent' | 'land')}
-            className={`px-4 py-2 text-xs uppercase tracking-wider font-semibold rounded-sm transition-all duration-200 ${
+            className={`px-3.5 sm:px-4 py-2 text-xs uppercase tracking-wider font-semibold rounded-sm transition-all duration-200 whitespace-nowrap shrink-0 ${
               intent === tab.id
                 ? 'bg-gold-500 text-charcoal-950 shadow-gold-glow'
                 : 'text-warmGray hover:text-white hover:bg-charcoal-800'

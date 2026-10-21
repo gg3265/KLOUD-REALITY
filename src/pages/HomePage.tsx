@@ -38,9 +38,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
   };
 
   return (
-    <div className="bg-charcoal-900 text-softWhite font-sans">
+    <div className="bg-charcoal-900 text-softWhite font-sans w-full max-w-full overflow-x-hidden">
       {/* 1. HERO SECTION */}
-      <section className="relative min-h-[680px] lg:min-h-[740px] flex flex-col justify-center pt-28 pb-16 px-6 sm:px-10 lg:px-12 xl:px-14 overflow-hidden">
+      <section className="relative min-h-[580px] sm:min-h-[640px] lg:min-h-[680px] xl:min-h-[720px] flex flex-col justify-center pt-28 sm:pt-32 pb-14 sm:pb-16 px-4 sm:px-6 lg:px-8 xl:px-12 overflow-hidden w-full max-w-full">
         {/* Full-width High-Resolution Architectural Photography with Left-to-Right Contrast Gradient */}
         <div className="absolute inset-0 bg-charcoal-950">
           <img 
@@ -54,30 +54,30 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
         </div>
 
         {/* Hero Content Container (Max width ~1350px, vertically centered, generous negative space) */}
-        <div className="relative z-10 w-full max-w-[1350px] mx-auto py-8">
+        <div className="relative z-10 w-full max-w-[1350px] mx-auto py-4 sm:py-6 lg:py-8">
           
           {/* Small refined uppercase eyebrow */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-charcoal-850/90 border border-gold-500/30 text-gold-400 text-[11px] font-semibold uppercase tracking-[0.16em] mb-6 backdrop-blur-md">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-charcoal-850/90 border border-gold-500/30 text-gold-400 text-[11px] font-semibold uppercase tracking-[0.16em] mb-5 sm:mb-6 backdrop-blur-md">
             <span className="w-1.5 h-1.5 rounded-full bg-cyanBrand animate-pulse" />
             <span>REAL ESTATE. REIMAGINED.</span>
           </div>
 
-          {/* Large Editorial Headline (68-84px desktop with responsive clamp, distinction between lines) */}
-          <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-[76px] xl:text-[84px] font-light text-softWhite tracking-tight leading-[1.08] mb-6">
+          {/* Large Editorial Headline (responsive clamp, fluid typography) */}
+          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[80px] font-light text-softWhite tracking-tight leading-[1.08] mb-5 sm:mb-6 max-w-4xl">
             Find a Place. <br />
             <span className="gold-gradient-text font-normal italic">Make It Yours.</span>
           </h1>
 
-          {/* Readable Description (Max ~760px, 17-20px font size, 1.6 line height) */}
-          <p className="text-base sm:text-lg lg:text-[18.5px] text-warmGray-100/90 max-w-[760px] leading-[1.65] mb-9 font-light font-sans">
+          {/* Readable Description (Max ~740px, font size, 1.65 line height) */}
+          <p className="text-sm sm:text-base lg:text-[18px] text-warmGray-100/90 max-w-[740px] leading-[1.65] mb-8 font-light font-sans">
             From new residential developments and resale homes to private retreats and redevelopment advisory, KLOUD REALTY helps you navigate real estate with clarity and confidence.
           </p>
 
-          {/* CTA Buttons in a single aligned row on desktop (Consistent 54px height, balanced visual weight) */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-10">
+          {/* CTA Buttons in a single aligned row on desktop (Consistent 52-54px height, balanced visual weight) */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 sm:gap-4 mb-8 sm:mb-10">
             <a
               href="#/buy"
-              className="px-8 h-[54px] rounded-sm text-xs uppercase tracking-widest font-semibold bg-gold-500 text-charcoal-950 hover:bg-gold-400 transition-all duration-300 shadow-gold-glow flex items-center justify-center gap-2.5 group"
+              className="px-6 sm:px-8 h-[50px] sm:h-[54px] rounded-sm text-xs uppercase tracking-widest font-semibold bg-gold-500 text-charcoal-950 hover:bg-gold-400 transition-all duration-300 shadow-gold-glow flex items-center justify-center gap-2.5 group whitespace-nowrap"
             >
               <span>Explore Properties</span>
               <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
@@ -85,14 +85,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
 
             <button
               onClick={() => onOpenConsultation('General Consultation')}
-              className="px-8 h-[54px] rounded-sm text-xs uppercase tracking-widest font-semibold border border-gold-500/50 bg-charcoal-900/60 hover:bg-gold-500/10 hover:border-gold-500 text-softWhite hover:text-gold-300 transition-all duration-300 flex items-center justify-center gap-2"
+              className="px-6 sm:px-8 h-[50px] sm:h-[54px] rounded-sm text-xs uppercase tracking-widest font-semibold border border-gold-500/50 bg-charcoal-900/60 hover:bg-gold-500/10 hover:border-gold-500 text-softWhite hover:text-gold-300 transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap"
             >
               <span>Book a Consultation</span>
             </button>
           </div>
 
           {/* Repositioned Trust Information Row */}
-          <div className="pt-6 border-t border-white/10 max-w-[760px] flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-warmGray font-sans">
+          <div className="pt-5 sm:pt-6 border-t border-white/10 max-w-[740px] flex flex-wrap items-center gap-y-2 gap-x-5 text-xs text-warmGray font-sans">
             <div className="flex items-center gap-2">
               <span className="text-[10.5px] uppercase tracking-widest font-semibold text-gold-400">
                 RERA REGISTERED

@@ -122,13 +122,13 @@ export const App: React.FC = () => {
   const isPropertyPage = route.startsWith('/property/');
 
   return (
-    <div className="min-h-screen bg-charcoal-900 text-softWhite flex flex-col justify-between selection:bg-gold-500 selection:text-charcoal-950">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-charcoal-900 text-softWhite flex flex-col justify-between selection:bg-gold-500 selection:text-charcoal-950">
       
       {/* Sticky Navigation */}
       <Navbar onOpenConsultation={openConsultation} currentPath={route} />
 
       {/* Main Routed Content */}
-      <main className="flex-1">
+      <main className="flex-1 w-full max-w-full overflow-x-hidden">
         {renderContent()}
       </main>
 
