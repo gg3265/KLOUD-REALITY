@@ -44,14 +44,26 @@ export const LeadModal: React.FC<LeadModalProps> = ({
   // Sync if initialVertical or property title changes
   useEffect(() => {
     if (initialVertical) {
-      if (initialVertical === 'Redevelopment Consulting') setLookingTo('Explore Redevelopment Opportunities');
-      else if (initialVertical === 'Second Homes & Land') setLookingTo('Purchase a Second Home or Plot');
-      else if (initialVertical === 'Rental') setLookingTo('Rent a Property');
-      else if (initialVertical === 'Secondary Market') setLookingTo('Buy a Resale Property');
-      else setLookingTo('Buy a New Property (Primary Market)');
+      if (initialVertical === 'Site Visit Scheduling') {
+        setLookingTo('Buy a New Property (Primary Market)');
+      } else if (initialVertical === 'Redevelopment Consulting') {
+        setLookingTo('Explore Redevelopment Opportunities');
+      } else if (initialVertical === 'Second Homes & Land') {
+        setLookingTo('Purchase a Second Home or Plot');
+      } else if (initialVertical === 'Rental') {
+        setLookingTo('Rent a Property');
+      } else if (initialVertical === 'Secondary Market') {
+        setLookingTo('Buy a Resale Property');
+      } else {
+        setLookingTo('Buy a New Property (Primary Market)');
+      }
     }
     if (initialPropertyTitle) {
-      setCustomMessage(`Regarding property: ${initialPropertyTitle}`);
+      if (initialVertical === 'Site Visit Scheduling') {
+        setCustomMessage(`Site Visit Request for: ${initialPropertyTitle}`);
+      } else {
+        setCustomMessage(`Regarding property: ${initialPropertyTitle}`);
+      }
     }
   }, [initialVertical, initialPropertyTitle]);
 

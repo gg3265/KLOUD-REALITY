@@ -53,6 +53,7 @@ export const PrimaryMarketPage: React.FC<PrimaryMarketPageProps> = ({ onOpenCons
                 key={p.id}
                 property={p}
                 onEnquire={(prop) => onOpenConsultation('Primary Market', prop.title, prop.id)}
+                onScheduleVisit={(prop) => onOpenConsultation('Site Visit Scheduling', `Schedule Site Visit: ${prop.title}`, prop.id)}
               />
             ))}
           </div>

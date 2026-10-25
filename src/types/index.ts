@@ -44,6 +44,26 @@ export interface Property {
   verificationStatus: 'Verified by KLOUD' | 'Developer Verified' | 'Demonstration Listing';
   published: boolean;
   createdAt: string;
+  // Luxury Landmark Attributes
+  developer?: string;
+  creativeImage?: string;
+  subheading?: string;
+  mainHeadline?: string;
+  priceRevisionNote?: string;
+  isPriceIndicative?: boolean;
+  reraRegistrationLink?: string;
+  configurationsAvailable?: string[];
+  towerBreakdown?: { name: string; storeys: string }[];
+  habitableFloors?: string;
+  availableFloors?: string;
+  clubhouseDetails?: string;
+  balconyDetails?: string;
+  ceilingHeight?: string;
+  possessionRera?: string;
+  possessionInternal?: string;
+  landParcel?: string;
+  disclaimerText?: string;
+  specificEnquiryType?: 'imperial' | 'aranya' | 'raaya' | 'minerva' | 'address-gs' | 'standard';
 }
 
 export type LeadSource = 

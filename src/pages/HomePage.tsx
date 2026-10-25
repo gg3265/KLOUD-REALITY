@@ -15,11 +15,13 @@ interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNavigate }) => {
-  const [activeCategoryTab, setActiveCategoryTab] = useState<PropertyCategory | 'all'>('primary');
+  const [activeCategoryTab, setActiveCategoryTab] = useState<PropertyCategory | 'all' | 'featured'>('featured');
   const allProperties = propertyService.getPublishedProperties();
 
-  const displayedProperties = activeCategoryTab === 'all' 
-    ? allProperties 
+  const displayedProperties = activeCategoryTab === 'featured'
+    ? allProperties.filter(p => p.isFeatured)
+    : activeCategoryTab === 'all'
+    ? allProperties
     : allProperties.filter(p => p.category === activeCategoryTab);
 
   const handleHeroSearch = (params: {
@@ -35,6 +37,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
 
   const handleCardEnquiry = (property: Property) => {
     onOpenConsultation('Primary Market', property.title, property.id);
+  };
+
+  const handleCardScheduleVisit = (property: Property) => {
+    onOpenConsultation('Site Visit Scheduling', `Schedule Site Visit: ${property.title} (${property.location})`, property.id);
   };
 
   return (
@@ -280,22 +286,32 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
           </div>
         </div>
       </section>
-      {/* 4. FEATURED PROPERTIES */}
-      <section className="py-24 bg-charcoal-950/60 border-t border-b border-white/10 px-4 sm:px-6 lg:px-8">
+      {/* 4. FEATURED PROPERTIES: EXCEPTIONAL ADDRESSES. EXTRAORDINARY LIVING. */}
+      <section className="py-24 bg-charcoal-950/70 border-t border-b border-white/10 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-widest text-gold-400 mb-2 block">CURATED PORTFOLIO</span>
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-white tracking-tight">Spaces Worth Discovering.</h2>
-              <p className="mt-2 text-xs sm:text-sm text-warmGray max-w-xl">A selection of properties and opportunities for different stages of life.</p>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-[11px] font-semibold uppercase tracking-widest mb-3">
+                <Sparkles className="w-3.5 h-3.5 text-gold-400" />
+                <span>CURATED MUMBAI PORTFOLIO</span>
+              </div>
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-white tracking-tight leading-tight">
+                EXCEPTIONAL ADDRESSES.<br className="hidden sm:inline" /> EXTRAORDINARY LIVING.
+              </h2>
+              <p className="mt-3 text-sm sm:text-base text-warmGray max-w-2xl leading-relaxed font-sans">
+                Discover some of Mumbai's most sought-after residences, from private luxury homes in Worli to landmark developments across the city's most prestigious neighbourhoods.
+              </p>
             </div>
+            
+            {/* Filter Tabs */}
             <div className="flex flex-wrap items-center gap-2">
               {[
-                { id: 'primary', label: 'New Projects' },
-                { id: 'resale', label: 'Resale Homes' },
+                { id: 'featured', label: 'Featured Landmarks (5)' },
+                { id: 'primary', label: 'Primary Market' },
+                { id: 'resale', label: 'Resale' },
                 { id: 'rental', label: 'Rentals' },
                 { id: 'second-home', label: 'Second Homes' },
-                { id: 'land', label: 'Land' },
+                { id: 'land', label: 'Land & Plots' },
                 { id: 'all', label: 'View All' },
               ].map((tab) => (
                 <button
@@ -316,7 +332,12 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
           {displayedProperties.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {displayedProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} onEnquire={handleCardEnquiry} />
+                <PropertyCard 
+                  key={property.id} 
+                  property={property} 
+                  onEnquire={handleCardEnquiry}
+                  onScheduleVisit={handleCardScheduleVisit}
+                />
               ))}
             </div>
           ) : (
@@ -333,8 +354,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
             </div>
           )}
 
-          <div className="text-center mt-12">
-            <a href="#/buy" className="inline-flex items-center gap-2 px-6 py-3 rounded border border-white/20 text-xs uppercase tracking-widest font-semibold text-white hover:border-gold-500 hover:text-gold-400 hover:bg-gold-500/5 transition-all">
+          <div className="text-center mt-14">
+            <a href="#/buy" className="inline-flex items-center gap-2 px-8 py-3.5 rounded border border-gold-500/30 text-xs uppercase tracking-widest font-semibold text-white hover:border-gold-500 hover:text-gold-400 hover:bg-gold-500/5 transition-all shadow-subtle">
               <span>Explore Complete Inventory</span>
               <ArrowRight className="w-4 h-4 text-gold-400" />
             </a>
