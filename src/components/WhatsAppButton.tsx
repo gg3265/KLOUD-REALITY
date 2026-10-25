@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageCircle, X } from 'lucide-react';
+import { MessageCircle, X, Phone } from 'lucide-react';
 
 interface WhatsAppButtonProps {
   propertyTitle?: string;
@@ -20,11 +20,11 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ propertyTitle })
   const encodedMessage = encodeURIComponent(baseMessage);
 
   return (
-    <div className="fixed bottom-6 right-6 z-40 font-sans">
+    <div className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 font-sans flex flex-col items-end gap-2.5 sm:gap-3">
       
       {/* Popover Card */}
       {isOpen && (
-        <div className="mb-3 w-72 bg-charcoal-900 border border-gold-500/30 rounded-sm shadow-2xl p-4 text-softWhite animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div className="w-72 bg-charcoal-900 border border-gold-500/30 rounded-sm shadow-2xl p-4 text-softWhite animate-in fade-in slide-in-from-bottom-2 duration-200">
           <div className="flex items-center justify-between pb-2 border-b border-white/10 mb-3">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -70,14 +70,28 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ propertyTitle })
         </div>
       )}
 
+      {/* Call Now Button */}
+      <a
+        href="tel:+918655588880"
+        className="group flex items-center gap-2 bg-charcoal-950/95 hover:bg-charcoal-900 text-gold-400 hover:text-gold-300 border border-gold-500/60 hover:border-gold-400 px-4 py-3 rounded-full shadow-luxury hover:shadow-gold-glow transition-all duration-300 min-h-[48px] backdrop-blur-md shrink-0 cursor-pointer"
+        aria-label="Call KLOUD REALTY at 8655588880"
+      >
+        <div className="w-6 h-6 rounded-full bg-gold-500/10 flex items-center justify-center shrink-0 border border-gold-500/20 group-hover:border-gold-400/40 group-hover:scale-105 transition-all">
+          <Phone className="w-3.5 h-3.5 text-gold-400 shrink-0" />
+        </div>
+        <span className="text-xs font-semibold tracking-wide whitespace-nowrap text-gold-300 group-hover:text-gold-200 transition-colors">
+          <span className="sr-only">📞 </span>CALL NOW · 8655588880
+        </span>
+      </a>
+
       {/* Floating Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="group relative flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-3 rounded-full shadow-luxury hover:shadow-gold-glow transition-all duration-300"
+        className="group relative flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-3 rounded-full shadow-luxury hover:shadow-gold-glow transition-all duration-300 min-h-[48px] min-w-[48px] shrink-0"
         aria-label="Contact KLOUD REALTY on WhatsApp"
       >
-        <MessageCircle className="w-5 h-5 text-white transition-transform group-hover:scale-110" />
-        <span className="hidden sm:inline-block text-xs font-semibold tracking-wide">
+        <MessageCircle className="w-5 h-5 text-white transition-transform group-hover:scale-110 shrink-0" />
+        <span className="hidden sm:inline-block text-xs font-semibold tracking-wide whitespace-nowrap">
           WhatsApp Advisory
         </span>
         <span className="absolute -top-1 -right-1 flex h-3 w-3">
