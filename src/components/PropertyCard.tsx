@@ -75,7 +75,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onEnquire,
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none">
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="px-2.5 py-1 rounded-sm text-[10px] uppercase tracking-wider font-semibold bg-charcoal-950/90 text-gold-400 border border-gold-500/40 backdrop-blur-md">
-              {getCategoryLabel(property.category)}
+              {property.badgeText || getCategoryLabel(property.category)}
             </span>
 
             {property.developer && (
@@ -97,7 +97,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onEnquire,
           </button>
         </div>
 
-        {/* Construction Status Pill */}
+        {/* Construction Status / Opportunity Status Pill */}
         <div className="absolute bottom-3 left-3 flex items-center gap-2">
           <span className="px-2.5 py-1 rounded text-[10px] font-semibold tracking-wide bg-charcoal-950/90 text-gold-300 border border-gold-500/30 backdrop-blur-md">
             {property.constructionStatus}
@@ -105,6 +105,11 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onEnquire,
           {property.carpetArea && (
             <span className="px-2.5 py-1 rounded text-[10px] font-medium tracking-wide bg-charcoal-900/90 text-white/90 border border-white/10 backdrop-blur-md">
               {property.carpetArea}
+            </span>
+          )}
+          {property.plotArea && (
+            <span className="px-2.5 py-1 rounded text-[10px] font-medium tracking-wide bg-charcoal-900/90 text-white/90 border border-white/10 backdrop-blur-md">
+              {property.plotArea}
             </span>
           )}
         </div>
@@ -129,6 +134,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onEnquire,
             {property.title}
           </h4>
 
+          {property.subheading && (
+            <span className="text-[11px] font-mono uppercase tracking-widest text-cyan-400 block mb-1">
+              {property.subheading}
+            </span>
+          )}
+
           <div className="flex items-center gap-1.5 text-xs text-gold-400/90 mb-3">
             <MapPin className="w-3.5 h-3.5 text-gold-400 shrink-0" />
             <span className="truncate">{property.location}</span>
@@ -150,44 +161,68 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onEnquire,
             </div>
           )}
 
-          {/* RERA Registration Row */}
-          {property.reraNumber && (
+          {/* RERA Registration Row / Planning Body */}
+          {property.reraNumber ? (
             <div className="flex items-center gap-1.5 text-[10px] text-warmGray/90 font-mono bg-charcoal-900/80 px-2.5 py-1.5 rounded border border-white/5 mb-2">
               <ShieldCheck className="w-3.5 h-3.5 text-gold-400 shrink-0" />
               <span className="truncate">MahaRERA: {property.reraNumber}</span>
             </div>
-          )}
+          ) : property.planningAuthority ? (
+            <div className="flex items-center gap-1.5 text-[10px] text-warmGray/90 font-mono bg-charcoal-900/80 px-2.5 py-1.5 rounded border border-white/5 mb-2">
+              <ShieldCheck className="w-3.5 h-3.5 text-cyanBrand shrink-0" />
+              <span className="truncate">Authority: {property.planningAuthority}</span>
+            </div>
+          ) : null}
         </div>
 
-        {/* 3 Action Buttons Layout */}
+        {/* Action Buttons Layout */}
         <div className="pt-3 border-t border-white/10 space-y-2">
-          {/* Primary CTA: Explore Property */}
+          {/* Primary CTA */}
           <a
             href={`#/property/${property.slug || property.id}`}
             className="w-full py-2.5 px-3 rounded text-center text-xs uppercase tracking-widest font-semibold bg-gold-500 text-charcoal-950 hover:bg-gold-400 transition-all flex items-center justify-center gap-2 shadow-gold-glow"
           >
-            <span>Explore Property</span>
+            <span>{property.ctaPrimaryText || 'Explore Property'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </a>
 
-          {/* Secondary CTAs: Enquire Now & Schedule a Site Visit */}
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => onEnquire(property)}
-              className="py-2 px-2.5 rounded text-center text-[10.5px] uppercase tracking-wider font-semibold border border-gold-500/40 text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-colors whitespace-nowrap"
-            >
-              Enquire Now
-            </button>
-            <button
-              type="button"
-              onClick={handleScheduleClick}
-              className="py-2 px-2.5 rounded text-center text-[10.5px] uppercase tracking-wider font-semibold border border-white/20 text-softWhite hover:border-cyanBrand hover:text-cyanBrand hover:bg-cyanBrand/5 transition-colors flex items-center justify-center gap-1 whitespace-nowrap"
-            >
-              <Calendar className="w-3 h-3 shrink-0" />
-              <span>Schedule Visit</span>
-            </button>
-          </div>
+          {/* Secondary CTAs */}
+          {property.category === 'land' ? (
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => onEnquire(property)}
+                className="py-2 px-2 rounded text-center text-[10.5px] uppercase tracking-wider font-semibold border border-gold-500/40 text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-colors whitespace-nowrap"
+              >
+                Request Details
+              </button>
+              <button
+                type="button"
+                onClick={() => onEnquire(property)}
+                className="py-2 px-2 rounded text-center text-[10.5px] uppercase tracking-wider font-semibold border border-white/20 text-softWhite hover:border-cyanBrand hover:text-cyanBrand hover:bg-cyanBrand/5 transition-colors whitespace-nowrap"
+              >
+                Speak to Advisor
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => onEnquire(property)}
+                className="py-2 px-2.5 rounded text-center text-[10.5px] uppercase tracking-wider font-semibold border border-gold-500/40 text-gold-400 hover:border-gold-400 hover:bg-gold-500/10 transition-colors whitespace-nowrap"
+              >
+                Enquire Now
+              </button>
+              <button
+                type="button"
+                onClick={handleScheduleClick}
+                className="py-2 px-2.5 rounded text-center text-[10.5px] uppercase tracking-wider font-semibold border border-white/20 text-softWhite hover:border-cyanBrand hover:text-cyanBrand hover:bg-cyanBrand/5 transition-colors flex items-center justify-center gap-1 whitespace-nowrap"
+              >
+                <Calendar className="w-3 h-3 shrink-0" />
+                <span>Schedule Visit</span>
+              </button>
+            </div>
+          )}
         </div>
 
       </div>

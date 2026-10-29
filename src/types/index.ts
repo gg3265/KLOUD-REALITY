@@ -64,6 +64,10 @@ export interface Property {
   landParcel?: string;
   disclaimerText?: string;
   specificEnquiryType?: 'imperial' | 'aranya' | 'raaya' | 'minerva' | 'address-gs' | 'standard';
+  badgeText?: string;
+  ctaPrimaryText?: string;
+  planningAuthority?: string;
+  officialReferenceUrl?: string;
 }
 
 export type LandPublicationStatus = 

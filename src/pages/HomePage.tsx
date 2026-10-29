@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Building2, Home, Trees, RefreshCw, ArrowRight, CheckCircle2, 
-  Compass, ShieldCheck, ChevronDown, Sparkles
+  Compass, ShieldCheck, ChevronDown, Sparkles, Map
 } from 'lucide-react';
 import { SearchBar } from '../components/SearchBar';
 import { PropertyCard } from '../components/PropertyCard';
@@ -10,7 +10,7 @@ import { propertyService } from '../services/propertyService';
 import { Property, PropertyCategory } from '../types';
 
 interface HomePageProps {
-  onOpenConsultation: (vertical?: string, propertyTitle?: string, propertyId?: string) => void;
+  onOpenConsultation: (vertical?: string, propertyTitle?: string, propertyId?: string, location?: string) => void;
   onNavigate: (path: string) => void;
 }
 
@@ -36,11 +36,18 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
   };
 
   const handleCardEnquiry = (property: Property) => {
-    onOpenConsultation('Primary Market', property.title, property.id);
+    const vertical = property.category === 'land' || property.category === 'second-home' 
+      ? 'Second Homes & Land' 
+      : property.category === 'rental' 
+      ? 'Rental' 
+      : property.category === 'resale'
+      ? 'Secondary Market'
+      : 'Primary Market';
+    onOpenConsultation(vertical, property.title, property.id, property.location);
   };
 
   const handleCardScheduleVisit = (property: Property) => {
-    onOpenConsultation('Site Visit Scheduling', `Schedule Site Visit: ${property.title} (${property.location})`, property.id);
+    onOpenConsultation('Site Visit Scheduling', `Schedule Site Visit: ${property.title} (${property.location})`, property.id, property.location);
   };
 
   return (
@@ -287,7 +294,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
         </div>
       </section>
       {/* 4. FEATURED PROPERTIES: EXCEPTIONAL ADDRESSES. EXTRAORDINARY LIVING. */}
-      <section className="py-24 bg-charcoal-950/70 border-t border-b border-white/10 px-4 sm:px-6 lg:px-8">
+      <section id="property-showcase" className="py-24 bg-charcoal-950/70 border-t border-b border-white/10 px-4 sm:px-6 lg:px-8 scroll-mt-24">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
             <div>
@@ -306,7 +313,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
             {/* Filter Tabs */}
             <div className="flex flex-wrap items-center gap-2">
               {[
-                { id: 'featured', label: 'Featured Landmarks (5)' },
+                { id: 'featured', label: 'Featured Landmarks' },
                 { id: 'primary', label: 'Primary Market' },
                 { id: 'resale', label: 'Resale' },
                 { id: 'rental', label: 'Rentals' },
@@ -317,7 +324,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
                 <button
                   key={tab.id}
                   onClick={() => setActiveCategoryTab(tab.id as any)}
-                  className={`px-3.5 py-1.5 rounded-sm text-xs uppercase tracking-wider font-medium transition-all ${
+                  className={`px-3.5 py-1.5 rounded-sm text-xs uppercase tracking-wider font-medium transition-all cursor-pointer ${
                     activeCategoryTab === tab.id
                       ? 'bg-gold-500 text-charcoal-950 font-semibold shadow-gold-glow'
                       : 'bg-charcoal-800 text-warmGray hover:text-white hover:bg-charcoal-700'
@@ -350,6 +357,37 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
                 className="px-6 py-2.5 rounded bg-gold-500 text-charcoal-950 font-semibold text-xs uppercase tracking-wider hover:bg-gold-400 transition-colors shadow-gold-glow"
               >
                 Request Property Assistance
+              </button>
+            </div>
+          )}
+
+          {/* Quick Land & Plots Discovery Action when on Featured tab */}
+          {activeCategoryTab === 'featured' && (
+            <div className="mt-10 p-5 rounded-sm bg-charcoal-850 border border-gold-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-subtle">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-full bg-gold-500/10 text-gold-400 border border-gold-500/30 flex items-center justify-center flex-shrink-0">
+                  <Map className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-serif font-medium text-white">
+                    Explore Strategic Land & Growth Corridors
+                  </h4>
+                  <p className="text-xs text-warmGray font-sans">
+                    Discover verified regional opportunities across Raigad–Pen, KSC New Town / Mumbai 3.0, Pali, and Khopoli.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveCategoryTab('land');
+                  const el = document.getElementById('property-showcase');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="whitespace-nowrap px-6 py-2.5 rounded-sm text-xs uppercase tracking-widest font-semibold bg-gold-500 text-charcoal-950 hover:bg-gold-400 transition-all cursor-pointer shadow-gold-glow flex items-center gap-2"
+              >
+                <span>EXPLORE LAND & PLOTS</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           )}

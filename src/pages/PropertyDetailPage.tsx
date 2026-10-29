@@ -450,27 +450,59 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({ property
               </div>
             </section>
 
-            {/* SECTION G: RERA & REGULATORY DISCLOSURES */}
+            {/* SECTION G: RERA & REGULATORY DISCLOSURES / PLANNING AUTHORITY */}
             <section className="p-6 rounded-sm bg-charcoal-950 border border-gold-500/30 space-y-3 text-xs text-warmGray">
-              <div className="flex items-center gap-2 text-gold-400 font-semibold uppercase tracking-wider text-[11px]">
-                <ShieldCheck className="w-4 h-4 text-gold-400" />
-                <span>MahaRERA Registration & Regulatory Compliance</span>
-              </div>
-              <p className="leading-relaxed">
-                Project registered under MahaRERA as <strong className="text-white font-mono">{property.reraNumber}</strong>. 
-                Detailed plans, approvals, and quarterly progress disclosures are available for public verification on the official MahaRERA website:
-              </p>
-              <div>
-                <a
-                  href={property.reraRegistrationLink || 'https://maharera.maharashtra.gov.in/'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-cyanBrand hover:text-cyanBrand-light underline font-mono font-medium"
-                >
-                  <span>Verify on official MahaRERA Portal</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
+              {property.reraNumber ? (
+                <>
+                  <div className="flex items-center gap-2 text-gold-400 font-semibold uppercase tracking-wider text-[11px]">
+                    <ShieldCheck className="w-4 h-4 text-gold-400" />
+                    <span>MahaRERA Registration & Regulatory Compliance</span>
+                  </div>
+                  <p className="leading-relaxed">
+                    Project registered under MahaRERA as <strong className="text-white font-mono">{property.reraNumber}</strong>. 
+                    Detailed plans, approvals, and quarterly progress disclosures are available for public verification on the official MahaRERA website:
+                  </p>
+                  <div>
+                    <a
+                      href={property.reraRegistrationLink || 'https://maharera.maharashtra.gov.in/'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-cyanBrand hover:text-cyanBrand-light underline font-mono font-medium"
+                    >
+                      <span>Verify on official MahaRERA Portal</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 text-gold-400 font-semibold uppercase tracking-wider text-[11px]">
+                    <ShieldCheck className="w-4 h-4 text-gold-400" />
+                    <span>Planning Authority & Due Diligence Advisory</span>
+                  </div>
+                  {property.planningAuthority && (
+                    <p className="leading-relaxed text-softWhite">
+                      Planning Authority: <strong className="text-gold-400">{property.planningAuthority}</strong>
+                    </p>
+                  )}
+                  <p className="leading-relaxed">
+                    {property.disclaimerText || 'All property details, planning status, and regulatory notifications are subject to independent verification before purchase. KLOUD REALTY coordinates comprehensive due-diligence support.'}
+                  </p>
+                  {property.officialReferenceUrl && (
+                    <div>
+                      <a
+                        href={property.officialReferenceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-cyanBrand hover:text-cyanBrand-light underline font-mono font-medium"
+                      >
+                        <span>Official Planning Authority / Government Reference</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
+                </>
+              )}
             </section>
 
           </div>

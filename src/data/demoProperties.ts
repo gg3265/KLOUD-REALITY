@@ -548,5 +548,252 @@ export const initialDemoProperties: Property[] = [
     verificationStatus: 'Demonstration Listing',
     published: true,
     createdAt: '2026-02-20T16:00:00Z'
+  },
+
+  // 10. RAIGAD–PEN GROWTH CENTRE
+  {
+    id: 'prop-land-raigad-pen',
+    slug: 'raigad-pen-growth-centre',
+    title: 'RAIGAD–PEN GROWTH CENTRE',
+    tagline: 'Proposed 1,217-acre government growth corridor across 16 villages in Pen taluka',
+    category: 'land',
+    propertyType: 'Plot',
+    price: 0,
+    priceDisplay: 'Development Corridor Advisory',
+    location: 'Pen Taluka, Raigad District, Maharashtra',
+    locality: 'Pen Taluka',
+    city: 'Raigad District',
+    images: [
+      '/images/land/raigad-pen-growth-centre.jpg',
+      '/images/land/land-hero-corridor.jpg'
+    ],
+    creativeImage: '/images/land/raigad-pen-growth-centre.jpg',
+    description: 'Explore land opportunities around the proposed Raigad–Pen Growth Centre, a planned development initiative intended to support future urban and economic activity in the region.',
+    features: [
+      'Official MMRDA planned growth corridor spanning approx. 1,217.71 acres',
+      'Territory covers 5 development clusters and 16 villages in Pen taluka',
+      'Situated 25 km from Panvel and 30 km from Navi Mumbai Airport (NMIA)',
+      'Integrated vision for residential, commercial, logistics, and education'
+    ],
+    amenities: [
+      'Regional Road Connectivity',
+      'MMRDA Master Plan Influence',
+      'Proposed Infrastructure Corridors',
+      'Bespoke Sourcing Advisory'
+    ],
+    nearby: [
+      { label: 'Panvel Junction', distance: '25 km' },
+      { label: 'Navi Mumbai International Airport (NMIA)', distance: '30 km' },
+      { label: 'Mumbai-Goa Highway (NH-66)', distance: '10 mins' }
+    ],
+    possession: 'Corridor Planning Stage',
+    constructionStatus: 'Newly Launched',
+    isFeatured: true,
+    isDemoData: false,
+    verificationStatus: 'Verified by KLOUD',
+    published: true,
+    createdAt: '2026-10-29T10:00:00Z',
+    badgeText: 'PROPOSED GROWTH CENTRE',
+    ctaPrimaryText: 'EXPLORE OPPORTUNITY',
+    planningAuthority: 'MMRDA (Mumbai Metropolitan Region Development Authority)',
+    officialReferenceUrl: 'https://mmrda.maharashtra.gov.in/en/projects/additional/raigad/pen/growth/centre/ltd',
+    disclaimerText: 'All planning parameters are governed by MMRDA notifications. The existence of a proposed government growth corridor does not mean every parcel is pre-approved for private construction. Independent legal and title verification is required before purchase.'
+  },
+
+  // 11. KSC NEW TOWN / MUMBAI 3.0
+  {
+    id: 'prop-land-ksc-mumbai-3',
+    slug: 'ksc-new-town-mumbai-3',
+    title: 'KSC NEW TOWN',
+    subheading: 'MUMBAI 3.0',
+    tagline: 'Karnala–Sai–Chirner notified New Town region across 323.44 sq. km',
+    category: 'land',
+    propertyType: 'Plot',
+    price: 0,
+    priceDisplay: 'New Town Strategic Corridor',
+    location: 'Raigad District, Maharashtra',
+    locality: 'Uran / Panvel / Pen',
+    city: 'Raigad District',
+    images: [
+      '/images/land/ksc-new-town-mumbai-3.jpg',
+      '/images/land/land-hero-corridor.jpg'
+    ],
+    creativeImage: '/images/land/ksc-new-town-mumbai-3.jpg',
+    description: 'Discover land opportunities around KSC New Town, a planned urban development associated with the wider Mumbai Metropolitan Region. Explore suitable options with professional guidance and careful due diligence.',
+    features: [
+      'KSC represents the Karnala–Sai–Chirner regional growth corridor',
+      'Notified New Town covers ~323.44 sq. km across 124 notified villages',
+      'MMRDA designated as Special New Town Development Authority (NTDA)',
+      'Direct influence zone of Atal Setu (MTHL) and regional transit'
+    ],
+    amenities: [
+      'Direct Atal Setu Influence Zone',
+      'NTDA Regional Planning Framework',
+      'Port & Transit Proximity',
+      'Title Scrutiny Coordination'
+    ],
+    nearby: [
+      { label: 'Atal Setu (MTHL) Interchange', distance: '15 mins' },
+      { label: 'JNPT Port', distance: '20 mins' },
+      { label: 'Navi Mumbai International Airport', distance: '25 mins' }
+    ],
+    possession: 'New Town Notified Zone',
+    constructionStatus: 'Newly Launched',
+    isFeatured: true,
+    isDemoData: false,
+    verificationStatus: 'Verified by KLOUD',
+    published: true,
+    createdAt: '2026-10-29T10:00:00Z',
+    badgeText: 'PLANNED NEW TOWN',
+    ctaPrimaryText: 'EXPLORE OPPORTUNITY',
+    planningAuthority: 'MMRDA (New Town Development Authority - NTDA)',
+    officialReferenceUrl: 'https://mmrda.maharashtra.gov.in/en/planning/new-town-development-authority/overview',
+    disclaimerText: 'Notified New Town designation designates a regional planning framework and does not signify that all regional land is available for private development. KLOUD REALTY does not promise future appreciation or guaranteed infrastructure completion dates. Comprehensive land-use checks are mandatory.'
+  },
+
+  // 12. PALI LAND OPPORTUNITIES
+  {
+    id: 'prop-land-pali',
+    slug: 'pali-land-opportunities',
+    title: 'PALI LAND OPPORTUNITIES',
+    tagline: 'Scenic Raigad destination for private acreage, second homes, and rural retreats',
+    category: 'land',
+    propertyType: 'Plot',
+    price: 0,
+    priceDisplay: 'Price on Evaluation',
+    location: 'Pali, Raigad District, Maharashtra',
+    locality: 'Pali Valley',
+    city: 'Raigad District',
+    images: [
+      '/images/land/pali-raigad-landscape.jpg'
+    ],
+    creativeImage: '/images/land/pali-raigad-landscape.jpg',
+    description: 'Explore land opportunities in Pali, with options to be evaluated according to your intended use, location preferences, budget, and the applicable land-use requirements.',
+    features: [
+      'Picturesque Sahyadri foothill setting with lush seasonal streams and pure air',
+      'Suited for private residential acreage, future second homes, and agrarian retreats',
+      'Direct arterial accessibility via the Khopoli-Pali-Wakan highway',
+      'Bespoke parcel discovery with boundary survey and title vetting'
+    ],
+    amenities: [
+      'Scenic Mountain Views',
+      'Natural River & Stream Proximity',
+      'Quiet Agrarian Atmosphere',
+      'Survey Demarcation Support'
+    ],
+    nearby: [
+      { label: 'Khopoli-Pali Highway', distance: '3 mins' },
+      { label: 'Ballaleshwar Pali Temple', distance: '8 mins' },
+      { label: 'Adlabs Imagicaa', distance: '25 mins' }
+    ],
+    possession: 'Immediate Title Transfer',
+    constructionStatus: 'Ready Possession',
+    isFeatured: true,
+    isDemoData: false,
+    verificationStatus: 'Verified by KLOUD',
+    published: true,
+    createdAt: '2026-10-29T10:00:00Z',
+    badgeText: 'EXPLORE LAND',
+    ctaPrimaryText: 'REQUEST DETAILS',
+    planningAuthority: 'Raigad District Collectorate / Local Gram Panchayat',
+    officialReferenceUrl: 'https://raigad.gov.in/',
+    disclaimerText: 'Pali represents an expansive geographical destination and not a single unified project. Land suitability for residential building or retreat development must be verified against revenue land classification (NA status), survey demarcation, right-of-way access, and water availability.'
+  },
+
+  // 13. KHOPOLI LAND & PLOTTED DEVELOPMENTS
+  {
+    id: 'prop-land-khopoli',
+    slug: 'khopoli-land-plotted-developments',
+    title: 'KHOPOLI LAND & PLOTTED DEVELOPMENTS',
+    tagline: 'Strategically connected Mumbai–Pune gateway with emerging plotted communities',
+    category: 'land',
+    propertyType: 'Plot',
+    price: 0,
+    priceDisplay: 'Plotted Enclaves On Request',
+    location: 'Khopoli, Raigad District, Maharashtra',
+    locality: 'Khopoli Foothills',
+    city: 'Raigad District',
+    images: [
+      '/images/land/khopoli-land-plotted.jpg'
+    ],
+    creativeImage: '/images/land/khopoli-land-plotted.jpg',
+    description: 'Explore land and plotted-development opportunities around Khopoli, with a focus on location, access, property documentation, and suitability for your requirements.',
+    features: [
+      'Strategic position along the Mumbai–Pune Expressway corridor',
+      'Emerging plotted enclave hub offering foothill vistas and clean environments',
+      'Includes pre-launch announcements (e.g. Shapoorji Pallonji) with MahaRERA in progress',
+      'Flexible options spanning demarcated private parcels to master-planned layouts'
+    ],
+    amenities: [
+      'Expressway Rapid Transit',
+      'Gated Community Layouts',
+      'Clear-Boundary Demarcation',
+      'Utility Access Feasibility'
+    ],
+    nearby: [
+      { label: 'Mumbai-Pune Expressway', distance: '5 mins' },
+      { label: 'Lonavala Ghats', distance: '18 mins' },
+      { label: 'Khopoli Railway Station', distance: '8 mins' }
+    ],
+    possession: 'Plotted Layout Development',
+    constructionStatus: 'Newly Launched',
+    isFeatured: true,
+    isDemoData: false,
+    verificationStatus: 'Verified by KLOUD',
+    published: true,
+    createdAt: '2026-10-29T10:00:00Z',
+    badgeText: 'LAND OPPORTUNITIES',
+    ctaPrimaryText: 'REQUEST DETAILS',
+    planningAuthority: 'Khopoli Municipal Council / Planning Authority',
+    officialReferenceUrl: 'https://maharera.maharashtra.gov.in/',
+    disclaimerText: 'Developer pre-launch plotted townships in Khopoli are in preliminary planning and statutory MahaRERA approval stages. No sales or commitments are executed without valid MahaRERA registration. Individual private parcels are subject to independent title verification.'
+  },
+
+  // 14. KARJAT SECOND HOMES
+  {
+    id: 'prop-second-home-karjat',
+    slug: 'karjat-second-homes',
+    title: 'KARJAT SECOND HOMES',
+    tagline: 'Serene nature retreat destination amidst the Sahyadri foothills and perennial rivers',
+    category: 'second-home',
+    propertyType: 'Estate',
+    price: 0,
+    priceDisplay: 'Retreats & Land On Enquiry',
+    location: 'Karjat, Maharashtra',
+    locality: 'Karjat Foothills',
+    city: 'Karjat',
+    images: [
+      '/images/second-homes/karjat-nature-retreat.jpg'
+    ],
+    creativeImage: '/images/second-homes/karjat-nature-retreat.jpg',
+    description: 'Discover second-home opportunities around Karjat, from potential weekend retreats to suitable villa, bungalow, or land options for a future home.',
+    features: [
+      'Pristine Sahyadri foothill setting with lush greenery and clean air quality',
+      '90-minute effortless drive from Mumbai & Navi Mumbai via expressway',
+      'Three categories: Weekend Homes, Villa/Bungalows, and Land for Future Home',
+      'Advisory assistance across NA certification, title history, and road access'
+    ],
+    amenities: [
+      'Riverfront & Mountain Views',
+      'Private Retreat Atmosphere',
+      'Bespoke Sourcing Coordination',
+      'Title Due-Diligence Support'
+    ],
+    nearby: [
+      { label: 'Panvel-Karjat Highway', distance: '10 mins' },
+      { label: 'Karjat Railway Station', distance: '12 mins' },
+      { label: 'ND Studios', distance: '15 mins' }
+    ],
+    possession: 'Curated Sourcing Available',
+    constructionStatus: 'Ready Possession',
+    isFeatured: true,
+    isDemoData: false,
+    verificationStatus: 'Verified by KLOUD',
+    published: true,
+    createdAt: '2026-10-29T10:00:00Z',
+    badgeText: 'SECOND HOMES',
+    ctaPrimaryText: 'EXPLORE SECOND HOMES',
+    planningAuthority: 'Karjat Planning Authority / Raigad Collectorate',
+    disclaimerText: 'Not every plot in Karjat is suitable for immediate residential construction. Land classification, actual all-weather road access, and legal title must be verified on an individual basis before purchasing.'
   }
 ];
