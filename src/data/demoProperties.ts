@@ -469,10 +469,10 @@ export const initialDemoProperties: Property[] = [
     city: 'Pune Foothills',
     plotArea: '5,500 to 12,000 sq.ft.',
     images: [
-      '/images/project_exterior_1785684820308.jpg',
-      '/images/hero_architecture_1785684802035.jpg',
-      '/images/project_clubhouse_1785684842599.jpg'
+      '/images/land/lonavala-whispering-pines-plots.jpg',
+      '/images/land/land-hero-corridor.jpg'
     ],
+    creativeImage: '/images/land/lonavala-whispering-pines-plots.jpg',
     description: 'A boutique development of 18 demarcated residential plots set against a mist-covered hill backdrop. Each parcel benefits from sanctioned residential NA zoning, metered utilities, internal paved access roads with streetlights, and architectural design guidelines for harmonized contemporary living.',
     features: [
       'Collector-sanctioned non-agricultural title',

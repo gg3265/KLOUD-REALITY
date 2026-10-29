@@ -1,7 +1,7 @@
 import { Property, PropertyCategory, FilterState } from '../types';
 import { initialDemoProperties } from '../data/demoProperties';
 
-const LOCAL_STORAGE_PROPERTIES_KEY = 'kloud_realty_properties_v4';
+const LOCAL_STORAGE_PROPERTIES_KEY = 'kloud_realty_properties_v5';
 
 export const propertyService = {
   getAllProperties(): Property[] {
