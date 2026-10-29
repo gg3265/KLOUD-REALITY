@@ -66,6 +66,42 @@ export interface Property {
   specificEnquiryType?: 'imperial' | 'aranya' | 'raaya' | 'minerva' | 'address-gs' | 'standard';
 }
 
+export type LandPublicationStatus = 
+  | 'PROPOSED GROWTH CENTRE' 
+  | 'PLANNED NEW TOWN' 
+  | 'LOCATION EXPLORATION' 
+  | 'PRE-LAUNCH / VERIFICATION PENDING' 
+  | 'VERIFIED LISTING';
+
+export interface LandOpportunity {
+  id: string;
+  slug: string;
+  displayName: string;
+  secondaryTitle?: string;
+  category: 'growth-corridor' | 'new-town' | 'location-exploration' | 'plotted-development' | 'second-home-destination';
+  location: string;
+  district: string;
+  listingType: string;
+  headline: string;
+  description: string;
+  image: string;
+  priceDisplay?: string;
+  plotArea?: string;
+  planningAuthority?: string;
+  officialReferenceUrl?: string;
+  verificationDate?: string;
+  highlights: string[];
+  disclaimerText: string;
+  publicationStatus: LandPublicationStatus;
+  statusBadgeText: string;
+  secondaryBadgeText?: string;
+  enquiryLocation: string;
+  enquiryVertical: string;
+  enquiryCategories?: string[];
+  ctaPrimaryText: string;
+  ctaSecondaryText: string;
+}
+
 export type LeadSource = 
   | 'Entry Modal' 
   | 'Homepage Hero' 

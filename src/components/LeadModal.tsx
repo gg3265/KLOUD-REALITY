@@ -9,6 +9,7 @@ interface LeadModalProps {
   initialVertical?: string;
   initialPropertyTitle?: string;
   initialPropertyId?: string;
+  initialLocation?: string;
 }
 
 export const LeadModal: React.FC<LeadModalProps> = ({
@@ -16,7 +17,8 @@ export const LeadModal: React.FC<LeadModalProps> = ({
   onClose,
   initialVertical,
   initialPropertyTitle,
-  initialPropertyId
+  initialPropertyId,
+  initialLocation
 }) => {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -58,14 +60,17 @@ export const LeadModal: React.FC<LeadModalProps> = ({
         setLookingTo('Buy a New Property (Primary Market)');
       }
     }
+    if (initialLocation) {
+      setLocation(initialLocation);
+    }
     if (initialPropertyTitle) {
       if (initialVertical === 'Site Visit Scheduling') {
         setCustomMessage(`Site Visit Request for: ${initialPropertyTitle}`);
       } else {
-        setCustomMessage(`Regarding property: ${initialPropertyTitle}`);
+        setCustomMessage(`Regarding: ${initialPropertyTitle}`);
       }
     }
-  }, [initialVertical, initialPropertyTitle]);
+  }, [initialVertical, initialPropertyTitle, initialLocation]);
 
   if (!isOpen) return null;
 

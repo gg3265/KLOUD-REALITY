@@ -29,6 +29,7 @@ export const App: React.FC = () => {
   const [modalVertical, setModalVertical] = useState<string | undefined>(undefined);
   const [modalPropertyTitle, setModalPropertyTitle] = useState<string | undefined>(undefined);
   const [modalPropertyId, setModalPropertyId] = useState<string | undefined>(undefined);
+  const [modalLocation, setModalLocation] = useState<string | undefined>(undefined);
 
   // 1. Initial 800ms Lead Modal on first visit
   useEffect(() => {
@@ -41,21 +42,42 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  // 2. Hash router change listener & scroll to top
+  // 2. Hash router change listener, scroll to top & dynamic metadata
   useEffect(() => {
     const handleHashChange = () => {
-      setCurrentHash(window.location.hash || '#/');
+      const newHash = window.location.hash || '#/';
+      setCurrentHash(newHash);
       window.scrollTo(0, 0);
+
+      const cleanRoute = newHash.replace(/^#/, '') || '/';
+      if (cleanRoute === '/land') {
+        document.title = 'Land Opportunities in Raigad, Khopoli & Mumbai Growth Corridors | KLOUD REALTY';
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          metaDesc.setAttribute('content', 'Explore land and plotted-development opportunities around Raigad–Pen, KSC New Town, Khopoli and Pali, plus second-home opportunities in Karjat with KLOUD REALTY.');
+        }
+      } else if (cleanRoute === '/second-homes') {
+        document.title = 'Luxury Second Homes & Retreats in Karjat & Alibaug | KLOUD REALTY';
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          metaDesc.setAttribute('content', 'Explore second-home opportunities around Karjat and Alibaug, featuring private retreats, weekend homes, and estate land with KLOUD REALTY.');
+        }
+      } else {
+        document.title = 'KLOUD REALTY | The Place to Find Your Place | Mazgaon, Mumbai';
+      }
     };
 
     window.addEventListener('hashchange', handleHashChange);
+    // Initial run for current route
+    handleHashChange();
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const openConsultation = (vertical?: string, propertyTitle?: string, propertyId?: string) => {
+  const openConsultation = (vertical?: string, propertyTitle?: string, propertyId?: string, location?: string) => {
     setModalVertical(vertical);
     setModalPropertyTitle(propertyTitle);
     setModalPropertyId(propertyId);
+    setModalLocation(location);
     setIsLeadModalOpen(true);
   };
 
@@ -142,6 +164,7 @@ export const App: React.FC = () => {
         initialVertical={modalVertical}
         initialPropertyTitle={modalPropertyTitle}
         initialPropertyId={modalPropertyId}
+        initialLocation={modalLocation}
       />
 
       {/* Floating Tasteful WhatsApp Button */}
