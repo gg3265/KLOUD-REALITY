@@ -89,6 +89,10 @@ export const ContactPage: React.FC = () => {
                   <p>Shop No. 2, 321 R.B. Marg,</p>
                   <p>Abdul Rauf Manzil, Opposite Piramal Aranya,</p>
                   <p>Mazgaon, Mumbai – 400010, Maharashtra, India.</p>
+                  <p className="text-[11px] text-warmGray pt-1 flex items-center gap-1.5">
+                    <span>Plus Code:</span>
+                    <span className="font-mono text-gold-300 font-medium">XRHR+3H</span>
+                  </p>
                 </div>
               </div>
 
@@ -301,36 +305,48 @@ export const ContactPage: React.FC = () => {
 
         </div>
 
-        {/* Embedded Google Map Section for Mazgaon Office */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-xs uppercase tracking-widest text-gold-400 font-semibold block mb-1">
-                OFFICE LOCATION
+        {/* Embedded Google Map Section for Kloud Realty Office Location */}
+        <div className="space-y-6 pt-6 border-t border-white/10">
+          <div className="bg-charcoal-850 p-6 sm:p-8 rounded-sm border border-gold-500/30 shadow-luxury flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2">
+              <span className="text-xs uppercase tracking-widest text-gold-400 font-semibold block">
+                OFFICE LOCATION & DIRECTIONS
               </span>
-              <h3 className="font-serif text-2xl font-light text-white">
-                Visit Our Office in Mazgaon
+              <h3 className="font-serif text-2xl sm:text-3xl font-light text-white tracking-wide">
+                KLOUD REALTY
               </h3>
+              <p className="text-sm text-softWhite/90 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-gold-400 shrink-0" />
+                <span>Mumbai, Maharashtra, India</span>
+              </p>
+              <div className="flex items-center gap-2 pt-1 text-xs">
+                <span className="text-warmGray">Plus Code:</span>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded bg-gold-500/10 border border-gold-500/30 font-mono text-gold-300 font-semibold tracking-wider">
+                  XRHR+3H
+                </span>
+              </div>
             </div>
-            <a
-              href="https://maps.google.com/?q=Piramal+Aranya+Mazgaon+Mumbai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-gold-400 hover:underline inline-flex items-center gap-1"
-            >
-              <span>Open in Google Maps</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </a>
+
+            <div className="flex items-center">
+              <a
+                href="https://www.google.com/maps/dir/?api=1&destination=XRHR%2B3H%2C%20Mumbai%2C%20Maharashtra%2C%20India"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-sm border border-gold-500 hover:border-gold-400 text-gold-400 hover:text-charcoal-950 bg-charcoal-900/80 hover:bg-gold-500 text-xs uppercase tracking-widest font-semibold transition-all duration-300 shadow-gold-glow group whitespace-nowrap"
+              >
+                <span>GET DIRECTIONS →</span>
+              </a>
+            </div>
           </div>
 
-          <div className="w-full h-[380px] rounded-sm overflow-hidden border border-white/10 shadow-luxury bg-charcoal-950 relative">
+          <div className="w-full h-[400px] sm:h-[460px] rounded-sm overflow-hidden border border-gold-500/30 shadow-luxury bg-charcoal-950 relative">
             <iframe
-              title="KLOUD REALTY Mazgaon Location"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3773.342111059535!2d72.84650637599042!3d18.96048865560114!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7ce47f0e6371f%3A0x6a0058b8f2d501b1!2sPiramal%20Aranya!5e0!3m2!1sen!2sin!4v1710000000000!5m2!1sen!2sin"
+              title="KLOUD REALTY Office Location - XRHR+3H, Mumbai, Maharashtra, India"
+              src="https://maps.google.com/maps?q=XRHR%2B3H%2C+Mumbai%2C+Maharashtra%2C+India&t=&z=16&ie=UTF8&iwloc=&output=embed"
               width="100%"
               height="100%"
-              style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) contrast(90%)' }}
-              allowFullScreen={false}
+              style={{ border: 0 }}
+              allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
