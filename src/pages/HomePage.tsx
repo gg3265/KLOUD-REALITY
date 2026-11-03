@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Building2, Home, Trees, RefreshCw, ArrowRight, CheckCircle2, 
-  Compass, ShieldCheck, ChevronDown, Sparkles, Map
+  Compass, ShieldCheck, ChevronDown, Sparkles, Map, FileText, Download
 } from 'lucide-react';
 import { SearchBar } from '../components/SearchBar';
 import { PropertyCard } from '../components/PropertyCard';
@@ -103,6 +103,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
             >
               <span>Book a Consultation</span>
             </button>
+
+            <div className="w-full flex items-center gap-2 pt-1 text-left">
+              <FileText className="w-3.5 h-3.5 text-gold-400 shrink-0" />
+              <span className="text-xs text-warmGray">Prefer formal intake?</span>
+              <a
+                href="/documents/KLOUD_REALTY_Client_Registration_Form_Professional.pdf"
+                download="KLOUD_REALTY_Client_Registration_Form_Professional.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-gold-400 hover:text-gold-300 font-medium underline underline-offset-4 decoration-gold-500/40 inline-flex items-center gap-1 transition-colors"
+              >
+                <span>Client Registration Form (PDF)</span>
+                <Download className="w-3 h-3 text-gold-400" />
+              </a>
+            </div>
           </div>
 
           {/* Repositioned Trust Information Row */}

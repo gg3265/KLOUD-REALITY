@@ -12,7 +12,10 @@ import {
   Phone, 
   AlertCircle,
   HelpCircle,
-  Sparkles
+  Sparkles,
+  Download,
+  ExternalLink,
+  FileText
 } from 'lucide-react';
 import { leadService } from '../services/leadService';
 
@@ -348,7 +351,71 @@ export const FinancePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 4. HOME LOAN ENQUIRY FORM */}
+      {/* 4. CLIENT REGISTRATION & ADVISORY SECTION */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-charcoal-950 border-b border-white/10 relative overflow-hidden">
+        {/* Ambient subtle glow */}
+        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-gold-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-96 bg-cyanBrand/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-4xl mx-auto relative z-10 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-400 text-xs font-semibold uppercase tracking-widest mb-4">
+            <Sparkles className="w-3.5 h-3.5 text-gold-400" />
+            <span>Structured Client Intake</span>
+          </div>
+
+          <h2 className="font-serif text-3xl sm:text-4xl font-light text-white tracking-tight">
+            Client Registration &amp; Advisory
+          </h2>
+
+          <p className="mt-3 text-sm sm:text-base text-warmGray leading-relaxed max-w-2xl mx-auto font-sans">
+            Begin your property journey with a structured and transparent advisory experience.
+          </p>
+
+          <div className="mt-8 p-6 sm:p-8 rounded-sm bg-charcoal-900 border border-gold-500/30 shadow-2xl max-w-2xl mx-auto space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+              <div className="p-3 rounded bg-charcoal-850 border border-white/5 space-y-1">
+                <span className="text-[10px] uppercase tracking-wider text-gold-400 font-semibold block">Official Intake</span>
+                <p className="text-[11px] text-warmGray">MahaRERA Reg: A0311 72501659</p>
+              </div>
+              <div className="p-3 rounded bg-charcoal-850 border border-white/5 space-y-1">
+                <span className="text-[10px] uppercase tracking-wider text-gold-400 font-semibold block">Fee Clarity</span>
+                <p className="text-[11px] text-warmGray">7-point written fee terms</p>
+              </div>
+              <div className="p-3 rounded bg-charcoal-850 border border-white/5 space-y-1">
+                <span className="text-[10px] uppercase tracking-wider text-gold-400 font-semibold block">Printable A4</span>
+                <p className="text-[11px] text-warmGray">Official 2-page legal dossier</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <a
+                href="/documents/KLOUD_REALTY_Client_Registration_Form_Professional.pdf"
+                download="KLOUD_REALTY_Client_Registration_Form_Professional.pdf"
+                className="w-full sm:w-auto px-7 py-3.5 rounded bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 text-charcoal-950 font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-all duration-300 shadow-gold-glow flex items-center justify-center gap-2.5 group"
+              >
+                <Download className="w-4 h-4 text-charcoal-950 transition-transform group-hover:-translate-y-0.5" />
+                <span>DOWNLOAD CLIENT REGISTRATION FORM</span>
+              </a>
+
+              <a
+                href="/documents/KLOUD_REALTY_Client_Registration_Form_Professional.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto px-5 py-3.5 rounded border border-white/20 hover:border-gold-500 text-softWhite hover:text-gold-300 font-semibold text-xs uppercase tracking-wider bg-charcoal-850 hover:bg-charcoal-800 transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <span>Preview in New Tab</span>
+                <ExternalLink className="w-3.5 h-3.5 text-gold-400" />
+              </a>
+            </div>
+
+            <p className="text-[11px] text-warmGray/70 leading-relaxed text-center">
+              Available instantly in high-resolution PDF format. Works seamlessly on desktop and mobile devices.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. HOME LOAN ENQUIRY FORM */}
       <section id="loan-enquiry-form" className="py-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         <div className="rounded-sm bg-charcoal-850 border border-gold-500/35 p-6 sm:p-10 shadow-2xl relative">
           

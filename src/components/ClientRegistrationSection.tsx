@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, FileText, CheckCircle2, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react';
+import { Download, FileText, CheckCircle2, ShieldCheck, ArrowRight, Sparkles, ExternalLink } from 'lucide-react';
 import { pdfService } from '../services/pdfService';
 import { ClientRegistrationModal } from './ClientRegistrationModal';
 
@@ -11,11 +11,18 @@ export const ClientRegistrationSection: React.FC = () => {
   const handleDownloadPdf = () => {
     setIsDownloading(true);
     try {
-      pdfService.generateClientRegistrationPdf();
+      const link = document.createElement('a');
+      link.href = '/documents/KLOUD_REALTY_Client_Registration_Form_Professional.pdf';
+      link.download = 'KLOUD_REALTY_Client_Registration_Form_Professional.pdf';
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 4000);
     } catch (err) {
-      console.error('PDF generation error:', err);
+      console.error('PDF download error:', err);
+      window.open('/documents/KLOUD_REALTY_Client_Registration_Form_Professional.pdf', '_blank');
     } finally {
       setIsDownloading(false);
     }
@@ -100,6 +107,16 @@ export const ClientRegistrationSection: React.FC = () => {
                 <span>Register Online (Digital Dossier)</span>
                 <ArrowRight className="w-3.5 h-3.5 text-gold-400 transition-transform group-hover:translate-x-1" />
               </button>
+
+              <a
+                href="/documents/KLOUD_REALTY_Client_Registration_Form_Professional.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] text-gold-400 hover:text-gold-300 hover:underline flex items-center justify-center gap-1.5 py-0.5"
+              >
+                <span>Preview Form in New Tab</span>
+                <ExternalLink className="w-3 h-3 text-gold-400" />
+              </a>
 
               {downloadSuccess && (
                 <div className="p-2.5 rounded bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-[11px] text-center animate-fade-in flex items-center justify-center gap-1.5">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle, ShieldCheck, Loader2, ArrowRight, Sparkles } from 'lucide-react';
+import { X, CheckCircle, ShieldCheck, Loader2, ArrowRight, Sparkles, FileText, Download } from 'lucide-react';
 import { leadService } from '../services/leadService';
 import { LeadSource, ServiceVertical, ContactMethod } from '../types';
 
@@ -426,8 +426,20 @@ export const LeadModal: React.FC<LeadModalProps> = ({
                   <p className="text-[11px] text-charcoal-600">
                     Your information will be used solely to respond to your enquiry with utmost discretion.
                   </p>
-                  <div className="flex items-center justify-center gap-3 text-[11px]">
-                    <a href="#/privacy" onClick={onClose} className="text-gold-700 hover:underline">
+                  <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] pt-1">
+                    <a 
+                      href="/documents/KLOUD_REALTY_Client_Registration_Form_Professional.pdf"
+                      download="KLOUD_REALTY_Client_Registration_Form_Professional.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gold-700 font-semibold hover:underline inline-flex items-center gap-1"
+                    >
+                      <FileText className="w-3 h-3 text-gold-600" />
+                      <span>Client Registration Form (PDF)</span>
+                      <Download className="w-2.5 h-2.5 text-gold-600" />
+                    </a>
+                    <span className="text-charcoal-400">•</span>
+                    <a href="#/privacy" onClick={onClose} className="text-charcoal-600 hover:text-gold-700 hover:underline">
                       Privacy Policy
                     </a>
                     <span className="text-charcoal-400">•</span>
