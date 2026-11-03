@@ -6,6 +6,7 @@ import {
 import { SearchBar } from '../components/SearchBar';
 import { PropertyCard } from '../components/PropertyCard';
 import { ReraTrustSection } from '../components/ReraTrustSection';
+import { ClientRegistrationSection } from '../components/ClientRegistrationSection';
 import { propertyService } from '../services/propertyService';
 import { Property, PropertyCategory } from '../types';
 
@@ -493,10 +494,39 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
         </div>
       </section>
 
-      {/* 8. RERA TRUST SECTION */}
+      {/* 8. FINANCE & HOME LOAN SPOTLIGHT */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-charcoal-950/80 border-t border-b border-white/10">
+        <div className="max-w-7xl mx-auto rounded-sm bg-gradient-to-r from-charcoal-900 via-charcoal-850 to-charcoal-900 border border-gold-500/30 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-gold-400 font-semibold">
+              <Sparkles className="w-4 h-4 text-cyanBrand" />
+              <span>PROPERTY FINANCING ADVISORY</span>
+            </div>
+            <h3 className="font-serif text-2xl sm:text-3xl font-light text-white">
+              Making Your Dream Home Financially Possible.
+            </h3>
+            <p className="text-xs sm:text-sm text-warmGray leading-relaxed">
+              Explore competitive home-loan solutions, borrowing capacity guidance, and dedicated institutional banking coordination.
+            </p>
+          </div>
+          <div className="shrink-0 flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <a
+              href="#/finance-home-loan"
+              className="px-6 py-3 rounded bg-gold-500 text-charcoal-950 font-bold text-xs uppercase tracking-wider hover:bg-gold-400 transition-colors shadow-gold-glow text-center"
+            >
+              Explore Home Loan Assistance
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. CLIENT REGISTRATION & PROFESSIONAL ENGAGEMENT */}
+      <ClientRegistrationSection />
+
+      {/* 10. RERA TRUST SECTION */}
       <ReraTrustSection />
 
-      {/* 9. BOTTOM BANNER */}
+      {/* 11. BOTTOM BANNER */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-charcoal-950 text-center border-t border-white/10">
         <div className="max-w-4xl mx-auto p-10 rounded-sm bg-charcoal-850 border border-gold-500/30 shadow-luxury">
           <h2 className="font-serif text-3xl sm:text-4xl font-light text-white mb-4">Let's Discuss Your Next Property Decision.</h2>

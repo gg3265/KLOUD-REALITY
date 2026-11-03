@@ -126,6 +126,12 @@ export const Footer: React.FC = () => {
                   <p className="text-[11px] text-warmGray/70 mt-0.5">Housing society advisory & partner alignment</p>
                 </a>
               </li>
+              <li>
+                <a href="#/finance-home-loan" className="hover:text-gold-400 transition-colors block">
+                  <span className="font-medium text-white/90">Finance &amp; Home Loan</span>
+                  <p className="text-[11px] text-warmGray/70 mt-0.5">Eligibility guidance, bank liaison &amp; mortgages</p>
+                </a>
+              </li>
             </ul>
           </div>
 

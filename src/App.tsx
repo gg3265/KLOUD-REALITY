@@ -13,6 +13,7 @@ import { ResalePage } from './pages/ResalePage';
 import { SecondHomesPage } from './pages/SecondHomesPage';
 import { LandPage } from './pages/LandPage';
 import { RedevelopmentPage } from './pages/RedevelopmentPage';
+import { FinancePage } from './pages/FinancePage';
 import { PropertyDetailPage } from './pages/PropertyDetailPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
@@ -61,6 +62,12 @@ export const App: React.FC = () => {
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
           metaDesc.setAttribute('content', 'Explore second-home opportunities around Karjat and Alibaug, featuring private retreats, weekend homes, and estate land with KLOUD REALTY.');
+        }
+      } else if (cleanRoute === '/finance-home-loan' || cleanRoute === '/home-loan') {
+        document.title = 'Home Loan & Property Financing Assistance | KLOUD REALTY';
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          metaDesc.setAttribute('content', 'Explore suitable financing options, loan eligibility guidance, and banking coordination with KLOUD REALTY.');
         }
       } else {
         document.title = 'KLOUD REALTY | The Place to Find Your Place | Mazgaon, Mumbai';
@@ -112,6 +119,9 @@ export const App: React.FC = () => {
     }
     if (route === '/redevelopment') {
       return <RedevelopmentPage />;
+    }
+    if (route === '/finance-home-loan' || route === '/home-loan') {
+      return <FinancePage />;
     }
     if (route.startsWith('/property/')) {
       const propId = route.replace('/property/', '');

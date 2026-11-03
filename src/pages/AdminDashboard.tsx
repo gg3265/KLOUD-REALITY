@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { leadService } from '../services/leadService';
 import { propertyService } from '../services/propertyService';
+import { emailService, EmailDispatchRecord } from '../services/emailService';
 import { Lead, Property, LeadStatus, ServiceVertical, PropertyCategory } from '../types';
 
 export const AdminDashboard: React.FC = () => {
@@ -15,11 +16,12 @@ export const AdminDashboard: React.FC = () => {
   const [accessPin, setAccessPin] = useState('');
   const [authError, setAuthError] = useState('');
 
-  // Active Tab: 'leads' | 'properties' | 'system'
-  const [activeTab, setActiveTab] = useState<'leads' | 'properties' | 'system'>('leads');
+  // Active Tab: 'leads' | 'properties' | 'emails' | 'system'
+  const [activeTab, setActiveTab] = useState<'leads' | 'properties' | 'emails' | 'system'>('leads');
 
   // Leads state
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [emailDispatches, setEmailDispatches] = useState<EmailDispatchRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [verticalFilter, setVerticalFilter] = useState<string>('all');
@@ -54,6 +56,7 @@ export const AdminDashboard: React.FC = () => {
   const loadData = () => {
     setLeads(leadService.getAllLeads());
     setProperties(propertyService.getAllProperties());
+    setEmailDispatches(emailService.getAllDispatches());
   };
 
   const handleLogin = (e: React.FormEvent) => {
@@ -321,6 +324,15 @@ export const AdminDashboard: React.FC = () => {
           </button>
 
           <button
+            onClick={() => setActiveTab('emails')}
+            className={`px-4 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 transition-colors ${
+              activeTab === 'emails' ? 'border-gold-500 text-gold-400' : 'border-transparent text-warmGray hover:text-white'
+            }`}
+          >
+            Email Outbox ({emailDispatches.length})
+          </button>
+
+          <button
             onClick={() => setActiveTab('system')}
             className={`px-4 py-3 text-xs uppercase tracking-wider font-semibold border-b-2 transition-colors ${
               activeTab === 'system' ? 'border-gold-500 text-gold-400' : 'border-transparent text-warmGray hover:text-white'
@@ -371,6 +383,8 @@ export const AdminDashboard: React.FC = () => {
                 <option value="Secondary Market">Secondary Market</option>
                 <option value="Second Homes & Land">Second Homes & Land</option>
                 <option value="Redevelopment Consulting">Redevelopment Consulting</option>
+                <option value="Finance & Home Loan">Finance & Home Loan</option>
+                <option value="Client Registration">Client Registration</option>
                 <option value="Rental">Rental</option>
                 <option value="General Consultation">General Consultation</option>
               </select>
@@ -531,6 +545,107 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
 
+        {/* TAB: EMAIL OUTBOX */}
+        {activeTab === 'emails' && (
+          <div className="space-y-6">
+            <div className="bg-charcoal-850 p-6 rounded border border-white/10 space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-5 h-5 text-gold-400" />
+                    <h2 className="font-serif text-2xl font-light text-white">Email Dispatch Outbox</h2>
+                  </div>
+                  <p className="text-xs text-warmGray mt-1">
+                    Designated notification inbox: <code className="text-gold-300 font-mono">kloudrealty@gmail.com</code> • All leads and loan enquiries automatically trigger instant luxury email notifications.
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      loadData();
+                    }}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-charcoal-800 hover:bg-charcoal-700 text-xs text-softWhite border border-white/10 transition-colors"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 text-gold-400" />
+                    <span>Refresh</span>
+                  </button>
+                  {emailDispatches.length > 0 && (
+                    <button
+                      onClick={() => {
+                        if (confirm('Clear local email outbox log? This will not affect submitted leads.')) {
+                          emailService.clearDispatches();
+                          loadData();
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded bg-red-950/40 hover:bg-red-950/70 text-xs text-red-300 border border-red-800/40 transition-colors"
+                    >
+                      Clear Log
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {emailDispatches.length === 0 ? (
+                <div className="text-center py-12 text-warmGray space-y-2">
+                  <Mail className="w-10 h-10 text-warmGray/40 mx-auto" />
+                  <p className="text-sm">No email dispatches recorded yet in this session.</p>
+                  <p className="text-xs text-warmGray/60">Submissions from the Client Registration Form, Finance & Home Loan page, or Property showcase will appear here with delivery timestamps.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded border border-white/10">
+                  <table className="w-full text-left text-xs text-warmGray">
+                    <thead className="bg-charcoal-950 text-softWhite uppercase tracking-wider text-[10px] border-b border-white/10">
+                      <tr>
+                        <th className="py-3 px-4 font-semibold">Time</th>
+                        <th className="py-3 px-4 font-semibold">Recipient</th>
+                        <th className="py-3 px-4 font-semibold">Subject</th>
+                        <th className="py-3 px-4 font-semibold">Lead ID</th>
+                        <th className="py-3 px-4 font-semibold">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 bg-charcoal-900">
+                      {emailDispatches.map((record) => (
+                        <tr key={record.id} className="hover:bg-charcoal-800/50 transition-colors">
+                          <td className="py-3 px-4 text-warmGray font-mono text-[11px] whitespace-nowrap">
+                            {new Date(record.timestamp).toLocaleString('en-IN', {
+                              day: '2-digit',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit'
+                            })}
+                          </td>
+                          <td className="py-3 px-4 font-mono text-softWhite">
+                            {record.recipient}
+                          </td>
+                          <td className="py-3 px-4 text-white font-medium">
+                            {record.subject}
+                          </td>
+                          <td className="py-3 px-4 font-mono text-gold-400">
+                            {record.leadId || '—'}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
+                              record.status === 'SENT' 
+                                ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' 
+                                : record.status === 'SIMULATED'
+                                ? 'bg-cyanBrand/15 text-cyanBrand border border-cyanBrand/30'
+                                : 'bg-red-500/15 text-red-400 border border-red-500/30'
+                            }`}>
+                              <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                              {record.status === 'SENT' ? 'Delivered' : record.status === 'SIMULATED' ? 'Logged & Queued' : 'Failed'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* TAB 3: SYSTEM & DATABASE STATUS */}
         {activeTab === 'system' && (
           <div className="max-w-3xl bg-charcoal-850 p-8 rounded border border-white/10 space-y-6">
@@ -629,6 +744,104 @@ VITE_ADMIN_ACCESS_PIN=kloud2026`}
                 <div className="p-3 rounded bg-charcoal-900 border border-white/5">
                   <span className="text-warmGray block">Associated Property:</span>
                   <span className="text-gold-300 font-medium">{selectedLead.propertyTitle}</span>
+                </div>
+              )}
+
+              {/* Home Loan & Finance Details */}
+              {(selectedLead.employmentType || selectedLead.requiredLoanAmount || selectedLead.approxPropertyValue) && (
+                <div className="p-3.5 rounded bg-charcoal-900 border border-gold-500/20 space-y-2">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-1.5">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-gold-400">Home Loan & Financial Profile</span>
+                    <span className="text-[10px] text-warmGray font-mono">Assistance Requested</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {selectedLead.employmentType && (
+                      <div>
+                        <span className="text-warmGray block text-[10px]">Employment Type:</span>
+                        <span className="text-white font-medium">{selectedLead.employmentType}</span>
+                      </div>
+                    )}
+                    {selectedLead.requiredLoanAmount && (
+                      <div>
+                        <span className="text-warmGray block text-[10px]">Loan Amount:</span>
+                        <span className="text-gold-300 font-medium">{selectedLead.requiredLoanAmount}</span>
+                      </div>
+                    )}
+                    {selectedLead.approxPropertyValue && (
+                      <div>
+                        <span className="text-warmGray block text-[10px]">Approx Property Value:</span>
+                        <span className="text-white font-medium">{selectedLead.approxPropertyValue}</span>
+                      </div>
+                    )}
+                    {selectedLead.existingLoanObligations && (
+                      <div>
+                        <span className="text-warmGray block text-[10px]">Existing Obligations:</span>
+                        <span className="text-white font-medium">{selectedLead.existingLoanObligations}</span>
+                      </div>
+                    )}
+                    {selectedLead.preferredCallbackTime && (
+                      <div className="col-span-2">
+                        <span className="text-warmGray block text-[10px]">Preferred Callback Time:</span>
+                        <span className="text-cyanBrand font-medium">{selectedLead.preferredCallbackTime}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Client Registration Details */}
+              {(selectedLead.purposeOfEngagement || selectedLead.residentialAddress || selectedLead.whatsappNumber || selectedLead.panNumber) && (
+                <div className="p-3.5 rounded bg-charcoal-900 border border-cyanBrand/20 space-y-2">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-1.5">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-cyanBrand">Client Registration Form Details</span>
+                    <span className="text-[10px] text-warmGray font-mono">Formal Engagement</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {selectedLead.purposeOfEngagement && (
+                      <div className="col-span-2">
+                        <span className="text-warmGray block text-[10px]">Purpose of Engagement:</span>
+                        <span className="text-white font-medium">{selectedLead.purposeOfEngagement}</span>
+                      </div>
+                    )}
+                    {selectedLead.whatsappNumber && (
+                      <div>
+                        <span className="text-warmGray block text-[10px]">WhatsApp:</span>
+                        <a href={`https://wa.me/91${selectedLead.whatsappNumber.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-white font-mono hover:underline">
+                          {selectedLead.whatsappNumber}
+                        </a>
+                      </div>
+                    )}
+                    {selectedLead.dateOfBirth && (
+                      <div>
+                        <span className="text-warmGray block text-[10px]">Date of Birth:</span>
+                        <span className="text-white">{selectedLead.dateOfBirth}</span>
+                      </div>
+                    )}
+                    {selectedLead.residentialAddress && (
+                      <div className="col-span-2">
+                        <span className="text-warmGray block text-[10px]">Residential Address:</span>
+                        <span className="text-white">{selectedLead.residentialAddress} {selectedLead.cityPin ? `— ${selectedLead.cityPin}` : ''}</span>
+                      </div>
+                    )}
+                    {selectedLead.panNumber && (
+                      <div>
+                        <span className="text-warmGray block text-[10px]">PAN Number:</span>
+                        <span className="text-white font-mono">{selectedLead.panNumber}</span>
+                      </div>
+                    )}
+                    {selectedLead.preferredTimeline && (
+                      <div>
+                        <span className="text-warmGray block text-[10px]">Timeline:</span>
+                        <span className="text-white">{selectedLead.preferredTimeline}</span>
+                      </div>
+                    )}
+                    <div className="col-span-2">
+                      <span className="text-warmGray block text-[10px]">Fee Terms Acknowledged:</span>
+                      <span className={selectedLead.acceptedFeeTerms ? 'text-emerald-400 font-semibold' : 'text-warmGray'}>
+                        {selectedLead.acceptedFeeTerms ? '✓ Acknowledged & Signed' : 'Not recorded'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               )}
 

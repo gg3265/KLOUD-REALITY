@@ -1,13 +1,14 @@
 import { Lead, LeadSource, ServiceVertical, ContactMethod, LeadStatus } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { emailService } from './emailService';
 
 const LOCAL_STORAGE_LEADS_KEY = 'kloud_realty_leads_v1';
 
 // Generate authentic enquiry ID
-export function generateEnquiryId(): string {
+export function generateEnquiryId(prefix: string = 'KR'): string {
   const year = new Date().getFullYear();
   const randomSuffix = Math.floor(10000 + Math.random() * 90000);
-  return `KR-${year}-${randomSuffix}`;
+  return `${prefix}-${year}-${randomSuffix}`;
 }
 
 export interface CreateLeadInput {
@@ -26,6 +27,21 @@ export interface CreateLeadInput {
   roleInSociety?: string;
   buildingAge?: string;
   numberOfUnits?: string;
+  // Finance & Home Loan
+  employmentType?: 'Salaried' | 'Self-employed';
+  approxPropertyValue?: string;
+  requiredLoanAmount?: string;
+  existingLoanObligations?: string;
+  preferredCallbackTime?: string;
+  // Client Registration
+  dateOfBirth?: string;
+  whatsappNumber?: string;
+  residentialAddress?: string;
+  cityPin?: string;
+  panNumber?: string;
+  purposeOfEngagement?: string[];
+  preferredTimeline?: string;
+  acceptedFeeTerms?: boolean;
 }
 
 export interface SubmissionResult {
@@ -133,7 +149,27 @@ export const leadService = {
       return { success: false, error: 'Please provide a valid email address.', isBackendConnected: isSupabaseConfigured };
     }
 
-    const leadId = generateEnquiryId();
+    // Anti-duplicate protection: check for identical submission in last 120 seconds
+    const existingLeads = this.getAllLeads();
+    const twoMinutesAgo = Date.now() - 120000;
+    const isDuplicate = existingLeads.find(l => {
+      const isSameClient = (l.phone === input.phone.trim() || l.email === input.email.trim().toLowerCase());
+      const isRecent = new Date(l.createdAt).getTime() > twoMinutesAgo;
+      const isSameVertical = l.serviceVertical === input.serviceVertical;
+      return isSameClient && isRecent && isSameVertical;
+    });
+
+    if (isDuplicate) {
+      return {
+        success: true,
+        leadId: isDuplicate.id,
+        isBackendConnected: isSupabaseConfigured
+      };
+    }
+
+    const prefix = input.serviceVertical === 'Finance & Home Loan' ? 'KR-HL' : (input.serviceVertical === 'Client Registration' ? 'KR-REG' : 'KR');
+    const leadId = generateEnquiryId(prefix);
+
     const newLead: Lead = {
       id: leadId,
       createdAt: new Date().toISOString(),
@@ -155,7 +191,20 @@ export const leadService = {
       propertyRequirement: input.propertyRequirement,
       roleInSociety: input.roleInSociety,
       buildingAge: input.buildingAge,
-      numberOfUnits: input.numberOfUnits
+      numberOfUnits: input.numberOfUnits,
+      employmentType: input.employmentType,
+      approxPropertyValue: input.approxPropertyValue,
+      requiredLoanAmount: input.requiredLoanAmount,
+      existingLoanObligations: input.existingLoanObligations,
+      preferredCallbackTime: input.preferredCallbackTime,
+      dateOfBirth: input.dateOfBirth,
+      whatsappNumber: input.whatsappNumber,
+      residentialAddress: input.residentialAddress,
+      cityPin: input.cityPin,
+      panNumber: input.panNumber,
+      purposeOfEngagement: input.purposeOfEngagement,
+      preferredTimeline: input.preferredTimeline,
+      acceptedFeeTerms: input.acceptedFeeTerms
     };
 
     // 1. Try Supabase if configured
@@ -181,7 +230,17 @@ export const leadService = {
           consent_status: newLead.consentStatus,
           role_in_society: newLead.roleInSociety,
           building_age: newLead.buildingAge,
-          number_of_units: newLead.numberOfUnits
+          number_of_units: newLead.numberOfUnits,
+          employment_type: newLead.employmentType,
+          approx_property_value: newLead.approxPropertyValue,
+          required_loan_amount: newLead.requiredLoanAmount,
+          existing_loan_obligations: newLead.existingLoanObligations,
+          preferred_callback_time: newLead.preferredCallbackTime,
+          residential_address: newLead.residentialAddress,
+          city_pin: newLead.cityPin,
+          pan_number: newLead.panNumber,
+          purpose_of_engagement: newLead.purposeOfEngagement,
+          accepted_fee_terms: newLead.acceptedFeeTerms
         }]);
 
         if (error) {
@@ -200,8 +259,10 @@ export const leadService = {
       this.saveLocalLead(newLead);
     }
 
-    // Trigger notification log
-    this.logNotification(newLead);
+    // 2. Trigger notification & confirmation email engine
+    emailService.sendNotificationAndAcknowledgment(newLead).catch((err) => {
+      console.warn('Email dispatch notice:', err);
+    });
 
     return {
       success: true,
@@ -252,6 +313,13 @@ export const leadService = {
       'Contact Method',
       'Property Title',
       'Status',
+      'Employment Type',
+      'Property Value',
+      'Loan Required',
+      'Callback Time',
+      'Address',
+      'City/PIN',
+      'PAN',
       'Assigned To',
       'Message'
     ];
@@ -269,6 +337,13 @@ export const leadService = {
       `"${l.preferredContactMethod || ''}"`,
       `"${(l.propertyTitle || 'N/A').replace(/"/g, '""')}"`,
       `"${l.leadStatus}"`,
+      `"${l.employmentType || 'N/A'}"`,
+      `"${l.approxPropertyValue || 'N/A'}"`,
+      `"${l.requiredLoanAmount || 'N/A'}"`,
+      `"${l.preferredCallbackTime || 'N/A'}"`,
+      `"${(l.residentialAddress || 'N/A').replace(/"/g, '""')}"`,
+      `"${l.cityPin || 'N/A'}"`,
+      `"${l.panNumber || 'N/A'}"`,
       `"${l.assignedTo || 'Unassigned'}"`,
       `"${(l.message || '').replace(/"/g, '""')}"`
     ]);

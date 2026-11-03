@@ -1,4 +1,4 @@
-﻿-- ========================================================
+-- ========================================================
 -- KLOUD REALTY — Production Supabase Schema & Security Setup
 -- ========================================================
 
@@ -26,7 +26,21 @@ CREATE TABLE IF NOT EXISTS leads (
   consent_status BOOLEAN DEFAULT true,
   role_in_society TEXT,
   building_age TEXT,
-  number_of_units TEXT
+  number_of_units TEXT,
+  -- Finance & Home Loan
+  employment_type TEXT,
+  approx_property_value TEXT,
+  required_loan_amount TEXT,
+  existing_loan_obligations TEXT,
+  preferred_callback_time TEXT,
+  -- Client Registration
+  date_of_birth TEXT,
+  whatsapp_number TEXT,
+  residential_address TEXT,
+  city_pin TEXT,
+  pan_number TEXT,
+  purpose_of_engagement TEXT[],
+  accepted_fee_terms BOOLEAN DEFAULT false
 );
 
 -- Index for searching and filtering leads

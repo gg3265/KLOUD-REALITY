@@ -116,7 +116,9 @@ export type LeadSource =
   | 'Land' 
   | 'Redevelopment' 
   | 'Contact Page' 
-  | 'Navbar CTA';
+  | 'Navbar CTA'
+  | 'Finance Page'
+  | 'Registration Form';
 
 export type ServiceVertical = 
   | 'Primary Market' 
@@ -124,6 +126,8 @@ export type ServiceVertical =
   | 'Second Homes & Land' 
   | 'Redevelopment Consulting' 
   | 'Rental' 
+  | 'Finance & Home Loan'
+  | 'Client Registration'
   | 'General Consultation';
 
 export type ContactMethod = 'Phone Call' | 'WhatsApp' | 'Email';
@@ -159,6 +163,21 @@ export interface Lead {
   roleInSociety?: string; // For redevelopment enquiries
   buildingAge?: string; // For redevelopment enquiries
   numberOfUnits?: string; // For redevelopment enquiries
+  // Finance & Home Loan parameters
+  employmentType?: 'Salaried' | 'Self-employed';
+  approxPropertyValue?: string;
+  requiredLoanAmount?: string;
+  existingLoanObligations?: string;
+  preferredCallbackTime?: string;
+  // Client Registration parameters
+  dateOfBirth?: string;
+  whatsappNumber?: string;
+  residentialAddress?: string;
+  cityPin?: string;
+  panNumber?: string;
+  purposeOfEngagement?: string[];
+  preferredTimeline?: string;
+  acceptedFeeTerms?: boolean;
 }
 
 export interface FilterState {

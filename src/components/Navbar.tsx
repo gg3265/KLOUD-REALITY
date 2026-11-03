@@ -52,6 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation, currentPath 
     { label: 'Second Homes', href: '#/second-homes' },
     { label: 'Land', href: '#/land' },
     { label: 'Redevelopment', href: '#/redevelopment' },
+    { label: 'Finance & Home Loan', href: '#/finance-home-loan' },
     { label: 'About Us', href: '#/about' },
     { label: 'Contact', href: '#/contact' },
   ];
@@ -90,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation, currentPath 
           {/* 2. CENTER SECTION: Desktop Horizontal Navigation (Visible on all desktop/laptop viewports >= 1024px) */}
           <nav 
             aria-label="Main Navigation" 
-            className="hidden lg:flex items-center justify-center gap-1.5 lg:gap-2.5 xl:gap-4 2xl:gap-6 flex-1 px-1 min-w-0"
+            className="hidden lg:flex items-center justify-center gap-1 xl:gap-2.5 2xl:gap-5 flex-1 px-1 min-w-0"
           >
             {navLinks.map((link) => {
               const isActive = currentPath === link.href.replace('#', '');
@@ -105,14 +106,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation, currentPath 
                   >
                     <a
                       href={link.href}
-                      className={`text-[11.5px] lg:text-[12px] xl:text-[12.5px] 2xl:text-[13.5px] uppercase tracking-[0.04em] lg:tracking-[0.05em] xl:tracking-[0.07em] 2xl:tracking-[0.08em] font-medium transition-colors flex items-center gap-1 whitespace-nowrap py-1 ${
+                      className={`text-[10.5px] lg:text-[11px] xl:text-[12px] 2xl:text-[13px] uppercase tracking-[0.03em] xl:tracking-[0.05em] 2xl:tracking-[0.07em] font-medium transition-colors flex items-center gap-0.5 whitespace-nowrap py-1 ${
                         isActive 
                           ? 'text-gold-400 font-semibold' 
                           : 'text-softWhite/90 hover:text-gold-400'
                       }`}
                     >
                       <span>{link.label}</span>
-                      <ChevronDown className="w-3.5 h-3.5 text-warmGray group-hover:text-gold-400 transition-transform duration-200 group-hover:rotate-180" />
+                      <ChevronDown className="w-3 h-3 text-warmGray group-hover:text-gold-400 transition-transform duration-200 group-hover:rotate-180" />
                     </a>
 
                     {/* Buy Dropdown Menu */}
@@ -140,7 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation, currentPath 
                 <a
                   key={link.label}
                   href={link.href}
-                  className={`text-[11.5px] lg:text-[12px] xl:text-[12.5px] 2xl:text-[13.5px] uppercase tracking-[0.04em] lg:tracking-[0.05em] xl:tracking-[0.07em] 2xl:tracking-[0.08em] font-medium transition-all relative py-1 whitespace-nowrap ${
+                  className={`text-[10.5px] lg:text-[11px] xl:text-[12px] 2xl:text-[13px] uppercase tracking-[0.03em] xl:tracking-[0.05em] 2xl:tracking-[0.07em] font-medium transition-all relative py-1 whitespace-nowrap ${
                     isActive 
                       ? 'text-gold-400 font-semibold' 
                       : 'text-softWhite/90 hover:text-gold-400'
