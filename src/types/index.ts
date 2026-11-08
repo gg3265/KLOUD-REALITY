@@ -176,8 +176,17 @@ export interface Lead {
   cityPin?: string;
   panNumber?: string;
   purposeOfEngagement?: string[];
+  propertyType?: string;
+  configuration?: string;
   preferredTimeline?: string;
   acceptedFeeTerms?: boolean;
+  clientSignature?: string;
+  declarationPlace?: string;
+  declarationDate?: string;
+  feeStructure?: string;
+  gstStatus?: string;
+  paymentMilestones?: string;
+  specialTerms?: string;
 }
 
 export interface FilterState {

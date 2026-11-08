@@ -16,14 +16,20 @@ export interface RegistrationFormData {
   budget?: string;
   timeline?: string;
   additionalRequirements?: string;
+  clientSignature?: string;
+  place?: string;
+  date?: string;
+  feeStructure?: string;
+  gstStatus?: string;
+  paymentMilestones?: string;
+  specialTerms?: string;
 }
 
 export const pdfService = {
   /**
-   * Generates and triggers download of the official A4 printable Client Registration Form.
-   * Can be invoked with empty data for a blank printable form, or pre-filled with client data.
+   * Builds the jsPDF document instance for the official Client Registration & Professional Engagement Form.
    */
-  generateClientRegistrationPdf(prefill?: RegistrationFormData): void {
+  buildClientRegistrationDocument(prefill?: RegistrationFormData): jsPDF {
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -33,22 +39,28 @@ export const pdfService = {
 
     const pageWidth = 210;
     const pageHeight = 297;
-    const margin = 14;
-    const contentWidth = pageWidth - margin * 2; // 182mm
+    const margin = 12;
+    const contentWidth = pageWidth - margin * 2; // 186mm
 
     // Color definitions
     const charcoalDark: [number, number, number] = [17, 24, 39]; // #111827
     const goldPrimary: [number, number, number] = [180, 142, 60]; // #B48E3C
-    const goldLight: [number, number, number] = [245, 238, 220]; // subtle tint
+    const goldLight: [number, number, number] = [248, 244, 232]; // warm champagne tint
     const grayBorder: [number, number, number] = [209, 213, 219]; // #D1D5DB
     const grayText: [number, number, number] = [75, 85, 99]; // #4B5563
     const cyanAccent: [number, number, number] = [1, 182, 229]; // #01B6E5
+
+    // Helper to sanitize text for PDF standard fonts (avoids broken glyphs like ₹ -> ?)
+    const sanitizePdfText = (str?: string): string => {
+      if (!str) return '';
+      return str.replace(/₹/g, 'INR ');
+    };
 
     // ==========================================
     // PAGE 1: CLIENT DETAILS & PROPERTY REQUIREMENTS
     // ==========================================
 
-    // Top Brand Banner Bar
+    // Top Brand Accent Bar
     doc.setFillColor(...goldPrimary);
     doc.rect(margin, margin, contentWidth, 2, 'F');
 
@@ -64,7 +76,7 @@ export const pdfService = {
     doc.text('REALTY', margin + kloudWidth, margin + 8);
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
+    doc.setFontSize(8);
     doc.setTextColor(...grayText);
     doc.text('THE PLACE TO FIND YOUR PLACE', margin, margin + 12.5);
 
@@ -115,7 +127,7 @@ export const pdfService = {
     };
 
     // Helper to draw clean form fields
-    const drawFormField = (label: string, value: string | undefined, x: number, y: number, w: number, h: number = 8) => {
+    const drawFormField = (label: string, value: string | undefined, x: number, y: number, w: number, h: number = 8.5) => {
       doc.setDrawColor(...grayBorder);
       doc.setLineWidth(0.2);
       doc.rect(x, y, w, h);
@@ -129,21 +141,21 @@ export const pdfService = {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(8);
         doc.setTextColor(...charcoalDark);
-        doc.text(value, x + 2, y + 6.5);
+        doc.text(sanitizePdfText(value), x + 2, y + 6.8);
       }
     };
 
     // ----------------------------------------------------
     // SECTION A: CLIENT PERSONAL DETAILS
     // ----------------------------------------------------
-    drawSectionHeader('A. CLIENT PERSONAL DETAILS', 'Confidential Client Identification');
+    drawSectionHeader('SECTION A — CLIENT PERSONAL DETAILS', 'Confidential Client Identification');
 
     const halfW = (contentWidth - 3) / 2;
     const thirdW = (contentWidth - 6) / 3;
 
-    // Row 1: Full Name (2/3) & Date of Birth (1/3)
-    drawFormField('Full Name of Client', prefill?.fullName, margin, curY, contentWidth * 0.68, 8.5);
-    drawFormField('Date of Birth (DD/MM/YYYY)', prefill?.dob, margin + contentWidth * 0.68 + 2, curY, contentWidth * 0.32 - 2, 8.5);
+    // Row 1: Full Name of Client (65%) & Date of Birth (35%)
+    drawFormField('Full Name of Client', prefill?.fullName, margin, curY, contentWidth * 0.65, 8.5);
+    drawFormField('Date of Birth (DD/MM/YYYY)', prefill?.dob, margin + contentWidth * 0.65 + 3, curY, contentWidth * 0.35 - 3, 8.5);
     curY += 10.5;
 
     // Row 2: Mobile Number, WhatsApp Number, Email Address
@@ -153,18 +165,18 @@ export const pdfService = {
     curY += 10.5;
 
     // Row 3: Residential Address
-    drawFormField('Residential Address (Street, Building / Apt No.)', prefill?.address, margin, curY, contentWidth, 8.5);
+    drawFormField('Residential Address (Street, Building / Apartment No.)', prefill?.address, margin, curY, contentWidth, 8.5);
     curY += 10.5;
 
     // Row 4: City & PIN Code, PAN Number (Optional)
-    drawFormField('City & PIN Code', prefill?.cityPin, margin, curY, halfW, 8.5);
+    drawFormField('City and PIN Code', prefill?.cityPin, margin, curY, halfW, 8.5);
     drawFormField('PAN Number (Optional at Initial Registration)', prefill?.pan, margin + halfW + 3, curY, halfW, 8.5);
     curY += 13.5;
 
     // ----------------------------------------------------
-    // SECTION B: PROPERTY REQUIREMENTS
+    // SECTION B: PROPERTY REQUIREMENTS & ENGAGEMENT OBJECTIVE
     // ----------------------------------------------------
-    drawSectionHeader('B. PROPERTY REQUIREMENTS & ENGAGEMENT OBJECTIVE', 'Please indicate scope of advisory');
+    drawSectionHeader('SECTION B — PROPERTY REQUIREMENTS & ENGAGEMENT OBJECTIVE', 'Please indicate the scope of advisory');
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
@@ -193,7 +205,7 @@ export const pdfService = {
 
       const isChecked = prefill?.purposes?.some(p => p.toLowerCase().includes(purpose.toLowerCase().slice(0, 8)));
 
-      // Box
+      // Checkbox Box
       doc.setDrawColor(...charcoalDark);
       doc.setLineWidth(0.3);
       doc.rect(px, py - 3, 3.2, 3.2);
@@ -204,25 +216,25 @@ export const pdfService = {
       }
 
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(7.5);
+      doc.setFontSize(7.2);
       doc.setTextColor(...charcoalDark);
       doc.text(purpose, px + 5, py - 0.5);
     });
 
     curY += 21;
 
-    // Requirement Spec fields
+    // Separate Requirement Spec fields (No duplicates, clear labels, INR notation)
     drawFormField('Preferred Property Location(s)', prefill?.preferredLocation, margin, curY, halfW, 8.5);
     drawFormField('Property Type (Apartment, Penthouse, Villa, Land, Commercial)', prefill?.propertyType, margin + halfW + 3, curY, halfW, 8.5);
     curY += 10.5;
 
     drawFormField('Preferred Configuration (e.g. 2, 3, 4, 5 BHK / Plot Area)', prefill?.configuration, margin, curY, thirdW, 8.5);
-    drawFormField('Approximate Budget (₹ Cr / Lakhs)', prefill?.budget, margin + thirdW + 3, curY, thirdW, 8.5);
-    drawFormField('Preferred Timeline (Immediate, 3-6 Months, Planning)', prefill?.timeline, margin + (thirdW * 2) + 6, curY, thirdW, 8.5);
+    drawFormField('Approximate Budget (INR in Crores / Lakhs)', sanitizePdfText(prefill?.budget), margin + thirdW + 3, curY, thirdW, 8.5);
+    drawFormField('Preferred Timeline', prefill?.timeline, margin + (thirdW * 2) + 6, curY, thirdW, 8.5);
     curY += 10.5;
 
-    drawFormField('Specific Requirements / Notes / Society Details (if Redevelopment)', prefill?.additionalRequirements, margin, curY, contentWidth, 14);
-    curY += 17;
+    drawFormField('Specific Requirements / Notes / Society Details (if Redevelopment Enquiry)', prefill?.additionalRequirements, margin, curY, contentWidth, 14);
+    curY += 18;
 
     // Page 1 Footer Note
     doc.setDrawColor(...grayBorder);
@@ -233,14 +245,14 @@ export const pdfService = {
     doc.setFontSize(6.5);
     doc.setTextColor(...grayText);
     doc.text('KLOUD REALTY • Confidential Client Record • Page 1 of 2 • Turn over for Professional Consultancy & Fee Agreement', margin, pageHeight - margin - 2);
-    doc.text('A0311 72501659', pageWidth - margin, pageHeight - margin - 2, { align: 'right' });
+    doc.text('MahaRERA ID: A0311 72501659', pageWidth - margin, pageHeight - margin - 2, { align: 'right' });
 
     // ==========================================
     // PAGE 2: PROFESSIONAL CONSULTANCY & FEE AGREEMENT + DECLARATION
     // ==========================================
     doc.addPage();
 
-    // Top Mini Banner
+    // Top Accent Bar
     doc.setFillColor(...goldPrimary);
     doc.rect(margin, margin, contentWidth, 2, 'F');
 
@@ -261,7 +273,7 @@ export const pdfService = {
     // ----------------------------------------------------
     // SECTION C: PROFESSIONAL CONSULTANCY & FEE AGREEMENT
     // ----------------------------------------------------
-    drawSectionHeader('C. PROFESSIONAL CONSULTANCY & FEE AGREEMENT', 'Terms of Advisory & Remuneration');
+    drawSectionHeader('SECTION C — PROFESSIONAL CONSULTANCY & FEE AGREEMENT', 'Terms of Advisory & Remuneration');
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
@@ -272,62 +284,67 @@ export const pdfService = {
       curY,
       { maxWidth: contentWidth }
     );
-    curY += 8;
+    curY += 7.5;
 
     const agreementPoints = [
-      '1. Scope of Professional Advisory: The client acknowledges that the consultancy provides professional property advisory, consultation, market research, property identification, comparative valuation insights, negotiations, and transaction coordination services.',
-      '2. Advance Communication of Fees: Consultation fees, wherever applicable, shall be communicated to the client in advance and agreed upon before the consultation service is undertaken.',
-      '3. Transaction Remuneration (Purchase / Sale): In case of a successful property purchase or sale facilitated through the consultancy, professional fees shall be payable as mutually agreed in writing between the client and the consultancy.',
-      '4. Rental & Lease Remuneration: In case of rental or lease transactions facilitated through the consultancy, applicable professional fees shall be communicated and agreed upon before proceeding with the transaction.',
-      '5. Written Recording of Terms: The applicable fee amount or percentage, payment terms, milestones, and relevant conditions shall be recorded separately in writing before the transaction or engagement is executed.',
-      '6. Statutory Taxes: Any applicable taxes (including Goods and Services Tax – GST, where applicable) shall be communicated separately and charged in accordance with prevailing laws.',
-      '7. Registration Nature: Registration of client requirements on this form does not automatically create an immediate financial obligation. Professional fees become payable strictly according to the specific engagement and mutually accepted written terms.'
+      '1. Scope of Professional Advisory: Kloud Realty provides professional property advisory, consultation, market research, property identification, comparative valuation insights, negotiations and transaction coordination.',
+      '2. Advance Communication of Fees: Consultation fees, wherever applicable, will be communicated to the client in advance and agreed upon before the consultation takes place.',
+      '3. Purchase / Sale Transactions: If a successful property purchase or sale is facilitated through Kloud Realty, professional fees will be payable as mutually agreed in writing.',
+      '4. Rental / Lease Transactions: Applicable professional fees will be communicated and agreed upon before proceeding with the transaction.',
+      '5. Written Recording of Terms: The applicable fee amount or percentage, payment terms, milestones and conditions will be recorded separately in writing before the transaction or engagement is executed.',
+      '6. Statutory Taxes: Applicable taxes, including GST where applicable, will be communicated separately and charged according to prevailing laws.',
+      '7. Registration Nature: Submitting the registration form does not automatically create an immediate financial obligation. Professional fees become payable strictly according to the specific engagement and mutually accepted written terms.'
     ];
 
     agreementPoints.forEach((point) => {
       // Background row for subtle luxury legibility
       doc.setFillColor(252, 252, 253);
       const textLines = doc.splitTextToSize(point, contentWidth - 8);
-      const blockHeight = textLines.length * 3.8 + 2;
+      const blockHeight = textLines.length * 3.6 + 2.5;
 
-      doc.rect(margin, curY - 2, contentWidth, blockHeight, 'F');
+      doc.rect(margin, curY - 1.5, contentWidth, blockHeight, 'F');
       doc.setDrawColor(235, 238, 240);
       doc.setLineWidth(0.15);
-      doc.rect(margin, curY - 2, contentWidth, blockHeight, 'D');
+      doc.rect(margin, curY - 1.5, contentWidth, blockHeight, 'D');
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(7.2);
       doc.setTextColor(...charcoalDark);
-      doc.text(textLines, margin + 4, curY + 1.5);
-      curY += blockHeight + 2;
+      doc.text(textLines, margin + 4, curY + 1.8);
+      curY += blockHeight + 1.8;
     });
 
     curY += 2;
 
-    // Configurable Engagement Fee Schedule Box
+    // Consultancy Remuneration Details Section
     doc.setFillColor(...goldLight);
-    doc.rect(margin, curY, contentWidth, 14, 'F');
+    doc.rect(margin, curY, contentWidth, 16, 'F');
     doc.setDrawColor(...goldPrimary);
     doc.setLineWidth(0.3);
-    doc.rect(margin, curY, contentWidth, 14, 'D');
+    doc.rect(margin, curY, contentWidth, 16, 'D');
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7);
     doc.setTextColor(...goldPrimary);
-    doc.text('CONSULTANCY REMUNERATION NOTATION (To be recorded and initialed upon specific engagement):', margin + 3, curY + 3.8);
+    doc.text('CONSULTANCY REMUNERATION DETAILS (To be recorded and initialed upon specific engagement):', margin + 3, curY + 3.8);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(...charcoalDark);
-    doc.text('Applicable Fee Structure: ___________________________________________________________  GST Status: _______________', margin + 3, curY + 8);
-    doc.text('Payment Milestones: _______________________________________________________________  Special Terms: ____________', margin + 3, curY + 11.8);
+    const feeStr = prefill?.feeStructure ? `: ${prefill.feeStructure}` : ': ___________________________________________________________';
+    const gstStr = prefill?.gstStatus ? `: ${prefill.gstStatus}` : ': _______________';
+    const milesStr = prefill?.paymentMilestones ? `: ${prefill.paymentMilestones}` : ': _______________________________________________________________';
+    const termsStr = prefill?.specialTerms ? `: ${prefill.specialTerms}` : ': ____________';
 
-    curY += 18;
+    doc.text(`Applicable Fee Structure${feeStr}  GST Status${gstStr}`, margin + 3, curY + 8.5);
+    doc.text(`Payment Milestones${milesStr}  Special Terms${termsStr}`, margin + 3, curY + 13);
+
+    curY += 20;
 
     // ----------------------------------------------------
-    // SECTION D: CLIENT DECLARATION & ACKNOWLEDGEMENT
+    // SECTION D: CLIENT DECLARATION & SIGNATURE
     // ----------------------------------------------------
-    drawSectionHeader('D. CLIENT DECLARATION & SIGNATURE', 'Formal Acceptance & Authorization');
+    drawSectionHeader('SECTION D — CLIENT DECLARATION & SIGNATURE', 'Formal Acceptance & Authorization');
 
     // Declaration quote box
     doc.setFillColor(248, 249, 250);
@@ -337,7 +354,7 @@ export const pdfService = {
     doc.rect(margin, curY, contentWidth, 14, 'D');
 
     doc.setFont('helvetica', 'italic');
-    doc.setFontSize(7.5);
+    doc.setFontSize(7.3);
     doc.setTextColor(...charcoalDark);
     const declText = '"I hereby confirm that the information provided above is accurate and that I have read and understood the professional engagement and fee terms. I agree to the applicable terms specifically communicated and accepted by me in writing."';
     doc.text(doc.splitTextToSize(declText, contentWidth - 6), margin + 3, curY + 4.5);
@@ -354,41 +371,67 @@ export const pdfService = {
     doc.setTextColor(...charcoalDark);
     doc.text('I confirm acceptance of the applicable professional engagement and fee principles stated herein.', margin + 9, curY + 11.5);
 
-    curY += 19;
+    curY += 18;
 
-    // Signature Blocks
+    // Signature Blocks side-by-side
     const sigBlockW = (contentWidth - 6) / 2;
 
     // Client Signature Box
     doc.setDrawColor(...grayBorder);
     doc.setLineWidth(0.2);
-    doc.rect(margin, curY, sigBlockW, 26);
+    doc.rect(margin, curY, sigBlockW, 28);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7);
     doc.setTextColor(...grayText);
-    doc.text('CLIENT SIGNATURE & EXECUTION', margin + 3, curY + 3.5);
+    doc.text('CLIENT SIGNATURE & EXECUTION', margin + 3, curY + 4);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(...charcoalDark);
-    doc.text('Signature: _______________________________________', margin + 3, curY + 13);
-    doc.text('Client Name: _____________________________________', margin + 3, curY + 18);
-    doc.text('Date: _______________   Place: ____________________', margin + 3, curY + 23);
+    
+    // If digital signature provided, render stylized representation
+    if (prefill?.clientSignature) {
+      doc.setFont('times', 'italic');
+      doc.setFontSize(10);
+      doc.setTextColor(...goldPrimary);
+      doc.text(prefill.clientSignature, margin + 4, curY + 11);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6.5);
+      doc.setTextColor(...grayText);
+      doc.text('[Digital Acknowledgment Verified]', margin + 4, curY + 15);
+    } else {
+      doc.text('Signature: _______________________________________', margin + 3, curY + 14);
+    }
 
-    // Representative Signature Box
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...charcoalDark);
+    doc.text(`Client Name: ${prefill?.fullName || '____________________________________'}`, margin + 3, curY + 20);
+    doc.text(`Date: ${prefill?.date || '_______________'}   Place: ${prefill?.place || '____________________'}`, margin + 3, curY + 25);
+
+    // Representative Signature Box (Abhishek Gupta)
     const repX = margin + sigBlockW + 6;
-    doc.rect(repX, curY, sigBlockW, 26);
+    doc.rect(repX, curY, sigBlockW, 28);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7);
     doc.setTextColor(...grayText);
-    doc.text('FOR KLOUD REALTY (AUTHORIZED REPRESENTATIVE)', repX + 3, curY + 3.5);
+    doc.text('FOR KLOUD REALTY (AUTHORIZED REPRESENTATIVE)', repX + 3, curY + 4);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(...charcoalDark);
     doc.text('Representative: Abhishek Gupta (Founder / Representative)', repX + 3, curY + 10);
-    doc.text('Signature: _______________________________________', repX + 3, curY + 16);
-    doc.text('Date: _______________   Office: Mazgaon, Mumbai', repX + 3, curY + 22);
+    
+    // Stylized representative signature stamp
+    doc.setFont('times', 'italic');
+    doc.setFontSize(9.5);
+    doc.setTextColor(...goldPrimary);
+    doc.text('Abhishek Gupta', repX + 4, curY + 16);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...charcoalDark);
+    doc.text(`Date: ${prefill?.date || new Date().toLocaleDateString('en-GB')}   Office: Mazgaon, Mumbai`, repX + 3, curY + 23);
 
     // Page 2 Footer
     doc.setDrawColor(...grayBorder);
@@ -401,8 +444,17 @@ export const pdfService = {
     doc.text('KLOUD REALTY • Registered Office: Shop No. 2, 321 R.B. Marg, Abdul Rauf Manzil, Mazgaon, Mumbai – 400010 • Page 2 of 2', margin, pageHeight - margin - 2);
     doc.text('MahaRERA ID: A0311 72501659', pageWidth - margin, pageHeight - margin - 2, { align: 'right' });
 
-    // Save PDF
-    doc.save('KLOUD_REALTY_Client_Registration_Form.pdf');
+    return doc;
+  },
+
+  /**
+   * Generates and triggers browser download of the Client Registration PDF.
+   */
+  generateClientRegistrationPdf(prefill?: RegistrationFormData): void {
+    const doc = this.buildClientRegistrationDocument(prefill);
+    const fileName = prefill?.fullName 
+      ? `KLOUD_REALTY_Client_Registration_${prefill.fullName.replace(/\s+/g, '_')}.pdf`
+      : 'KLOUD_REALTY_Client_Registration_Form_Professional.pdf';
+    doc.save(fileName);
   }
 };
-

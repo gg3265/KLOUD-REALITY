@@ -173,6 +173,10 @@ export const emailService = {
                 ` : ''}
                 ${isReg ? `
                 <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1f293d; font-weight: 500;">WhatsApp Number</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1f293d;">${lead.whatsappNumber || lead.phone}</td>
+                </tr>
+                <tr>
                   <td style="color: #9ca3af; border-bottom: 1px solid #1f293d; font-weight: 500;">Date of Birth</td>
                   <td style="color: #ffffff; border-bottom: 1px solid #1f293d;">${lead.dateOfBirth || 'N/A'}</td>
                 </tr>
@@ -190,7 +194,27 @@ export const emailService = {
                 </tr>
                 <tr>
                   <td style="color: #9ca3af; border-bottom: 1px solid #1f293d; font-weight: 500;">Purpose of Engagement</td>
-                  <td style="color: #01B6E5; border-bottom: 1px solid #1f293d;">${lead.purposeOfEngagement?.join(', ') || 'General Consultation'}</td>
+                  <td style="color: #01B6E5; border-bottom: 1px solid #1f293d;">${lead.purposeOfEngagement?.join(', ') || 'General Property Consultation'}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1f293d; font-weight: 500;">Configuration & Type</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1f293d;">${lead.configuration || 'Not specified'} (${lead.propertyType || 'Residential'})</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1f293d; font-weight: 500;">Approximate Budget</td>
+                  <td style="color: #C8A45D; font-weight: 600; border-bottom: 1px solid #1f293d;">${lead.budgetRange || 'Not Decided'}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1f293d; font-weight: 500;">Preferred Timeline</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1f293d;">${lead.preferredTimeline || 'Immediate'}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1f293d; font-weight: 500;">Fee Agreement Accepted</td>
+                  <td style="color: #10B981; font-weight: 600; border-bottom: 1px solid #1f293d;">Yes (Confirmed)</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1f293d; font-weight: 500;">Client Signature / Place</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1f293d;">${lead.clientSignature || lead.fullName} • ${lead.declarationPlace || 'Mumbai'}</td>
                 </tr>
                 ` : ''}
                 <tr>

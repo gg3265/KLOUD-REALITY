@@ -40,8 +40,17 @@ export interface CreateLeadInput {
   cityPin?: string;
   panNumber?: string;
   purposeOfEngagement?: string[];
+  propertyType?: string;
+  configuration?: string;
   preferredTimeline?: string;
   acceptedFeeTerms?: boolean;
+  clientSignature?: string;
+  declarationPlace?: string;
+  declarationDate?: string;
+  feeStructure?: string;
+  gstStatus?: string;
+  paymentMilestones?: string;
+  specialTerms?: string;
 }
 
 export interface SubmissionResult {
@@ -203,8 +212,17 @@ export const leadService = {
       cityPin: input.cityPin,
       panNumber: input.panNumber,
       purposeOfEngagement: input.purposeOfEngagement,
+      propertyType: input.propertyType,
+      configuration: input.configuration,
       preferredTimeline: input.preferredTimeline,
-      acceptedFeeTerms: input.acceptedFeeTerms
+      acceptedFeeTerms: input.acceptedFeeTerms,
+      clientSignature: input.clientSignature,
+      declarationPlace: input.declarationPlace,
+      declarationDate: input.declarationDate,
+      feeStructure: input.feeStructure,
+      gstStatus: input.gstStatus,
+      paymentMilestones: input.paymentMilestones,
+      specialTerms: input.specialTerms
     };
 
     // 1. Try Supabase if configured
