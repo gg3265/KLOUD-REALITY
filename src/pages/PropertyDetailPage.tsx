@@ -382,6 +382,49 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({ property
                   {property.disclaimerText}
                 </p>
               )}
+
+              {/* Detailed Floor Plans & Configurations */}
+              {property.floorPlanDetails && property.floorPlanDetails.length > 0 && (
+                <div className="pt-5 border-t border-white/10 space-y-4">
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gold-400">
+                    <Layers className="w-4 h-4" />
+                    <span>Bespoke Residence Plans & Dimensions</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {property.floorPlanDetails.map((plan, idx) => (
+                      <div key={idx} className="p-4 rounded bg-charcoal-900 border border-white/10 hover:border-gold-500/40 transition-colors flex flex-col justify-between space-y-3">
+                        {plan.image && (
+                          <div 
+                            className="aspect-[16/10] rounded overflow-hidden bg-charcoal-950 border border-white/5 cursor-pointer relative group"
+                            onClick={() => setLightboxImage(plan.image!)}
+                          >
+                            <img src={plan.image} alt={plan.configuration} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <span className="text-[11px] text-white uppercase tracking-wider font-semibold bg-black/70 px-2.5 py-1 rounded">Enlarge Plan</span>
+                            </div>
+                          </div>
+                        )}
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <h4 className="font-serif text-sm font-semibold text-white">{plan.configuration}</h4>
+                            <span className="text-[11px] font-mono text-cyanBrand">{plan.carpetArea}</span>
+                          </div>
+                          {plan.description && (
+                            <p className="text-xs text-warmGray leading-relaxed">{plan.description}</p>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => onOpenConsultation('Primary Market', `${property.title} - ${plan.configuration}`, property.id)}
+                          className="w-full py-2 rounded text-center text-[10.5px] uppercase tracking-wider font-semibold border border-gold-500/30 text-gold-400 hover:bg-gold-500/10 transition-colors cursor-pointer"
+                        >
+                          Request Detailed Floor Plan
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </section>
 
             {/* SECTION E: IMAGE GALLERY & LIGHTBOX */}
@@ -432,6 +475,27 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({ property
               </div>
             </section>
 
+            {/* SECTION E2: CURATED LIFESTYLE AMENITIES */}
+            {property.amenities && property.amenities.length > 0 && (
+              <section className="bg-charcoal-850 p-6 sm:p-8 rounded-sm border border-white/10 space-y-6">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gold-400">
+                  <Sparkles className="w-4 h-4" />
+                  <span>World-Class Lifestyle & Wellness</span>
+                </div>
+                <h3 className="font-serif text-2xl font-light text-white">
+                  Signature Project Amenities
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {property.amenities.map((amenity, idx) => (
+                    <div key={idx} className="p-3.5 rounded bg-charcoal-900 border border-white/5 flex items-center gap-2.5 hover:border-gold-500/20 transition-colors">
+                      <span className="w-2 h-2 rounded-full bg-cyanBrand shrink-0" />
+                      <span className="text-xs text-softWhite/90 font-sans">{amenity}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* SECTION F: LOCATION & CONNECTIVITY */}
             <section className="bg-charcoal-850 p-6 sm:p-8 rounded-sm border border-white/10 space-y-6">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gold-400">
@@ -448,10 +512,36 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({ property
                   </div>
                 ))}
               </div>
+
+              {/* Upcoming Infrastructure Disclosures */}
+              {property.upcomingInfrastructure && property.upcomingInfrastructure.length > 0 && (
+                <div className="pt-4 border-t border-white/10 space-y-3">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-gold-400 block font-mono">
+                    Connectivity Upgrades & Infrastructure Watch:
+                  </span>
+                  <div className="space-y-2.5">
+                    {property.upcomingInfrastructure.map((infra, idx) => (
+                      <div key={idx} className="p-3.5 rounded bg-charcoal-900 border border-cyanBrand/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-white">{infra.name}</span>
+                            <span className="px-2 py-0.5 rounded text-[9.5px] uppercase tracking-wider font-semibold bg-cyanBrand/10 text-cyanBrand border border-cyanBrand/30">
+                              {infra.status}
+                            </span>
+                          </div>
+                          {infra.label && (
+                            <p className="text-[11px] text-warmGray mt-1 leading-relaxed">{infra.label}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </section>
 
             {/* SECTION G: RERA & REGULATORY DISCLOSURES / PLANNING AUTHORITY */}
-            <section className="p-6 rounded-sm bg-charcoal-950 border border-gold-500/30 space-y-3 text-xs text-warmGray">
+            <section className="p-6 rounded-sm bg-charcoal-950 border border-gold-500/30 space-y-4 text-xs text-warmGray">
               {property.reraNumber ? (
                 <>
                   <div className="flex items-center gap-2 text-gold-400 font-semibold uppercase tracking-wider text-[11px]">
@@ -473,6 +563,50 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({ property
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
+
+                  {/* Phase-Wise & Wing-Wise Registration Table */}
+                  {property.phaseReraBreakdown && property.phaseReraBreakdown.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-white/10 space-y-3">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-gold-400 block font-mono">
+                        Phase-Wise & Wing-Wise Registration Schedule:
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {property.phaseReraBreakdown.map((phase, idx) => (
+                          <div key={idx} className="p-3.5 rounded bg-charcoal-900 border border-white/10 space-y-1.5 text-xs">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-semibold text-white text-xs">{phase.phase}</span>
+                              {phase.status && (
+                                <span className="px-1.5 py-0.5 rounded text-[9px] uppercase font-semibold bg-charcoal-850 text-gold-300 border border-gold-500/30">
+                                  {phase.status}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-warmGray">
+                              <span>Wing/Tower: </span>
+                              <strong className="text-softWhite">{phase.towerOrWing}</strong>
+                            </div>
+                            <div className="text-[11px] text-warmGray flex items-center justify-between">
+                              <span>MahaRERA: <strong className="text-white font-mono">{phase.reraNumber}</strong></span>
+                              <a
+                                href={phase.link || 'https://maharera.maharashtra.gov.in/'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10.5px] text-cyanBrand hover:underline inline-flex items-center gap-0.5"
+                              >
+                                <span>Verify</span>
+                                <ExternalLink className="w-2.5 h-2.5" />
+                              </a>
+                            </div>
+                            {phase.possession && (
+                              <div className="text-[10.5px] text-warmGray/80 pt-1 border-t border-white/5">
+                                Timeline: <span className="text-softWhite">{phase.possession}</span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : (
                 <>
@@ -786,6 +920,35 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({ property
           </div>
         </div>
       )}
+
+      {/* SECTION J: STICKY MOBILE ENQUIRY BAR */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-charcoal-950/98 backdrop-blur-md border-t border-gold-500/30 p-2.5 sm:hidden shadow-[0_-4px_24px_rgba(0,0,0,0.85)]">
+        <div className="flex items-center gap-2 max-w-lg mx-auto">
+          <a
+            href="tel:+918655588880"
+            className="flex-1 py-2.5 px-2 rounded bg-charcoal-850 border border-white/20 text-white font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 font-mono"
+          >
+            <PhoneCall className="w-3.5 h-3.5 text-gold-400" />
+            <span>Call</span>
+          </a>
+          <a
+            href={`https://wa.me/${defaultPhone}?text=${waText}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 py-2.5 px-2 rounded bg-emerald-600/90 text-white font-semibold text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5"
+          >
+            <MessageCircle className="w-3.5 h-3.5" />
+            <span>WhatsApp</span>
+          </a>
+          <button
+            type="button"
+            onClick={() => onOpenConsultation('Primary Market', property.title, property.id)}
+            className="flex-[1.4] py-2.5 px-3 rounded bg-gold-500 text-charcoal-950 font-bold text-[11px] uppercase tracking-wider shadow-gold-glow flex items-center justify-center gap-1 cursor-pointer"
+          >
+            <span>Enquire Now</span>
+          </button>
+        </div>
+      </div>
 
     </div>
   );

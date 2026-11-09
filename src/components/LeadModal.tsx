@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, CheckCircle, ShieldCheck, Loader2, ArrowRight, Sparkles, FileText, Download } from 'lucide-react';
 import { leadService } from '../services/leadService';
+import { propertyService } from '../services/propertyService';
 import { LeadSource, ServiceVertical, ContactMethod } from '../types';
 
 interface LeadModalProps {
@@ -60,6 +61,21 @@ export const LeadModal: React.FC<LeadModalProps> = ({
         setLookingTo('Buy a New Property (Primary Market)');
       }
     }
+
+    if (initialPropertyId) {
+      const prop = propertyService.getPropertyById(initialPropertyId);
+      if (prop) {
+        if (prop.location) setLocation(prop.location);
+        const devText = prop.developer ? ` by ${prop.developer}` : '';
+        if (initialVertical === 'Site Visit Scheduling') {
+          setCustomMessage(`Site Visit Request for ${prop.title}${devText} in ${prop.location}`);
+        } else {
+          setCustomMessage(`Enquiry for ${prop.title}${devText} in ${prop.location}`);
+        }
+        return;
+      }
+    }
+
     if (initialLocation) {
       setLocation(initialLocation);
     }
@@ -70,7 +86,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
         setCustomMessage(`Regarding: ${initialPropertyTitle}`);
       }
     }
-  }, [initialVertical, initialPropertyTitle, initialLocation]);
+  }, [initialVertical, initialPropertyTitle, initialPropertyId, initialLocation]);
 
   if (!isOpen) return null;
 

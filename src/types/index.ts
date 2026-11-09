@@ -68,6 +68,25 @@ export interface Property {
   ctaPrimaryText?: string;
   planningAuthority?: string;
   officialReferenceUrl?: string;
+  phaseReraBreakdown?: {
+    phase: string;
+    towerOrWing: string;
+    reraNumber: string;
+    possession?: string;
+    status?: string;
+    link?: string;
+  }[];
+  upcomingInfrastructure?: {
+    name: string;
+    status: 'Operational' | 'Under Construction' | 'Proposed / Upcoming';
+    label?: string;
+  }[];
+  floorPlanDetails?: {
+    configuration: string;
+    carpetArea: string;
+    description?: string;
+    image?: string;
+  }[];
 }
 
 export type LandPublicationStatus = 
@@ -197,6 +216,8 @@ export interface FilterState {
   minBudget: number;
   maxBudget: number;
   bedrooms: string;
+  developer?: string;
+  constructionStatus?: string;
   searchQuery: string;
   sortBy: 'recent' | 'price-asc' | 'price-desc';
 }

@@ -91,10 +91,15 @@ export const BuyPage: React.FC<BuyPageProps> = ({ onOpenConsultation }) => {
                 className="w-full bg-charcoal-800 text-xs text-softWhite px-3 py-2 rounded border border-white/10 outline-none font-sans"
               >
                 <option value="all">All Localities</option>
-                <option value="Mazgaon">Mazgaon (South Mumbai)</option>
+                <option value="Sewri">Sewri (Eastern Waterfront)</option>
+                <option value="Lalbaug">Lalbaug / Parel</option>
                 <option value="Byculla">Byculla</option>
                 <option value="Worli">Worli</option>
-                <option value="Parel">Parel & Lower Parel</option>
+                <option value="Prabhadevi">Prabhadevi</option>
+                <option value="Mazgaon">Mazgaon</option>
+                <option value="Tardeo">Tardeo</option>
+                <option value="Wadala">Wadala</option>
+                <option value="Mahalaxmi">Mahalaxmi</option>
               </select>
             </div>
 

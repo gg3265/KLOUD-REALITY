@@ -1,7 +1,7 @@
 import { Property, PropertyCategory, FilterState } from '../types';
 import { initialDemoProperties } from '../data/demoProperties';
 
-const LOCAL_STORAGE_PROPERTIES_KEY = 'kloud_realty_properties_v5';
+const LOCAL_STORAGE_PROPERTIES_KEY = 'kloud_realty_properties_v6';
 
 export const propertyService = {
   getAllProperties(): Property[] {
@@ -11,7 +11,16 @@ export const propertyService = {
         localStorage.setItem(LOCAL_STORAGE_PROPERTIES_KEY, JSON.stringify(initialDemoProperties));
         return initialDemoProperties;
       }
-      return JSON.parse(stored);
+      const parsed: Property[] = JSON.parse(stored);
+      // Ensure any newly added properties in initialDemoProperties are merged
+      const existingIds = new Set(parsed.map(p => p.id));
+      const missing = initialDemoProperties.filter(p => !existingIds.has(p.id));
+      if (missing.length > 0) {
+        const merged = [...parsed, ...missing];
+        localStorage.setItem(LOCAL_STORAGE_PROPERTIES_KEY, JSON.stringify(merged));
+        return merged;
+      }
+      return parsed;
     } catch {
       return initialDemoProperties;
     }
@@ -64,6 +73,19 @@ export const propertyService = {
         p.locality.toLowerCase().includes(lowerLoc) ||
         p.location.toLowerCase().includes(lowerLoc) ||
         p.city.toLowerCase().includes(lowerLoc)
+      );
+    }
+
+    if (filters.developer && filters.developer !== 'all') {
+      const dev = filters.developer.toLowerCase();
+      list = list.filter(p => p.developer && p.developer.toLowerCase().includes(dev));
+    }
+
+    if (filters.constructionStatus && filters.constructionStatus !== 'all') {
+      const st = filters.constructionStatus.toLowerCase();
+      list = list.filter(p => 
+        p.constructionStatus.toLowerCase().includes(st) || 
+        (p.possession && p.possession.toLowerCase().includes(st))
       );
     }
 

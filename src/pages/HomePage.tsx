@@ -25,6 +25,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
     ? allProperties
     : allProperties.filter(p => p.category === activeCategoryTab);
 
+  const fiveNewProjects = allProperties.filter(p => [
+    'prop-lodha-aureus',
+    'prop-bhoomi-simana',
+    'prop-monte-south',
+    'prop-embassy-citadel',
+    'prop-hubtown-25-south'
+  ].includes(p.id));
+
   const handleHeroSearch = (params: {
     intent: string;
     propertyType: string;
@@ -309,6 +317,59 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenConsultation, onNaviga
           </div>
         </div>
       </section>
+      {/* 3B. DEDICATED SPOTLIGHT: FEATURED RESIDENTIAL PROJECTS — SOUTH MUMBAI */}
+      <section className="py-20 bg-charcoal-900 border-t border-white/10 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-[11px] font-semibold uppercase tracking-widest mb-3">
+                <Building2 className="w-3.5 h-3.5 text-gold-400" />
+                <span>FEATURED RESIDENTIAL PROJECTS — SOUTH MUMBAI</span>
+              </div>
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-light text-white tracking-tight leading-tight">
+                SOUTH MUMBAI'S DISTINGUISHED RESIDENCES
+              </h2>
+              <p className="mt-3 text-sm sm:text-base text-warmGray max-w-2xl leading-relaxed font-sans">
+                Explore a curated collection of premium residential developments across Mumbai's most sought-after neighbourhoods.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href="#/primary-market"
+                className="px-4 py-2.5 rounded text-xs uppercase tracking-wider font-semibold border border-gold-500/40 text-gold-400 hover:bg-gold-500/10 hover:border-gold-400 transition-colors"
+              >
+                View All Projects
+              </a>
+              <a
+                href="#/buy"
+                className="px-4 py-2.5 rounded text-xs uppercase tracking-wider font-semibold border border-white/20 text-softWhite hover:border-white/40 transition-colors"
+              >
+                Explore Primary Market
+              </a>
+              <button
+                type="button"
+                onClick={() => onOpenConsultation('Primary Market', 'General Project Enquiry')}
+                className="px-5 py-2.5 rounded text-xs uppercase tracking-wider font-semibold bg-gold-500 text-charcoal-950 hover:bg-gold-400 transition-colors shadow-gold-glow cursor-pointer"
+              >
+                Enquire About a Project
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {fiveNewProjects.map((property) => (
+              <PropertyCard
+                key={property.id}
+                property={property}
+                onEnquire={handleCardEnquiry}
+                onScheduleVisit={handleCardScheduleVisit}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 4. FEATURED PROPERTIES: EXCEPTIONAL ADDRESSES. EXTRAORDINARY LIVING. */}
       <section id="property-showcase" className="py-24 bg-charcoal-950/70 border-t border-b border-white/10 px-4 sm:px-6 lg:px-8 scroll-mt-24">
         <div className="max-w-7xl mx-auto">
