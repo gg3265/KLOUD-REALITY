@@ -8,14 +8,8 @@ import {
   CheckSquare, 
   Square, 
   ArrowRight, 
-  ArrowLeft, 
   FileText, 
   PenTool, 
-  Check, 
-  Building, 
-  Clock, 
-  DollarSign, 
-  User, 
   Sparkles,
   ExternalLink
 } from 'lucide-react';
@@ -28,9 +22,6 @@ interface ClientRegistrationModalProps {
 }
 
 export const ClientRegistrationModal: React.FC<ClientRegistrationModalProps> = ({ isOpen, onClose }) => {
-  // Wizard Step (1: Personal Details, 2: Requirements, 3: Fee Agreement, 4: Declaration & Review)
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
-
   // Section A: Client Personal Details
   const [fullName, setFullName] = useState('');
   const [dob, setDob] = useState('');
@@ -54,10 +45,10 @@ export const ClientRegistrationModal: React.FC<ClientRegistrationModalProps> = (
   const [additionalRequirements, setAdditionalRequirements] = useState('');
 
   // Section C: Consultancy Remuneration Details
-  const [feeStructure, setFeeStructure] = useState('As mutually agreed in writing prior to transaction');
-  const [gstStatus, setGstStatus] = useState('Applicable as per prevailing statutory rates (18% GST)');
-  const [paymentMilestones, setPaymentMilestones] = useState('Payable upon execution / registration of formal agreement');
-  const [specialTerms, setSpecialTerms] = useState('Subject to separate written engagement letter / terms');
+  const [feeStructure] = useState('As mutually agreed in writing prior to transaction');
+  const [gstStatus] = useState('Applicable as per prevailing statutory rates (18% GST)');
+  const [paymentMilestones] = useState('Payable upon execution / registration of formal agreement');
+  const [specialTerms] = useState('Subject to separate written engagement letter / terms');
 
   // Section D: Client Declaration & Signature
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -103,61 +94,42 @@ export const ClientRegistrationModal: React.FC<ClientRegistrationModalProps> = (
     ? customPropertyType.trim() 
     : propertyType;
 
-  // Step 1 Validation
-  const validateStep1 = (): boolean => {
+  // Validation
+  const validateForm = (): boolean => {
     setErrorMsg('');
     if (!fullName.trim() || fullName.trim().length < 2) {
-      setErrorMsg('Please enter your full name.');
+      setErrorMsg('Please enter your Full Name in Section A.');
+      document.getElementById('reg-fullname')?.focus();
       return false;
     }
     const cleanPhone = phone.replace(/[\s-]/g, '');
     if (!cleanPhone || cleanPhone.length < 8) {
-      setErrorMsg('Please enter a valid telephone or mobile number.');
+      setErrorMsg('Please enter a valid Mobile Number in Section A.');
+      document.getElementById('reg-phone')?.focus();
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email.trim())) {
-      setErrorMsg('Please enter a valid email address.');
+      setErrorMsg('Please enter a valid Email Address in Section A.');
+      document.getElementById('reg-email')?.focus();
       return false;
     }
-    return true;
-  };
-
-  // Step 2 Validation
-  const validateStep2 = (): boolean => {
-    setErrorMsg('');
     if (selectedPurposes.length === 0) {
-      setErrorMsg('Please select at least one Purpose of Engagement.');
+      setErrorMsg('Please select at least one Purpose of Engagement in Section B.');
+      document.getElementById('reg-purposes')?.scrollIntoView({ behavior: 'smooth' });
+      return false;
+    }
+    if (!acceptedTerms) {
+      setErrorMsg('Please confirm acceptance of the professional engagement and fee principles in Section D.');
+      document.getElementById('reg-declaration')?.scrollIntoView({ behavior: 'smooth' });
+      return false;
+    }
+    if (!clientSignature.trim()) {
+      setErrorMsg('Please type your legal signature in the Client Signature field in Section D.');
+      document.getElementById('reg-signature')?.focus();
       return false;
     }
     return true;
-  };
-
-  // Step 3 Validation
-  const validateStep3 = (): boolean => {
-    setErrorMsg('');
-    return true;
-  };
-
-  const handleNext = () => {
-    if (currentStep === 1 && validateStep1()) {
-      setCurrentStep(2);
-    } else if (currentStep === 2 && validateStep2()) {
-      setCurrentStep(3);
-    } else if (currentStep === 3 && validateStep3()) {
-      // Pre-fill signature name if empty
-      if (!clientSignature) {
-        setClientSignature(fullName.trim());
-      }
-      setCurrentStep(4);
-    }
-  };
-
-  const handleBack = () => {
-    setErrorMsg('');
-    if (currentStep > 1) {
-      setCurrentStep((currentStep - 1) as any);
-    }
   };
 
   // Download pre-filled PDF
@@ -197,18 +169,7 @@ export const ClientRegistrationModal: React.FC<ClientRegistrationModalProps> = (
       return;
     }
 
-    if (!validateStep1()) {
-      setCurrentStep(1);
-      return;
-    }
-
-    if (!acceptedTerms) {
-      setErrorMsg('Please confirm acceptance of the professional engagement and fee principles stated herein.');
-      return;
-    }
-
-    if (!clientSignature.trim()) {
-      setErrorMsg('Please type your legal signature in the Client Signature field.');
+    if (!validateForm()) {
       return;
     }
 
@@ -264,143 +225,145 @@ export const ClientRegistrationModal: React.FC<ClientRegistrationModalProps> = (
     }
   };
 
-  const stepsMeta = [
-    { num: 1, label: 'Personal Details', sub: 'Section A' },
-    { num: 2, label: 'Property Requirements', sub: 'Section B' },
-    { num: 3, label: 'Fee Agreement', sub: 'Section C' },
-    { num: 4, label: 'Review & Declaration', sub: 'Section D' }
-  ];
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
       <div 
         role="dialog"
         aria-modal="true"
         aria-labelledby="client-registration-title"
-        className="relative w-full max-w-4xl bg-charcoal-900 border border-gold-500/40 rounded-sm shadow-2xl overflow-hidden my-4 sm:my-6 animate-fade-in"
+        className="relative w-full max-w-5xl bg-charcoal-900 border border-gold-500/40 rounded shadow-2xl overflow-hidden my-3 sm:my-5 animate-fade-in flex flex-col max-h-[92vh]"
       >
         
         {/* Top Decorative Gold Accent Bar */}
-        <div className="h-1 bg-gradient-to-r from-gold-500 via-gold-400 to-cyanBrand" />
+        <div className="h-1 bg-gradient-to-r from-gold-500 via-gold-400 to-cyanBrand shrink-0" />
 
         {/* Modal Header */}
-        <div className="p-4 sm:p-6 border-b border-white/10 flex items-center justify-between bg-charcoal-950/70">
+        <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-charcoal-950 shrink-0">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="font-serif text-lg sm:text-xl font-bold text-white tracking-wider">
                 KLOUD <span className="text-cyanBrand">REALTY</span>
               </span>
-              <span className="text-xs text-warmGray">•</span>
-              <span className="text-[10px] sm:text-[11px] uppercase tracking-widest text-gold-400 font-semibold">
+              <span className="text-xs text-warmGray hidden sm:inline">•</span>
+              <span className="text-[11px] sm:text-xs uppercase tracking-widest text-gold-400 font-semibold">
                 Client Registration &amp; Engagement
               </span>
             </div>
             <p className="text-xs text-warmGray mt-0.5">
-              Official Property Advisory Intake &amp; 7-Point Professional Agreement
+              Official Property Advisory Intake &amp; 7-Point Professional Fee Agreement
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-warmGray hover:text-white hover:bg-charcoal-800 transition-colors"
+            className="p-1.5 rounded-full text-warmGray hover:text-white hover:bg-charcoal-800 transition-colors shrink-0"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Multi-Step Wizard Progress Bar */}
+        {/* Section Quick Jump Navigator Bar */}
         {!submittedLeadId && (
-          <div className="px-4 sm:px-6 py-3 bg-charcoal-950/40 border-b border-white/5">
-            <div className="grid grid-cols-4 gap-2">
-              {stepsMeta.map((s) => {
-                const isActive = currentStep === s.num;
-                const isPast = currentStep > s.num;
-                return (
-                  <div key={s.num} className="text-center">
-                    <div className="flex items-center justify-center mb-1">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                        isPast
-                          ? 'bg-emerald-500 text-charcoal-950'
-                          : isActive
-                          ? 'bg-gold-500 text-charcoal-950 ring-2 ring-gold-400/30'
-                          : 'bg-charcoal-800 text-warmGray border border-white/10'
-                      }`}>
-                        {isPast ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : s.num}
-                      </div>
-                    </div>
-                    <div className="hidden sm:block">
-                      <span className={`text-[10px] font-mono uppercase tracking-wider block ${
-                        isActive ? 'text-gold-400 font-bold' : isPast ? 'text-emerald-400' : 'text-warmGray/60'
-                      }`}>
-                        {s.sub}
-                      </span>
-                      <span className={`text-[11px] leading-tight block truncate ${
-                        isActive ? 'text-white font-semibold' : 'text-warmGray/80'
-                      }`}>
-                        {s.label}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+          <div className="px-4 sm:px-6 py-2.5 bg-charcoal-950/90 border-b border-white/10 shrink-0 flex items-center justify-between gap-2 overflow-x-auto text-xs">
+            <span className="text-[10px] uppercase font-mono tracking-wider text-warmGray hidden md:inline shrink-0">
+              Form Sections:
+            </span>
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => scrollToSection('sec-personal-details')}
+                className="px-2.5 py-1 rounded bg-charcoal-800 hover:bg-gold-500/20 text-warmGray hover:text-gold-300 border border-white/5 text-[11px] font-medium transition-colors whitespace-nowrap"
+              >
+                Section A: Personal Details
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToSection('sec-property-requirements')}
+                className="px-2.5 py-1 rounded bg-charcoal-800 hover:bg-gold-500/20 text-warmGray hover:text-gold-300 border border-white/5 text-[11px] font-medium transition-colors whitespace-nowrap"
+              >
+                Section B: Requirements
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToSection('sec-fee-agreement')}
+                className="px-2.5 py-1 rounded bg-charcoal-800 hover:bg-gold-500/20 text-warmGray hover:text-gold-300 border border-white/5 text-[11px] font-medium transition-colors whitespace-nowrap"
+              >
+                Section C: Fee Agreement
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToSection('sec-client-declaration')}
+                className="px-2.5 py-1 rounded bg-charcoal-800 hover:bg-gold-500/20 text-warmGray hover:text-gold-300 border border-white/5 text-[11px] font-medium transition-colors whitespace-nowrap"
+              >
+                Section D: Declaration
+              </button>
             </div>
-            
-            {/* Linear progress bar */}
-            <div className="w-full h-1 bg-charcoal-800 rounded-full mt-2.5 overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-gold-500 to-cyanBrand transition-all duration-300"
-                style={{ width: `${(currentStep / 4) * 100}%` }}
-              />
-            </div>
+            <a
+              href="/documents/KLOUD_REALTY_Client_Registration_Form_Professional.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] text-gold-400 hover:text-gold-300 hover:underline flex items-center gap-1 shrink-0 ml-auto"
+            >
+              <FileText className="w-3.5 h-3.5 text-gold-400" />
+              <span className="hidden sm:inline">Official Blank PDF</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
           </div>
         )}
 
         {/* Modal Scrollable Body */}
-        <div className="p-4 sm:p-7 max-h-[72vh] overflow-y-auto custom-scrollbar space-y-6">
+        <div className="p-4 sm:p-6 lg:p-7 overflow-y-auto custom-scrollbar flex-1 bg-slate-100">
           
           {submittedLeadId ? (
             /* SUCCESS CONFIRMATION */
-            <div className="text-center py-8 sm:py-10 space-y-5 animate-fade-in">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400 shadow-luxury">
+            <div className="text-center py-8 sm:py-12 space-y-6 animate-fade-in bg-white rounded border border-slate-200 p-6 sm:p-10 shadow-sm max-w-2xl mx-auto">
+              <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-300 flex items-center justify-center mx-auto text-emerald-600 shadow-sm">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <div className="space-y-2">
-                <h3 className="font-serif text-2xl sm:text-3xl font-light text-white">
+                <h3 className="font-serif text-2xl sm:text-3xl font-light text-slate-900">
                   Client Registration Successfully Recorded
                 </h3>
-                <p className="text-xs sm:text-sm text-warmGray max-w-lg mx-auto leading-relaxed">
-                  Thank you, <strong className="text-white">{fullName}</strong>. Your official Client Registration &amp; Professional Engagement dossier has been recorded and transmitted directly to Abhishek Gupta at KLOUD REALTY.
+                <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+                  Thank you, <strong className="text-slate-900">{fullName}</strong>. Your official Client Registration &amp; Professional Engagement dossier has been recorded and transmitted directly to Abhishek Gupta at KLOUD REALTY.
                 </p>
               </div>
 
               {/* Official Registration ID Card */}
-              <div className="p-4 rounded bg-charcoal-850 border border-gold-500/30 max-w-sm mx-auto shadow-md">
-                <span className="text-[10px] uppercase tracking-widest text-warmGray block">Official Registration ID</span>
-                <span className="font-mono text-xl sm:text-2xl font-bold text-gold-400 tracking-wider">{submittedLeadId}</span>
-                <span className="text-[11px] text-warmGray/80 block mt-1">Status: Recorded &amp; Transmitted</span>
+              <div className="p-4 rounded bg-slate-50 border border-gold-500/40 max-w-sm mx-auto shadow-xs">
+                <span className="text-[10px] uppercase tracking-widest text-slate-500 block">Official Registration ID</span>
+                <span className="font-mono text-xl sm:text-2xl font-bold text-gold-600 tracking-wider">{submittedLeadId}</span>
+                <span className="text-[11px] text-slate-500 block mt-1">Status: Recorded &amp; Transmitted</span>
               </div>
 
               {/* Summary Pill Grid */}
-              <div className="max-w-md mx-auto p-4 rounded bg-charcoal-950 border border-white/5 text-left text-xs space-y-2">
-                <div className="flex justify-between border-b border-white/5 pb-1.5">
-                  <span className="text-warmGray">Client:</span>
-                  <span className="text-white font-medium">{fullName}</span>
+              <div className="max-w-md mx-auto p-4 rounded bg-slate-50 border border-slate-200 text-left text-xs space-y-2 text-slate-700">
+                <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                  <span className="text-slate-500">Client:</span>
+                  <span className="text-slate-900 font-medium">{fullName}</span>
                 </div>
-                <div className="flex justify-between border-b border-white/5 pb-1.5">
-                  <span className="text-warmGray">Contact:</span>
-                  <span className="text-white font-mono">{phone} • {email}</span>
+                <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                  <span className="text-slate-500">Contact:</span>
+                  <span className="text-slate-900 font-mono">{phone} • {email}</span>
                 </div>
-                <div className="flex justify-between border-b border-white/5 pb-1.5">
-                  <span className="text-warmGray">Engagement Scope:</span>
-                  <span className="text-gold-300 font-medium text-right max-w-[240px] truncate">{selectedPurposes.join(', ')}</span>
+                <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                  <span className="text-slate-500">Engagement Scope:</span>
+                  <span className="text-gold-700 font-medium text-right max-w-[240px] truncate">{selectedPurposes.join(', ')}</span>
                 </div>
-                <div className="flex justify-between border-b border-white/5 pb-1.5">
-                  <span className="text-warmGray">Fee Agreement:</span>
-                  <span className="text-emerald-400 font-semibold">Accepted &amp; Digitally Signed</span>
+                <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                  <span className="text-slate-500">Fee Agreement:</span>
+                  <span className="text-emerald-700 font-semibold">Accepted &amp; Digitally Signed</span>
                 </div>
                 <div className="flex justify-between pt-0.5">
-                  <span className="text-warmGray">Advisory Desk:</span>
-                  <span className="text-cyanBrand font-medium">Mazgaon Office • Abhishek Gupta</span>
+                  <span className="text-slate-500">Advisory Desk:</span>
+                  <span className="text-slate-900 font-medium">Mazgaon Office • Abhishek Gupta</span>
                 </div>
               </div>
 
@@ -409,7 +372,7 @@ export const ClientRegistrationModal: React.FC<ClientRegistrationModalProps> = (
                 <button
                   type="button"
                   onClick={handleDownloadFilledPdf}
-                  className="w-full sm:w-auto px-6 py-3 rounded bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 text-charcoal-950 font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-all duration-300 shadow-gold-glow flex items-center justify-center gap-2 group"
+                  className="w-full sm:w-auto px-6 py-3 rounded bg-gold-500 hover:bg-gold-400 text-charcoal-950 font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-gold-glow flex items-center justify-center gap-2"
                 >
                   <Download className="w-4 h-4 text-charcoal-950" />
                   <span>Download Pre-filled PDF Copy</span>
@@ -420,24 +383,24 @@ export const ClientRegistrationModal: React.FC<ClientRegistrationModalProps> = (
                   download="KLOUD_REALTY_Client_Registration_Form_Professional.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto px-5 py-3 rounded border border-white/20 text-softWhite hover:text-gold-300 hover:border-gold-500/60 font-semibold text-xs uppercase tracking-wider bg-charcoal-850 hover:bg-charcoal-800 transition-colors flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-5 py-3 rounded border border-slate-300 text-slate-700 hover:text-slate-900 hover:border-gold-500 font-semibold text-xs uppercase tracking-wider bg-white hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
                 >
-                  <FileText className="w-4 h-4 text-gold-400" />
-                  <span>Download Official Blank PDF</span>
+                  <FileText className="w-4 h-4 text-gold-600" />
+                  <span>Download Blank Official PDF</span>
                 </a>
 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full sm:w-auto px-5 py-3 rounded border border-white/10 text-warmGray hover:text-white font-medium text-xs transition-colors"
+                  className="w-full sm:w-auto px-5 py-3 rounded border border-slate-200 text-slate-500 hover:text-slate-800 font-medium text-xs transition-colors"
                 >
                   Close Window
                 </button>
               </div>
             </div>
           ) : (
-            /* WIZARD FORM */
-            <form onSubmit={handleSubmit} className="space-y-6">
+            /* COMPREHENSIVE DOSSIER FORM */
+            <form onSubmit={handleSubmit} className="space-y-7">
               
               {/* Anti-spam honeypot */}
               <input
@@ -451,178 +414,200 @@ export const ClientRegistrationModal: React.FC<ClientRegistrationModalProps> = (
               />
 
               {errorMsg && (
-                <div className="p-3.5 rounded bg-red-950/70 border border-red-500/40 text-red-300 text-xs flex items-center gap-2.5 animate-shake">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
-                  <span>{errorMsg}</span>
+                <div className="p-4 rounded bg-red-50 border border-red-300 text-red-700 text-xs flex items-center gap-2.5 animate-shake shadow-xs">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                  <span className="font-medium">{errorMsg}</span>
                 </div>
               )}
 
               {/* ==================================================== */}
-              {/* STEP 1: SECTION A — CLIENT PERSONAL DETAILS           */}
+              {/* SECTION A — CLIENT PERSONAL DETAILS                  */}
               {/* ==================================================== */}
-              {currentStep === 1 && (
-                <div className="space-y-4 animate-fade-in">
-                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                    <div>
-                      <h4 className="font-serif text-sm sm:text-base font-semibold uppercase tracking-wider text-gold-400 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-400 text-xs flex items-center justify-center font-bold">A</span>
-                        <span>SECTION A — CLIENT PERSONAL DETAILS</span>
-                      </h4>
-                      <p className="text-[11px] text-warmGray mt-0.5">
-                        Confidential Client Identification for official advisory records.
-                      </p>
-                    </div>
-                    <span className="text-[10px] uppercase font-mono text-cyanBrand px-2 py-0.5 rounded bg-cyanBrand/10 border border-cyanBrand/20">
-                      Step 1 of 4
-                    </span>
-                  </div>
+              <div id="sec-personal-details" className="scroll-mt-4">
+                
+                {/* Dark Navy Section Heading Bar */}
+                <div className="bg-slate-900 border-l-4 border-gold-500 text-white py-3 px-4 sm:px-5 rounded-t flex items-center justify-between min-h-[44px]">
+                  <h4 className="font-serif text-xs sm:text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2.5">
+                    <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-400 text-xs flex items-center justify-center font-mono font-bold">A</span>
+                    <span>SECTION A — CLIENT PERSONAL DETAILS</span>
+                  </h4>
+                  <span className="text-[10px] sm:text-[11px] uppercase font-mono tracking-wider text-slate-300 hidden sm:block">
+                    Confidential Client Identification
+                  </span>
+                </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    {/* Full Name */}
-                    <div>
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
-                        Full Name of Client <span className="text-gold-400">*</span>
+                {/* Form Inputs Container */}
+                <div className="bg-white border border-slate-300 border-t-0 rounded-b p-4 sm:p-6 shadow-xs">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5">
+                    
+                    {/* ROW 1: Full Name (2/3 width) & Date of Birth (1/3 width) */}
+                    <div className="col-span-1 md:col-span-8">
+                      <label htmlFor="reg-fullname" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Full Name of Client <span className="text-amber-600 font-bold">*</span>
                       </label>
                       <input
+                        id="reg-fullname"
                         type="text"
                         required
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         placeholder="e.g. Vikramaditya Singhania"
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white placeholder-warmGray/50 focus:border-gold-500 focus:outline-none transition-colors"
+                        className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors"
                       />
                     </div>
 
-                    {/* Mobile Number */}
-                    <div>
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
-                        Mobile Number <span className="text-gold-400">*</span>
+                    <div className="col-span-1 md:col-span-4">
+                      <label htmlFor="reg-dob" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Date of Birth <span className="text-slate-400 font-normal">(DD/MM/YYYY)</span>
                       </label>
                       <input
+                        id="reg-dob"
+                        type="text"
+                        value={dob}
+                        onChange={(e) => setDob(e.target.value)}
+                        placeholder="DD/MM/YYYY"
+                        className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors font-mono"
+                      />
+                    </div>
+
+                    {/* ROW 2: Mobile Number (1/3), WhatsApp Number (1/3), Email Address (1/3) */}
+                    <div className="col-span-1 md:col-span-4">
+                      <label htmlFor="reg-phone" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Mobile Number <span className="text-amber-600 font-bold">*</span>
+                      </label>
+                      <input
+                        id="reg-phone"
                         type="tel"
                         required
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="e.g. 98200 12345"
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white placeholder-warmGray/50 focus:border-gold-500 focus:outline-none transition-colors font-mono"
+                        className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors font-mono"
                       />
                     </div>
 
-                    {/* Date of Birth */}
-                    <div>
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
-                        Date of Birth (DD/MM/YYYY)
-                      </label>
+                    <div className="col-span-1 md:col-span-4">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label htmlFor="reg-whatsapp" className="block text-xs font-semibold text-slate-700">
+                          WhatsApp Number
+                        </label>
+                        {phone && (
+                          <button
+                            type="button"
+                            onClick={() => setWhatsapp(phone)}
+                            className="text-[10px] text-gold-600 hover:text-gold-700 font-medium hover:underline"
+                          >
+                            Same as mobile
+                          </button>
+                        )}
+                      </div>
                       <input
-                        type="text"
-                        value={dob}
-                        onChange={(e) => setDob(e.target.value)}
-                        placeholder="DD/MM/YYYY"
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white placeholder-warmGray/50 focus:border-gold-500 focus:outline-none transition-colors font-mono"
-                      />
-                    </div>
-
-                    {/* WhatsApp Number */}
-                    <div>
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
-                        WhatsApp Number
-                      </label>
-                      <input
+                        id="reg-whatsapp"
                         type="tel"
                         value={whatsapp}
                         onChange={(e) => setWhatsapp(e.target.value)}
                         placeholder="Same as mobile or alternate"
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white placeholder-warmGray/50 focus:border-gold-500 focus:outline-none transition-colors font-mono"
+                        className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors font-mono"
                       />
                     </div>
 
-                    {/* Email Address */}
-                    <div className="sm:col-span-2">
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
-                        Email Address <span className="text-gold-400">*</span>
+                    <div className="col-span-1 md:col-span-4">
+                      <label htmlFor="reg-email" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Email Address <span className="text-amber-600 font-bold">*</span>
                       </label>
                       <input
+                        id="reg-email"
                         type="email"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="e.g. client@domain.com"
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white placeholder-warmGray/50 focus:border-gold-500 focus:outline-none transition-colors"
+                        className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors"
                       />
                     </div>
 
-                    {/* Residential Address */}
-                    <div className="sm:col-span-2">
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
-                        Residential Address (Street, Building / Apartment No.)
+                    {/* ROW 3: Residential Address (full width) */}
+                    <div className="col-span-1 md:col-span-12">
+                      <label htmlFor="reg-address" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Residential Address <span className="text-slate-400 font-normal">(Street, Building / Apartment No.)</span>
                       </label>
                       <input
+                        id="reg-address"
                         type="text"
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                         placeholder="e.g. Flat 1402, Harbour View Apartments, Mazgaon"
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white placeholder-warmGray/50 focus:border-gold-500 focus:outline-none transition-colors"
+                        className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors"
                       />
                     </div>
 
-                    {/* City and PIN Code */}
-                    <div>
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
+                    {/* ROW 4: City and PIN Code (1/2 width) & PAN Number (1/2 width) */}
+                    <div className="col-span-1 md:col-span-6">
+                      <label htmlFor="reg-citypin" className="block text-xs font-semibold text-slate-700 mb-1.5">
                         City and PIN Code
                       </label>
                       <input
+                        id="reg-citypin"
                         type="text"
                         value={cityPin}
                         onChange={(e) => setCityPin(e.target.value)}
                         placeholder="e.g. Mumbai – 400010"
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white placeholder-warmGray/50 focus:border-gold-500 focus:outline-none transition-colors"
+                        className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors"
                       />
                     </div>
 
-                    {/* PAN Number */}
-                    <div>
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
-                        PAN Number (Optional at Initial Registration)
+                    <div className="col-span-1 md:col-span-6">
+                      <label htmlFor="reg-pan" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        PAN Number <span className="text-slate-400 font-normal">(Optional at Initial Registration)</span>
                       </label>
                       <input
+                        id="reg-pan"
                         type="text"
                         value={pan}
                         onChange={(e) => setPan(e.target.value.toUpperCase())}
                         placeholder="ABCDE1234F"
                         maxLength={10}
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white uppercase placeholder-warmGray/50 focus:border-gold-500 focus:outline-none font-mono tracking-wider transition-colors"
+                        className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 uppercase placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none font-mono tracking-wider transition-colors"
                       />
                     </div>
+
                   </div>
                 </div>
-              )}
+              </div>
 
               {/* ==================================================== */}
-              {/* STEP 2: SECTION B — PROPERTY REQUIREMENTS             */}
+              {/* SECTION B — PROPERTY REQUIREMENTS & ENGAGEMENT OBJECTIVE */}
               {/* ==================================================== */}
-              {currentStep === 2 && (
-                <div className="space-y-4 animate-fade-in">
-                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                    <div>
-                      <h4 className="font-serif text-sm sm:text-base font-semibold uppercase tracking-wider text-gold-400 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-400 text-xs flex items-center justify-center font-bold">B</span>
-                        <span>SECTION B — PROPERTY REQUIREMENTS &amp; ENGAGEMENT OBJECTIVE</span>
-                      </h4>
-                      <p className="text-xs text-white/90 font-medium mt-0.5">
-                        Please indicate the scope of advisory.
+              <div id="sec-property-requirements" className="scroll-mt-4">
+                
+                {/* Dark Navy Section Heading Bar */}
+                <div className="bg-slate-900 border-l-4 border-gold-500 text-white py-3 px-4 sm:px-5 rounded-t flex items-center justify-between min-h-[44px]">
+                  <h4 className="font-serif text-xs sm:text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2.5">
+                    <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-400 text-xs flex items-center justify-center font-mono font-bold">B</span>
+                    <span>SECTION B — PROPERTY REQUIREMENTS &amp; ENGAGEMENT OBJECTIVE</span>
+                  </h4>
+                  <span className="text-[10px] sm:text-[11px] uppercase font-mono tracking-wider text-slate-300 hidden sm:block">
+                    Scope of Advisory &amp; Property Intake
+                  </span>
+                </div>
+
+                {/* Form Inputs Container */}
+                <div className="bg-white border border-slate-300 border-t-0 rounded-b p-4 sm:p-6 shadow-xs space-y-6">
+                  
+                  {/* Part A: Purpose of Engagement */}
+                  <div id="reg-purposes" className="border-b border-slate-200 pb-5">
+                    {/* Separate Heading Row with Sufficient Spacing */}
+                    <div className="mb-3.5">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-1">
+                        PURPOSE OF ENGAGEMENT (Select all that apply) <span className="text-amber-600 font-bold">*</span>
+                      </label>
+                      <p className="text-xs text-slate-500">
+                        Please indicate the scope of advisory by selecting all relevant transaction categories.
                       </p>
                     </div>
-                    <span className="text-[10px] uppercase font-mono text-cyanBrand px-2 py-0.5 rounded bg-cyanBrand/10 border border-cyanBrand/20">
-                      Step 2 of 4
-                    </span>
-                  </div>
 
-                  {/* Purpose of Engagement Multi-Select */}
-                  <div>
-                    <label className="block text-[11px] text-warmGray font-semibold uppercase tracking-wider mb-2">
-                      Purpose of Engagement (Select all that apply) <span className="text-gold-400">*</span>
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {/* Clean 3-Column Desktop Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {purposeOptions.map((purpose) => {
                         const isSelected = selectedPurposes.includes(purpose);
                         return (
@@ -630,63 +615,53 @@ export const ClientRegistrationModal: React.FC<ClientRegistrationModalProps> = (
                             key={purpose}
                             type="button"
                             onClick={() => togglePurpose(purpose)}
-                            className={`p-2.5 rounded text-left text-xs transition-all flex items-start gap-2 border ${
+                            className={`p-3 rounded text-left transition-all flex items-start gap-3 border min-w-0 ${
                               isSelected
-                                ? 'bg-gold-500/15 border-gold-500 text-gold-300 font-semibold shadow-xs'
-                                : 'bg-charcoal-800/80 border-white/5 text-softWhite/80 hover:bg-charcoal-800 hover:border-white/15'
+                                ? 'bg-gold-50/80 border-gold-500 text-slate-900 font-semibold shadow-xs ring-1 ring-gold-500/40'
+                                : 'bg-slate-50/80 border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-slate-400'
                             }`}
                           >
-                            {isSelected ? (
-                              <CheckSquare className="w-4 h-4 text-gold-400 shrink-0 mt-0.5" />
-                            ) : (
-                              <Square className="w-4 h-4 text-warmGray shrink-0 mt-0.5" />
-                            )}
-                            <span className="leading-snug">{purpose}</span>
+                            <span className="shrink-0 mt-0.5">
+                              {isSelected ? (
+                                <CheckSquare className="w-4 h-4 text-gold-600" />
+                              ) : (
+                                <Square className="w-4 h-4 text-slate-400" />
+                              )}
+                            </span>
+                            <span className="text-xs leading-snug break-words flex-1">{purpose}</span>
                           </button>
                         );
                       })}
                     </div>
                   </div>
 
-                  {/* Separate Requirement Fields */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-                    {/* 1. Preferred Property Location(s) */}
-                    <div>
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
-                        1. Preferred Property Location(s)
+                  {/* Part B: Property Requirement Fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5">
+                    
+                    {/* ROW 1: Preferred Location (1/2 width) & Property Type (1/2 width) */}
+                    <div className="col-span-1 md:col-span-6">
+                      <label htmlFor="reg-location" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Preferred Property Location(s)
                       </label>
                       <input
+                        id="reg-location"
                         type="text"
                         value={preferredLocation}
                         onChange={(e) => setPreferredLocation(e.target.value)}
                         placeholder="e.g. Worli, Byculla, Mazgaon, Karjat, Alibaug"
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white placeholder-warmGray/50 focus:border-gold-500 focus:outline-none transition-colors"
+                        className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors"
                       />
                     </div>
 
-                    {/* 2. Preferred Configuration */}
-                    <div>
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
-                        2. Preferred Configuration (e.g. 2, 3, 4, 5 BHK / Plot Area)
-                      </label>
-                      <input
-                        type="text"
-                        value={configuration}
-                        onChange={(e) => setConfiguration(e.target.value)}
-                        placeholder="e.g. 3 BHK / 4 BHK / 10,000 sq.ft. Plot"
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white placeholder-warmGray/50 focus:border-gold-500 focus:outline-none transition-colors"
-                      />
-                    </div>
-
-                    {/* 3. Property Type */}
-                    <div>
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
-                        3. Property Type (Apartment, Penthouse, Villa, Land, Commercial)
+                    <div className="col-span-1 md:col-span-6">
+                      <label htmlFor="reg-type" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Property Type
                       </label>
                       <select
+                        id="reg-type"
                         value={propertyType}
                         onChange={(e) => setPropertyType(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white focus:border-gold-500 focus:outline-none transition-colors"
+                        className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors"
                       >
                         <option value="Apartment">Apartment</option>
                         <option value="Penthouse">Penthouse</option>
@@ -700,35 +675,51 @@ export const ClientRegistrationModal: React.FC<ClientRegistrationModalProps> = (
                           type="text"
                           value={customPropertyType}
                           onChange={(e) => setCustomPropertyType(e.target.value)}
-                          placeholder="Specify property type"
-                          className="mt-2 w-full px-3.5 py-2 bg-charcoal-800 border border-gold-500/50 rounded text-xs text-white placeholder-warmGray/50 focus:border-gold-500 focus:outline-none"
+                          placeholder="Specify custom property type"
+                          className="mt-2 w-full h-10 px-3.5 bg-white border border-gold-500 rounded text-sm text-slate-900 placeholder-slate-400 focus:border-gold-500 focus:outline-none"
                         />
                       )}
                     </div>
 
-                    {/* 4. Approximate Budget (Single field, no duplicates) */}
-                    <div>
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
-                        4. Approximate Budget (₹ in Crores / Lakhs)
+                    {/* ROW 2: Preferred Configuration (1/2 width) & Approximate Budget (1/2 width) */}
+                    <div className="col-span-1 md:col-span-6">
+                      <label htmlFor="reg-config" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Preferred Configuration <span className="text-slate-400 font-normal">(e.g. 2, 3, 4, 5 BHK / Plot Area)</span>
                       </label>
                       <input
+                        id="reg-config"
                         type="text"
-                        value={budget}
-                        onChange={(e) => setBudget(e.target.value)}
-                        placeholder="e.g. ₹2.5 Cr – ₹5 Cr / ₹75 Lakhs"
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white placeholder-warmGray/50 focus:border-gold-500 focus:outline-none transition-colors"
+                        value={configuration}
+                        onChange={(e) => setConfiguration(e.target.value)}
+                        placeholder="e.g. 3 BHK / 4 BHK / 10,000 sq.ft. Plot"
+                        className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors"
                       />
                     </div>
 
-                    {/* 5. Preferred Timeline */}
-                    <div className="sm:col-span-2">
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
-                        5. Preferred Timeline
+                    <div className="col-span-1 md:col-span-6">
+                      <label htmlFor="reg-budget" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Approximate Budget <span className="text-slate-500 font-medium">(INR in Crores / Lakhs)</span>
+                      </label>
+                      <input
+                        id="reg-budget"
+                        type="text"
+                        value={budget}
+                        onChange={(e) => setBudget(e.target.value)}
+                        placeholder="e.g. INR 2.5 Cr – INR 5 Cr / INR 75 Lakhs"
+                        className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors"
+                      />
+                    </div>
+
+                    {/* ROW 3: Preferred Timeline (full width) */}
+                    <div className="col-span-1 md:col-span-12">
+                      <label htmlFor="reg-timeline" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Preferred Timeline
                       </label>
                       <select
+                        id="reg-timeline"
                         value={timeline}
                         onChange={(e) => setTimeline(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white focus:border-gold-500 focus:outline-none transition-colors"
+                        className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors"
                       >
                         <option value="Immediate / Ready Possession">Immediate / Ready Possession (0–30 Days)</option>
                         <option value="1 to 3 Months">1 to 3 Months</option>
@@ -738,333 +729,296 @@ export const ClientRegistrationModal: React.FC<ClientRegistrationModalProps> = (
                       </select>
                     </div>
 
-                    {/* 6. Specific Requirements / Notes / Society Details */}
-                    <div className="sm:col-span-2">
-                      <label className="block text-[11px] text-warmGray font-medium mb-1">
-                        6. Specific Requirements / Notes / Society Details (particularly for redevelopment enquiries)
+                    {/* ROW 4: Specific Requirements / Notes / Society Details (full width, larger textarea) */}
+                    <div className="col-span-1 md:col-span-12">
+                      <label htmlFor="reg-requirements" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Specific Requirements / Notes / Society Details <span className="text-slate-400 font-normal">(particularly for redevelopment enquiries)</span>
                       </label>
                       <textarea
-                        rows={3}
+                        id="reg-requirements"
+                        rows={4}
                         value={additionalRequirements}
                         onChange={(e) => setAdditionalRequirements(e.target.value)}
                         placeholder="Provide details such as floor preference, sea view, society age & number of members (for redevelopment), specific developer preferences, or investment horizon."
-                        className="w-full px-3.5 py-2.5 bg-charcoal-800 border border-white/10 rounded text-xs text-white placeholder-warmGray/50 focus:border-gold-500 focus:outline-none transition-colors leading-relaxed"
+                        className="w-full p-3.5 bg-white border border-slate-300 rounded text-sm text-slate-900 placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none transition-colors leading-relaxed"
                       />
                     </div>
+
                   </div>
                 </div>
-              )}
+              </div>
 
               {/* ==================================================== */}
-              {/* STEP 3: SECTION C — FEE AGREEMENT & REMUNERATION     */}
+              {/* SECTION C — PROFESSIONAL CONSULTANCY & FEE AGREEMENT */}
               {/* ==================================================== */}
-              {currentStep === 3 && (
-                <div className="space-y-4 animate-fade-in">
-                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                    <div>
-                      <h4 className="font-serif text-sm sm:text-base font-semibold uppercase tracking-wider text-gold-400 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-400 text-xs flex items-center justify-center font-bold">C</span>
-                        <span>SECTION C — PROFESSIONAL CONSULTANCY &amp; FEE AGREEMENT</span>
-                      </h4>
-                      <p className="text-[11px] text-warmGray mt-0.5">
-                        Clear, transparent 7-point professional advisory and remuneration principles.
-                      </p>
-                    </div>
-                    <span className="text-[10px] uppercase font-mono text-cyanBrand px-2 py-0.5 rounded bg-cyanBrand/10 border border-cyanBrand/20">
-                      Step 3 of 4
-                    </span>
-                  </div>
+              <div id="sec-fee-agreement" className="scroll-mt-4">
+                
+                {/* Dark Navy Section Heading Bar */}
+                <div className="bg-slate-900 border-l-4 border-gold-500 text-white py-3 px-4 sm:px-5 rounded-t flex items-center justify-between min-h-[44px]">
+                  <h4 className="font-serif text-xs sm:text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2.5">
+                    <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-400 text-xs flex items-center justify-center font-mono font-bold">C</span>
+                    <span>SECTION C — PROFESSIONAL CONSULTANCY &amp; FEE AGREEMENT</span>
+                  </h4>
+                  <span className="text-[10px] sm:text-[11px] uppercase font-mono tracking-wider text-slate-300 hidden sm:block">
+                    7-Point Engagement Principles
+                  </span>
+                </div>
+
+                {/* Form Inputs Container */}
+                <div className="bg-white border border-slate-300 border-t-0 rounded-b p-4 sm:p-6 shadow-xs space-y-5">
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    This agreement sets out the operational and remuneration principles governing advisory services rendered by KLOUD REALTY. Both parties adhere to the following 7 principles:
+                  </p>
 
                   {/* 7-Point Agreement Terms */}
-                  <div className="space-y-2.5 p-4 rounded bg-charcoal-950 border border-white/10 max-h-[38vh] overflow-y-auto custom-scrollbar text-xs text-softWhite/90 leading-relaxed">
-                    <div className="p-2.5 rounded bg-charcoal-900/80 border border-white/5 space-y-1">
-                      <p className="font-semibold text-white text-[12px] flex items-center gap-2">
-                        <span className="text-gold-400 font-mono">1.</span> Scope of Professional Advisory
+                  <div className="space-y-2.5 max-h-56 overflow-y-auto custom-scrollbar pr-1">
+                    <div className="p-3 rounded bg-slate-50 border border-slate-200 space-y-1">
+                      <p className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+                        <span className="text-gold-600 font-mono font-bold">1.</span> Scope of Professional Advisory
                       </p>
-                      <p className="text-warmGray text-[11.5px]">
+                      <p className="text-slate-600 text-[11.5px] leading-relaxed">
                         Kloud Realty provides professional property advisory, consultation, market research, property identification, comparative valuation insights, negotiations and transaction coordination.
                       </p>
                     </div>
 
-                    <div className="p-2.5 rounded bg-charcoal-900/80 border border-white/5 space-y-1">
-                      <p className="font-semibold text-white text-[12px] flex items-center gap-2">
-                        <span className="text-gold-400 font-mono">2.</span> Advance Communication of Fees
+                    <div className="p-3 rounded bg-slate-50 border border-slate-200 space-y-1">
+                      <p className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+                        <span className="text-gold-600 font-mono font-bold">2.</span> Advance Communication of Fees
                       </p>
-                      <p className="text-warmGray text-[11.5px]">
+                      <p className="text-slate-600 text-[11.5px] leading-relaxed">
                         Consultation fees, wherever applicable, will be communicated to the client in advance and agreed upon before the consultation takes place.
                       </p>
                     </div>
 
-                    <div className="p-2.5 rounded bg-charcoal-900/80 border border-white/5 space-y-1">
-                      <p className="font-semibold text-white text-[12px] flex items-center gap-2">
-                        <span className="text-gold-400 font-mono">3.</span> Purchase / Sale Transactions
+                    <div className="p-3 rounded bg-slate-50 border border-slate-200 space-y-1">
+                      <p className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+                        <span className="text-gold-600 font-mono font-bold">3.</span> Purchase / Sale Transactions
                       </p>
-                      <p className="text-warmGray text-[11.5px]">
+                      <p className="text-slate-600 text-[11.5px] leading-relaxed">
                         If a successful property purchase or sale is facilitated through Kloud Realty, professional fees will be payable as mutually agreed in writing.
                       </p>
                     </div>
 
-                    <div className="p-2.5 rounded bg-charcoal-900/80 border border-white/5 space-y-1">
-                      <p className="font-semibold text-white text-[12px] flex items-center gap-2">
-                        <span className="text-gold-400 font-mono">4.</span> Rental / Lease Transactions
+                    <div className="p-3 rounded bg-slate-50 border border-slate-200 space-y-1">
+                      <p className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+                        <span className="text-gold-600 font-mono font-bold">4.</span> Rental / Lease Transactions
                       </p>
-                      <p className="text-warmGray text-[11.5px]">
+                      <p className="text-slate-600 text-[11.5px] leading-relaxed">
                         Applicable professional fees will be communicated and agreed upon before proceeding with the transaction.
                       </p>
                     </div>
 
-                    <div className="p-2.5 rounded bg-charcoal-900/80 border border-white/5 space-y-1">
-                      <p className="font-semibold text-white text-[12px] flex items-center gap-2">
-                        <span className="text-gold-400 font-mono">5.</span> Written Recording of Terms
+                    <div className="p-3 rounded bg-slate-50 border border-slate-200 space-y-1">
+                      <p className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+                        <span className="text-gold-600 font-mono font-bold">5.</span> Written Recording of Terms
                       </p>
-                      <p className="text-warmGray text-[11.5px]">
+                      <p className="text-slate-600 text-[11.5px] leading-relaxed">
                         The applicable fee amount or percentage, payment terms, milestones and conditions will be recorded separately in writing before the transaction or engagement is executed.
                       </p>
                     </div>
 
-                    <div className="p-2.5 rounded bg-charcoal-900/80 border border-white/5 space-y-1">
-                      <p className="font-semibold text-white text-[12px] flex items-center gap-2">
-                        <span className="text-gold-400 font-mono">6.</span> Statutory Taxes
+                    <div className="p-3 rounded bg-slate-50 border border-slate-200 space-y-1">
+                      <p className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+                        <span className="text-gold-600 font-mono font-bold">6.</span> Statutory Taxes
                       </p>
-                      <p className="text-warmGray text-[11.5px]">
+                      <p className="text-slate-600 text-[11.5px] leading-relaxed">
                         Applicable taxes, including GST where applicable, will be communicated separately and charged according to prevailing laws.
                       </p>
                     </div>
 
-                    <div className="p-2.5 rounded bg-charcoal-900/80 border border-white/5 space-y-1">
-                      <p className="font-semibold text-white text-[12px] flex items-center gap-2">
-                        <span className="text-gold-400 font-mono">7.</span> Registration Nature
+                    <div className="p-3 rounded bg-slate-50 border border-slate-200 space-y-1">
+                      <p className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+                        <span className="text-gold-600 font-mono font-bold">7.</span> Registration Nature
                       </p>
-                      <p className="text-warmGray text-[11.5px]">
+                      <p className="text-slate-600 text-[11.5px] leading-relaxed">
                         Submitting the registration form does not automatically create an immediate financial obligation. Professional fees become payable strictly according to the specific engagement and mutually accepted written terms.
                       </p>
                     </div>
                   </div>
 
                   {/* Consultancy Remuneration Details Box */}
-                  <div className="p-4 rounded bg-gold-500/10 border border-gold-500/30 space-y-3">
+                  <div className="p-4 rounded bg-slate-50 border border-gold-500/30 space-y-3">
                     <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-gold-400" />
-                      <h5 className="font-serif text-xs font-bold uppercase tracking-wider text-gold-300">
+                      <Sparkles className="w-4 h-4 text-gold-600" />
+                      <h5 className="font-serif text-xs font-bold uppercase tracking-wider text-slate-900">
                         Consultancy Remuneration Details
                       </h5>
                     </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div className="p-2.5 rounded bg-charcoal-900/90 border border-gold-500/20">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-warmGray block">Applicable Fee Structure:</span>
-                        <p className="text-softWhite font-medium mt-0.5">{feeStructure}</p>
+                      <div className="p-3 rounded bg-white border border-slate-200">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">Applicable Fee Structure:</span>
+                        <p className="text-slate-900 font-medium mt-0.5">{feeStructure}</p>
                       </div>
-                      <div className="p-2.5 rounded bg-charcoal-900/90 border border-gold-500/20">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-warmGray block">GST Status:</span>
-                        <p className="text-softWhite font-medium mt-0.5">{gstStatus}</p>
+                      <div className="p-3 rounded bg-white border border-slate-200">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">GST Status:</span>
+                        <p className="text-slate-900 font-medium mt-0.5">{gstStatus}</p>
                       </div>
-                      <div className="p-2.5 rounded bg-charcoal-900/90 border border-gold-500/20">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-warmGray block">Payment Milestones:</span>
-                        <p className="text-softWhite font-medium mt-0.5">{paymentMilestones}</p>
+                      <div className="p-3 rounded bg-white border border-slate-200">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">Payment Milestones:</span>
+                        <p className="text-slate-900 font-medium mt-0.5">{paymentMilestones}</p>
                       </div>
-                      <div className="p-2.5 rounded bg-charcoal-900/90 border border-gold-500/20">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-warmGray block">Special Terms:</span>
-                        <p className="text-softWhite font-medium mt-0.5">{specialTerms}</p>
+                      <div className="p-3 rounded bg-white border border-slate-200">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">Special Terms:</span>
+                        <p className="text-slate-900 font-medium mt-0.5">{specialTerms}</p>
                       </div>
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
 
               {/* ==================================================== */}
-              {/* STEP 4: SECTION D — REVIEW & CLIENT DECLARATION      */}
+              {/* SECTION D — CLIENT DECLARATION & SIGNATURE           */}
               {/* ==================================================== */}
-              {currentStep === 4 && (
-                <div className="space-y-4 animate-fade-in">
-                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                    <div>
-                      <h4 className="font-serif text-sm sm:text-base font-semibold uppercase tracking-wider text-gold-400 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-400 text-xs flex items-center justify-center font-bold">D</span>
-                        <span>SECTION D — CLIENT DECLARATION &amp; SIGNATURE</span>
-                      </h4>
-                      <p className="text-[11px] text-warmGray mt-0.5">
-                        Review your entered information, confirm declaration, and provide legal digital signature.
-                      </p>
-                    </div>
-                    <span className="text-[10px] uppercase font-mono text-cyanBrand px-2 py-0.5 rounded bg-cyanBrand/10 border border-cyanBrand/20">
-                      Step 4 of 4
-                    </span>
-                  </div>
+              <div id="sec-client-declaration" className="scroll-mt-4">
+                
+                {/* Dark Navy Section Heading Bar */}
+                <div className="bg-slate-900 border-l-4 border-gold-500 text-white py-3 px-4 sm:px-5 rounded-t flex items-center justify-between min-h-[44px]">
+                  <h4 className="font-serif text-xs sm:text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2.5">
+                    <span className="w-5 h-5 rounded-full bg-gold-500/20 text-gold-400 text-xs flex items-center justify-center font-mono font-bold">D</span>
+                    <span>SECTION D — CLIENT DECLARATION &amp; SIGNATURE</span>
+                  </h4>
+                  <span className="text-[10px] sm:text-[11px] uppercase font-mono tracking-wider text-slate-300 hidden sm:block">
+                    Legal Acceptance &amp; Execution
+                  </span>
+                </div>
 
-                  {/* Review Summary Accordion / Card */}
-                  <div className="p-3.5 rounded bg-charcoal-950 border border-white/10 space-y-2 text-xs">
-                    <span className="text-[10px] uppercase font-mono tracking-wider text-gold-400 font-bold block">
-                      Summary Review of Registration Dossier:
-                    </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px]">
-                      <div>
-                        <span className="text-warmGray block">Client:</span>
-                        <strong className="text-white">{fullName}</strong>
-                      </div>
-                      <div>
-                        <span className="text-warmGray block">Mobile &amp; Email:</span>
-                        <span className="text-white font-mono">{phone} • {email}</span>
-                      </div>
-                      <div>
-                        <span className="text-warmGray block">PAN:</span>
-                        <span className="text-white font-mono">{pan || 'Not provided (Optional)'}</span>
-                      </div>
-                      <div className="sm:col-span-2">
-                        <span className="text-warmGray block">Purpose(s):</span>
-                        <span className="text-gold-300 font-medium">{selectedPurposes.join(', ')}</span>
-                      </div>
-                      <div>
-                        <span className="text-warmGray block">Budget &amp; Timeline:</span>
-                        <span className="text-white font-medium">{budget || 'To discuss'} ({timeline})</span>
-                      </div>
-                    </div>
-                  </div>
-
+                {/* Form Inputs Container */}
+                <div className="bg-white border border-slate-300 border-t-0 rounded-b p-4 sm:p-6 shadow-xs space-y-5">
+                  
                   {/* Verbatim Declaration Quotation Box */}
-                  <div className="p-3.5 rounded bg-charcoal-850 border border-gold-500/30 text-xs sm:text-sm text-softWhite/90 leading-relaxed italic relative">
+                  <div className="p-4 rounded bg-amber-50/70 border border-amber-200 text-xs sm:text-sm text-slate-800 leading-relaxed italic">
                     &ldquo;I hereby confirm that the information provided above is accurate and that I have read and understood the professional engagement and fee terms. I agree to the applicable terms specifically communicated and accepted by me in writing.&rdquo;
                   </div>
 
                   {/* Required Confirmation Checkbox */}
-                  <label className="flex items-start gap-2.5 cursor-pointer p-3 rounded bg-charcoal-950/60 border border-white/5 hover:border-gold-500/30 transition-colors">
+                  <label id="reg-declaration" className="flex items-start gap-3 cursor-pointer p-3.5 rounded bg-slate-50 border border-slate-200 hover:border-gold-500/50 transition-colors">
                     <input
+                      id="reg-accepted-terms"
                       type="checkbox"
                       required
                       checked={acceptedTerms}
                       onChange={(e) => setAcceptedTerms(e.target.checked)}
-                      className="mt-1 w-4 h-4 rounded border-gold-500 text-gold-500 focus:ring-gold-500 bg-charcoal-800"
+                      className="mt-1 w-4 h-4 rounded border-slate-400 text-gold-600 focus:ring-gold-500"
                     />
-                    <span className="text-xs text-white font-medium leading-relaxed">
-                      I confirm acceptance of the applicable professional engagement and fee principles stated herein. <span className="text-gold-400">*</span>
+                    <span className="text-xs text-slate-800 font-semibold leading-relaxed">
+                      I confirm acceptance of the applicable professional engagement and fee principles stated herein. <span className="text-amber-600 font-bold">*</span>
                     </span>
                   </label>
 
                   {/* Dual Signature Blocks (Client + Representative) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
                     
                     {/* Client Signature Box */}
-                    <div className="p-4 rounded bg-charcoal-850 border border-gold-500/30 space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-gold-400 font-bold">
+                    <div className="p-4 rounded bg-slate-50 border border-slate-300 space-y-3">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                        <span className="text-xs font-mono uppercase tracking-wider text-gold-700 font-bold">
                           Client Signature &amp; Execution
                         </span>
-                        <PenTool className="w-3.5 h-3.5 text-gold-400" />
+                        <PenTool className="w-4 h-4 text-gold-600" />
                       </div>
 
                       <div>
-                        <label className="block text-[10px] text-warmGray uppercase tracking-wider mb-1">
-                          Client Signature <span className="text-gold-400">*</span>
+                        <label htmlFor="reg-signature" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                          Client Signature <span className="text-amber-600 font-bold">*</span>
                         </label>
                         <input
+                          id="reg-signature"
                           type="text"
                           required
                           value={clientSignature}
                           onChange={(e) => setClientSignature(e.target.value)}
                           placeholder="Type your full legal name to sign"
-                          className="w-full px-3 py-2 bg-charcoal-900 border border-white/10 rounded text-sm text-gold-300 font-serif italic focus:border-gold-500 focus:outline-none"
+                          className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded text-base text-slate-900 font-serif italic focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
                         />
-                        <span className="text-[9.5px] text-warmGray/70 mt-0.5 block">
-                          Legally binding electronic signature pursuant to IT regulations.
+                        <span className="text-[10px] text-slate-500 mt-1 block">
+                          Legally binding electronic signature pursuant to Information Technology Act.
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
+                      <div className="grid grid-cols-2 gap-3 pt-1">
                         <div>
-                          <label className="text-[10px] text-warmGray block">Date:</label>
+                          <label htmlFor="reg-date" className="text-xs text-slate-600 font-medium block mb-1">Date:</label>
                           <input
+                            id="reg-date"
                             type="text"
                             value={declarationDate}
                             onChange={(e) => setDeclarationDate(e.target.value)}
-                            className="w-full px-2 py-1 bg-charcoal-900 border border-white/10 rounded text-xs text-white font-mono focus:border-gold-500 focus:outline-none"
+                            className="w-full h-9 px-3 bg-white border border-slate-300 rounded text-xs text-slate-900 font-mono focus:border-gold-500 focus:outline-none"
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] text-warmGray block">Place:</label>
+                          <label htmlFor="reg-place" className="text-xs text-slate-600 font-medium block mb-1">Place:</label>
                           <input
+                            id="reg-place"
                             type="text"
                             value={clientPlace}
                             onChange={(e) => setClientPlace(e.target.value)}
                             placeholder="e.g. Mumbai"
-                            className="w-full px-2 py-1 bg-charcoal-900 border border-white/10 rounded text-xs text-white focus:border-gold-500 focus:outline-none"
+                            className="w-full h-9 px-3 bg-white border border-slate-300 rounded text-xs text-slate-900 focus:border-gold-500 focus:outline-none"
                           />
                         </div>
                       </div>
                     </div>
 
                     {/* Authorized Representative Box (Abhishek Gupta) */}
-                    <div className="p-4 rounded bg-charcoal-850 border border-white/10 space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-cyanBrand font-bold">
-                          For KLOUD REALTY (Authorized Representative)
+                    <div className="p-4 rounded bg-slate-50 border border-slate-300 space-y-3">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                        <span className="text-xs font-mono uppercase tracking-wider text-slate-800 font-bold">
+                          For KLOUD REALTY (Authorized Advisor)
                         </span>
-                        <ShieldCheck className="w-3.5 h-3.5 text-cyanBrand" />
+                        <ShieldCheck className="w-4 h-4 text-cyanBrand" />
                       </div>
 
                       <div>
-                        <span className="text-[10px] text-warmGray uppercase tracking-wider block">Representative:</span>
-                        <p className="text-xs text-white font-medium mt-0.5">Abhishek Gupta</p>
-                        <span className="text-[10px] text-gold-400 font-mono">Founder / Representative</span>
+                        <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Representative:</span>
+                        <p className="text-sm text-slate-900 font-bold mt-0.5">Abhishek Gupta</p>
+                        <span className="text-[11px] text-gold-700 font-mono">Founder / Representative</span>
                       </div>
 
-                      <div className="p-2 rounded bg-charcoal-900/80 border border-white/5 flex items-center justify-between">
+                      <div className="p-2.5 rounded bg-white border border-slate-200 flex items-center justify-between">
                         <div>
-                          <span className="text-[10px] text-warmGray block">Official Signature Seal:</span>
-                          <span className="font-serif italic text-gold-300 text-sm">Abhishek Gupta</span>
+                          <span className="text-[10px] text-slate-500 block">Official Signature Seal:</span>
+                          <span className="font-serif italic text-gold-700 text-sm font-semibold">Abhishek Gupta</span>
                         </div>
-                        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-300 font-semibold">
                           VERIFIED
                         </span>
                       </div>
 
-                      <div className="text-[10px] text-warmGray/80 pt-0.5">
+                      <div className="text-[10.5px] text-slate-600 pt-0.5 leading-relaxed">
                         <p>Office: Shop No. 2, 321 R.B. Marg, Mazgaon, Mumbai – 400010</p>
-                        <p className="text-gold-400/90 font-mono">MahaRERA: A0311 72501659</p>
+                        <p className="text-slate-800 font-mono font-semibold">MahaRERA: A0311 72501659</p>
                       </div>
                     </div>
 
                   </div>
                 </div>
-              )}
+              </div>
 
-              {/* Modal Navigation Buttons */}
-              <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-[11px] text-warmGray">
-                  <ShieldCheck className="w-4 h-4 text-cyanBrand" />
-                  <span>RERA ID: A0311 72501659 • Mazgaon, Mumbai</span>
+              {/* Form Submission Bar */}
+              <div className="p-4 rounded bg-white border border-slate-300 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2 text-xs text-slate-600">
+                  <ShieldCheck className="w-4 h-4 text-cyanBrand shrink-0" />
+                  <span>MahaRERA: A0311 72501659 • Mazgaon, Mumbai</span>
                 </div>
 
                 <div className="flex items-center gap-3 w-full sm:w-auto">
-                  {currentStep > 1 && (
-                    <button
-                      type="button"
-                      onClick={handleBack}
-                      className="px-4 py-2.5 rounded border border-white/10 hover:border-white/20 text-warmGray hover:text-white text-xs font-medium flex items-center gap-1.5 transition-colors"
-                    >
-                      <ArrowLeft className="w-3.5 h-3.5" />
-                      <span>Back</span>
-                    </button>
-                  )}
-
-                  {currentStep < 4 ? (
-                    <button
-                      type="button"
-                      onClick={handleNext}
-                      className="flex-1 sm:flex-initial px-6 py-2.5 rounded bg-gold-500 text-charcoal-950 font-bold text-xs uppercase tracking-wider hover:bg-gold-400 transition-colors shadow-gold-glow flex items-center justify-center gap-2"
-                    >
-                      <span>Continue</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  ) : (
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="flex-1 sm:flex-initial px-7 py-2.5 rounded bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 text-charcoal-950 font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-all duration-300 shadow-gold-glow flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                      <span>{isSubmitting ? 'Recording Registration...' : 'SUBMIT REGISTRATION'}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-4 py-2.5 rounded border border-slate-300 hover:border-slate-400 text-slate-600 hover:text-slate-900 text-xs font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 sm:flex-initial px-8 py-3 rounded bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 hover:brightness-110 text-charcoal-950 font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-gold-glow flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    <span>{isSubmitting ? 'Recording Registration...' : 'SUBMIT CLIENT REGISTRATION'}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
 

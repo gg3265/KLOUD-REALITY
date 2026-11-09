@@ -135,13 +135,19 @@ export const pdfService = {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(6.5);
       doc.setTextColor(...grayText);
-      doc.text(label.toUpperCase(), x + 2, y + 2.8);
+      const labelText = doc.splitTextToSize(label.toUpperCase(), w - 4)[0];
+      doc.text(labelText, x + 2, y + 2.8);
 
       if (value) {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(8);
         doc.setTextColor(...charcoalDark);
-        doc.text(sanitizePdfText(value), x + 2, y + 6.8);
+        if (h > 10) {
+          const valLines = doc.splitTextToSize(sanitizePdfText(value), w - 4);
+          doc.text(valLines.slice(0, 3), x + 2, y + 6.8);
+        } else {
+          doc.text(sanitizePdfText(value), x + 2, y + 6.8);
+        }
       }
     };
 
@@ -153,22 +159,24 @@ export const pdfService = {
     const halfW = (contentWidth - 3) / 2;
     const thirdW = (contentWidth - 6) / 3;
 
-    // Row 1: Full Name of Client (65%) & Date of Birth (35%)
-    drawFormField('Full Name of Client', prefill?.fullName, margin, curY, contentWidth * 0.65, 8.5);
-    drawFormField('Date of Birth (DD/MM/YYYY)', prefill?.dob, margin + contentWidth * 0.65 + 3, curY, contentWidth * 0.35 - 3, 8.5);
+    // Row 1: Full Name of Client (2/3 width) & Date of Birth (1/3 width)
+    const row1W1 = (contentWidth - 3) * (2 / 3);
+    const row1W2 = (contentWidth - 3) * (1 / 3);
+    drawFormField('Full Name of Client', prefill?.fullName, margin, curY, row1W1, 8.5);
+    drawFormField('Date of Birth (DD/MM/YYYY)', prefill?.dob, margin + row1W1 + 3, curY, row1W2, 8.5);
     curY += 10.5;
 
-    // Row 2: Mobile Number, WhatsApp Number, Email Address
+    // Row 2: Mobile Number, WhatsApp Number, Email Address (1/3 width each)
     drawFormField('Mobile Number', prefill?.phone, margin, curY, thirdW, 8.5);
     drawFormField('WhatsApp Number', prefill?.whatsapp || prefill?.phone, margin + thirdW + 3, curY, thirdW, 8.5);
     drawFormField('Email Address', prefill?.email, margin + (thirdW * 2) + 6, curY, thirdW, 8.5);
     curY += 10.5;
 
-    // Row 3: Residential Address
+    // Row 3: Residential Address (full width)
     drawFormField('Residential Address (Street, Building / Apartment No.)', prefill?.address, margin, curY, contentWidth, 8.5);
     curY += 10.5;
 
-    // Row 4: City & PIN Code, PAN Number (Optional)
+    // Row 4: City & PIN Code (1/2 width), PAN Number (1/2 width)
     drawFormField('City and PIN Code', prefill?.cityPin, margin, curY, halfW, 8.5);
     drawFormField('PAN Number (Optional at Initial Registration)', prefill?.pan, margin + halfW + 3, curY, halfW, 8.5);
     curY += 13.5;
@@ -182,7 +190,7 @@ export const pdfService = {
     doc.setFontSize(7.5);
     doc.setTextColor(...charcoalDark);
     doc.text('PURPOSE OF ENGAGEMENT (Select all that apply):', margin, curY + 2);
-    curY += 4.5;
+    curY += 5;
 
     const purposesList = [
       'Purchase – Primary Market',
@@ -223,18 +231,24 @@ export const pdfService = {
 
     curY += 21;
 
-    // Separate Requirement Spec fields (No duplicates, clear labels, INR notation)
+    // Separate Requirement Spec fields:
+    // Row 1: Preferred Location (1/2 width) & Property Type (1/2 width)
     drawFormField('Preferred Property Location(s)', prefill?.preferredLocation, margin, curY, halfW, 8.5);
     drawFormField('Property Type (Apartment, Penthouse, Villa, Land, Commercial)', prefill?.propertyType, margin + halfW + 3, curY, halfW, 8.5);
     curY += 10.5;
 
-    drawFormField('Preferred Configuration (e.g. 2, 3, 4, 5 BHK / Plot Area)', prefill?.configuration, margin, curY, thirdW, 8.5);
-    drawFormField('Approximate Budget (INR in Crores / Lakhs)', sanitizePdfText(prefill?.budget), margin + thirdW + 3, curY, thirdW, 8.5);
-    drawFormField('Preferred Timeline', prefill?.timeline, margin + (thirdW * 2) + 6, curY, thirdW, 8.5);
+    // Row 2: Preferred Configuration (1/2 width) & Approximate Budget (1/2 width)
+    drawFormField('Preferred Configuration (e.g. 2, 3, 4, 5 BHK / Plot Area)', prefill?.configuration, margin, curY, halfW, 8.5);
+    drawFormField('Approximate Budget (INR in Crores / Lakhs)', sanitizePdfText(prefill?.budget), margin + halfW + 3, curY, halfW, 8.5);
     curY += 10.5;
 
-    drawFormField('Specific Requirements / Notes / Society Details (if Redevelopment Enquiry)', prefill?.additionalRequirements, margin, curY, contentWidth, 14);
-    curY += 18;
+    // Row 3: Preferred Timeline (full width)
+    drawFormField('Preferred Timeline', prefill?.timeline, margin, curY, contentWidth, 8.5);
+    curY += 10.5;
+
+    // Row 4: Specific Requirements / Notes / Society Details (full width, larger box)
+    drawFormField('Specific Requirements / Notes / Society Details (if Redevelopment Enquiry)', prefill?.additionalRequirements, margin, curY, contentWidth, 15);
+    curY += 19;
 
     // Page 1 Footer Note
     doc.setDrawColor(...grayBorder);
