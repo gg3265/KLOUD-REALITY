@@ -287,9 +287,9 @@ export const pdfService = {
 
     curY += 14.5;
 
-    // Signature Blocks side-by-side (Generous 34mm height for handwriting)
+    // Signature Blocks side-by-side (28mm height for handwriting)
     const sigBlockW = (contentWidth - 6) / 2;
-    const sigBoxH = 34;
+    const sigBoxH = 28;
 
     // Client Signature Box
     doc.setDrawColor(...grayBorder);
@@ -308,20 +308,20 @@ export const pdfService = {
       doc.setFont('times', 'italic');
       doc.setFontSize(10.5);
       doc.setTextColor(...goldPrimary);
-      doc.text(prefill.clientSignature, margin + 4, curY + 13);
+      doc.text(prefill.clientSignature, margin + 4, curY + 12);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(6.5);
       doc.setTextColor(...grayText);
-      doc.text('[Digital Acknowledgment Verified]', margin + 4, curY + 17.5);
+      doc.text('[Digital Acknowledgment Verified]', margin + 4, curY + 16.5);
     } else {
-      doc.text('Signature: _____________________________________________', margin + 3, curY + 14);
+      doc.text('Signature: _____________________________________________', margin + 3, curY + 13);
     }
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(...charcoalDark);
-    doc.text(`Client Name: ${prefill?.fullName || '__________________________________________'}`, margin + 3, curY + 23);
-    doc.text(`Date: ${prefill?.date || '___________________'}   Place: ${prefill?.place || '____________________'}`, margin + 3, curY + 29.5);
+    doc.text(`Client Name: ${prefill?.fullName || '__________________________________________'}`, margin + 3, curY + 20);
+    doc.text(`Date: ${prefill?.date || '___________________'}   Place: ${prefill?.place || '____________________'}`, margin + 3, curY + 25.5);
 
     // Representative Signature Box (Abhishek Gupta)
     const repX = margin + sigBlockW + 6;
@@ -334,37 +334,73 @@ export const pdfService = {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(...charcoalDark);
-    doc.text('Representative: Abhishek Gupta (Founder / Representative)', repX + 3, curY + 10.5);
+    doc.text('Representative: Abhishek Gupta (Founder / Representative)', repX + 3, curY + 9.5);
     
     // Stylized representative signature stamp
     doc.setFont('times', 'italic');
     doc.setFontSize(10.5);
     doc.setTextColor(...goldPrimary);
-    doc.text('Abhishek Gupta', repX + 4, curY + 17.5);
+    doc.text('Abhishek Gupta', repX + 4, curY + 15.5);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(...charcoalDark);
     const repDate = prefill?.date || new Date().toLocaleDateString('en-GB');
-    doc.text(`Official Stamp & Seal: [KLOUD REALTY MAZGAON]`, repX + 3, curY + 23);
-    doc.text(`Date: ${repDate}   Office: Mazgaon, Mumbai`, repX + 3, curY + 29.5);
+    doc.text(`Official Stamp & Seal: [KLOUD REALTY MAZGAON]`, repX + 3, curY + 20);
+    doc.text(`Date: ${repDate}   Office: Mazgaon, Mumbai`, repX + 3, curY + 25.5);
 
-    curY += sigBoxH + 3.5;
+    curY += sigBoxH + 3;
+
+    // ----------------------------------------------------
+    // CONSULTANCY REMUNERATION RECORD & SPECIFIC TRANSACTION TERMS (RELOCATED TO PAGE 1)
+    // Utilising the vacant space on Page 1 below declarations and signatures
+    // ----------------------------------------------------
+    const remBoxH = 25;
+    doc.setFillColor(...goldLight);
+    doc.rect(margin, curY, contentWidth, remBoxH, 'F');
+    doc.setDrawColor(...goldPrimary);
+    doc.setLineWidth(0.3);
+    doc.rect(margin, curY, contentWidth, remBoxH, 'D');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.2);
+    doc.setTextColor(...goldPrimary);
+    doc.text('CONSULTANCY REMUNERATION RECORD & SPECIFIC TRANSACTION TERMS', margin + 3, curY + 4);
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(6.5);
+    doc.setTextColor(...grayText);
+    doc.text('(To be recorded and initialed upon specific transaction engagement)', pageWidth - margin - 3, curY + 4, { align: 'right' });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...charcoalDark);
+    const feeStr = prefill?.feeStructure ? `: ${prefill.feeStructure}` : ': _________________________________________________';
+    const gstStr = prefill?.gstStatus ? `: ${prefill.gstStatus}` : ': ____________________';
+    const milesStr = prefill?.paymentMilestones ? `: ${prefill.paymentMilestones}` : ': _________________________________________________';
+    const termsStr = prefill?.specialTerms ? `: ${prefill.specialTerms}` : ': ____________________';
+
+    doc.text(`Applicable Fee Structure${feeStr}`, margin + 3, curY + 9);
+    doc.text(`GST Status${gstStr}`, margin + 115, curY + 9);
+    doc.text(`Payment Milestones${milesStr}`, margin + 3, curY + 14.5);
+    doc.text(`Special Covenants${termsStr}`, margin + 115, curY + 14.5);
+    doc.text(`Transaction Reference / Property Unit: __________________________________________________________________________________`, margin + 3, curY + 20.5);
+
+    curY += remBoxH + 3;
 
     // Guiding callout to Page 2
-    doc.setFillColor(...goldLight);
-    doc.rect(margin, curY, contentWidth, 7, 'F');
+    doc.setFillColor(248, 249, 250);
+    doc.rect(margin, curY, contentWidth, 6.5, 'F');
     doc.setDrawColor(...goldPrimary);
     doc.setLineWidth(0.25);
-    doc.rect(margin, curY, contentWidth, 7, 'D');
+    doc.rect(margin, curY, contentWidth, 6.5, 'D');
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(6.7);
     doc.setTextColor(...charcoalDark);
-    doc.text('IMPORTANT NOTE:', margin + 3, curY + 4.5);
+    doc.text('IMPORTANT NOTE:', margin + 3, curY + 4.2);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...grayText);
-    doc.text('This engagement dossier is subject to the complete Professional Term Sheet & Fee Conditions set out overleaf on Page 2.', margin + 28, curY + 4.5);
+    doc.text('This engagement dossier is subject to the complete Professional Term Sheet & Fee Conditions set out overleaf on Page 2.', margin + 28, curY + 4.2);
 
     // Page 1 Footer Note
     doc.setDrawColor(...grayBorder);
@@ -478,42 +514,10 @@ export const pdfService = {
       doc.setFontSize(7.1);
       doc.setTextColor(...charcoalDark);
       doc.text(textLines, margin + 4, curY + 1.8);
-      curY += blockHeight + 1.5;
+      curY += blockHeight + 1.8;
     });
 
-    curY += 2;
-
-    // Consultancy Remuneration Details Section
-    doc.setFillColor(...goldLight);
-    doc.rect(margin, curY, contentWidth, 24, 'F');
-    doc.setDrawColor(...goldPrimary);
-    doc.setLineWidth(0.3);
-    doc.rect(margin, curY, contentWidth, 24, 'D');
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7.2);
-    doc.setTextColor(...goldPrimary);
-    doc.text('CONSULTANCY REMUNERATION RECORD & SPECIFIC TRANSACTION TERMS', margin + 3, curY + 4);
-    doc.setFont('helvetica', 'italic');
-    doc.setFontSize(6.5);
-    doc.setTextColor(...grayText);
-    doc.text('(To be recorded and initialed upon specific transaction engagement)', pageWidth - margin - 3, curY + 4, { align: 'right' });
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    doc.setTextColor(...charcoalDark);
-    const feeStr = prefill?.feeStructure ? `: ${prefill.feeStructure}` : ': _________________________________________________';
-    const gstStr = prefill?.gstStatus ? `: ${prefill.gstStatus}` : ': ____________________';
-    const milesStr = prefill?.paymentMilestones ? `: ${prefill.paymentMilestones}` : ': _________________________________________________';
-    const termsStr = prefill?.specialTerms ? `: ${prefill.specialTerms}` : ': ____________________';
-
-    doc.text(`Applicable Fee Structure${feeStr}`, margin + 3, curY + 9);
-    doc.text(`GST Status${gstStr}`, margin + 115, curY + 9);
-    doc.text(`Payment Milestones${milesStr}`, margin + 3, curY + 14);
-    doc.text(`Special Covenants${termsStr}`, margin + 115, curY + 14);
-    doc.text(`Transaction Reference / Property Unit: __________________________________________________________________________________`, margin + 3, curY + 19);
-
-    curY += 28;
+    curY += 4;
 
     // ----------------------------------------------------
     // GOVERNING COVENANTS & LEGAL DISCLOSURES (ON PAGE 2)
@@ -524,21 +528,21 @@ export const pdfService = {
       'A. Confidentiality & Data Protection: All personal and property information provided by the Client on Page 1 is held in strict professional confidence and will only be utilized for legitimate advisory, property search, and transaction purposes.',
       'B. Non-Speculative Advisory Policy: Kloud Realty operates strictly as a RERA-registered real estate consultancy. All comparative market values, projections, and investment overviews are shared in good faith without speculative guarantees.',
       'C. Legal Due Diligence: While Kloud Realty coordinates due diligence, clients are encouraged to conduct independent title and statutory reviews prior to executing binding conveyance deeds.',
-      'D. Cross-Reference to Page 1 Execution: The formal execution, client signature, representative signature, dates, and declarations completed on Page 1 of this dossier formally incorporate and bind the parties to the complete terms of this Term Sheet.'
+      'D. Cross-Reference to Page 1 Execution: The formal execution, client signature, representative signature, dates, declarations, and Consultancy Remuneration Record completed on Page 1 of this dossier formally incorporate and bind the parties to the complete terms of this Term Sheet.'
     ];
 
     covenants.forEach((cov) => {
       const covLines = doc.splitTextToSize(cov, contentWidth - 6);
-      const covH = covLines.length * 3.3 + 1.8;
+      const covH = covLines.length * 3.4 + 2;
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(6.8);
       doc.setTextColor(...grayText);
       doc.text(covLines, margin + 3, curY + 2);
-      curY += covH + 1;
+      curY += covH + 1.5;
     });
 
-    curY += 2;
+    curY += 3;
 
     // Page 2 Execution Reference Banner
     doc.setFillColor(248, 249, 250);
@@ -550,11 +554,11 @@ export const pdfService = {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(6.8);
     doc.setTextColor(...charcoalDark);
-    doc.text('FORMAL EXECUTION RECORDED ON PAGE 1:', margin + 3, curY + 4.2);
+    doc.text('FORMAL EXECUTION & REMUNERATION RECORD ON PAGE 1:', margin + 3, curY + 4.2);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(6.7);
     doc.setTextColor(...grayText);
-    doc.text('This Term Sheet constitutes Page 2 of 2. Client and Authorized Representative signatures are executed on Page 1.', margin + 3, curY + 7.8);
+    doc.text('This Term Sheet constitutes Page 2 of 2. Client declarations, signatures, and Consultancy Remuneration Record are executed on Page 1.', margin + 3, curY + 7.8);
 
     // Page 2 Footer
     doc.setDrawColor(...grayBorder);

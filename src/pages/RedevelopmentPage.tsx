@@ -32,6 +32,7 @@ export const RedevelopmentPage: React.FC = () => {
         phone,
         email,
         enquirySource: 'Redevelopment',
+        enquiryButtonSource: 'Redevelopment Society Consultation Form',
         serviceVertical: 'Redevelopment Consulting',
         preferredLocation: locality,
         budgetRange: 'Redevelopment Advisory',
@@ -39,6 +40,7 @@ export const RedevelopmentPage: React.FC = () => {
         roleInSociety: role,
         buildingAge,
         numberOfUnits: units,
+        pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
         message: message || `Redevelopment enquiry from ${role} for ${buildingAge} old building in ${locality}`
       });
 
@@ -146,10 +148,10 @@ export const RedevelopmentPage: React.FC = () => {
                     Enquiry ID: {submittedLeadId}
                   </span>
                   <h3 className="font-serif text-2xl font-bold text-white">
-                    Redevelopment Consultation Requested
+                    Enquiry Received
                   </h3>
-                  <p className="text-xs text-warmGray leading-relaxed">
-                    Thank you, {fullName}. Abhishek Gupta will review your society's parameters and reach out within 24 hours to schedule an initial advisory discussion.
+                  <p className="text-xs text-warmGray leading-relaxed max-w-md mx-auto">
+                    Thank you for contacting <strong className="text-white">KLOUD REALTY</strong>. Your enquiry has been successfully received. Our team will review your requirements and get in touch with you.
                   </p>
                   <button
                     onClick={() => setSubmittedLeadId(null)}

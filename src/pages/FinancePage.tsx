@@ -84,6 +84,7 @@ export const FinancePage: React.FC = () => {
         phone: phone.trim(),
         email: email.trim().toLowerCase(),
         enquirySource: 'Finance Page',
+        enquiryButtonSource: 'Home Loan Assistance Form',
         serviceVertical: 'Finance & Home Loan',
         preferredLocation: propertyLocation.trim() || 'Mumbai',
         budgetRange: requiredLoanAmount.trim(),
@@ -93,6 +94,8 @@ export const FinancePage: React.FC = () => {
         requiredLoanAmount: requiredLoanAmount.trim(),
         existingLoanObligations: existingLoanObligations.trim() || 'None',
         preferredCallbackTime,
+        propertyType,
+        pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
         message: [
           `Property Type: ${propertyType}`,
           `Value: ${approxPropertyValue || 'N/A'}`,
@@ -437,10 +440,10 @@ export const FinancePage: React.FC = () => {
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <h3 className="font-serif text-2xl font-light text-white">
-                Enquiry Successfully Submitted
+                Enquiry Received
               </h3>
               <p className="text-xs sm:text-sm text-warmGray max-w-md mx-auto">
-                Thank you, <strong className="text-white">{fullName}</strong>. Your home-loan assistance enquiry has been transmitted directly to Abhishek Gupta at KLOUD REALTY.
+                Thank you for contacting <strong className="text-white">KLOUD REALTY</strong>. Your enquiry has been successfully received. Our team will review your requirements and get in touch with you.
               </p>
               
               <div className="p-4 rounded bg-charcoal-900 border border-gold-500/30 max-w-xs mx-auto">

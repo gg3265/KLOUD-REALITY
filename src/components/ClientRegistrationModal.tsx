@@ -181,6 +181,8 @@ export const ClientRegistrationModal: React.FC<ClientRegistrationModalProps> = (
         phone: phone.trim(),
         email: email.trim().toLowerCase(),
         enquirySource: 'Registration Form',
+        enquiryButtonSource: 'Client Registration Form',
+        pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
         serviceVertical: 'Client Registration',
         preferredLocation: preferredLocation.trim() || cityPin.trim() || 'Mumbai',
         budgetRange: budget.trim() || 'To be discussed',
@@ -332,7 +334,7 @@ export const ClientRegistrationModal: React.FC<ClientRegistrationModalProps> = (
                   Client Registration Successfully Recorded
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
-                  Thank you, <strong className="text-slate-900">{fullName}</strong>. Your official Client Registration &amp; Professional Engagement dossier has been recorded and transmitted directly to Abhishek Gupta at KLOUD REALTY.
+                  Thank you for contacting <strong className="text-slate-900">KLOUD REALTY</strong>. Your enquiry has been successfully received. Our team will review your requirements and get in touch with you.
                 </p>
               </div>
 

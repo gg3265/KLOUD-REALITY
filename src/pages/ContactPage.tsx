@@ -30,8 +30,10 @@ export const ContactPage: React.FC = () => {
         phone,
         email,
         enquirySource: 'Contact Page',
+        enquiryButtonSource: 'Contact Us Form',
         serviceVertical: service as any,
         preferredLocation: location,
+        pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
         message: message || `General contact enquiry for ${service} in ${location}`
       });
 
@@ -166,10 +168,10 @@ export const ContactPage: React.FC = () => {
                     Enquiry ID: {submittedLeadId}
                   </span>
                   <h3 className="font-serif text-2xl font-bold text-white">
-                    Enquiry Submitted Successfully
+                    Enquiry Received
                   </h3>
                   <p className="text-xs text-warmGray leading-relaxed max-w-md mx-auto">
-                    Thank you, {name}. Abhishek Gupta will connect with you shortly regarding your enquiry for {service}.
+                    Thank you for contacting <strong className="text-white">KLOUD REALTY</strong>. Your enquiry has been successfully received. Our team will review your requirements and get in touch with you.
                   </p>
                   <button
                     onClick={() => setSubmittedLeadId(null)}

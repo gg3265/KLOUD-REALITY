@@ -105,11 +105,17 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({ property
       const res = await leadService.createLead({
         fullName: name,
         phone,
-        email: email || 'Not provided',
+        email: email.trim() || 'Not provided',
         enquirySource: 'Property Details',
-        serviceVertical: property.category === 'primary' ? 'Primary Market' : 'Secondary Market',
+        enquiryButtonSource: isSiteVisit ? 'Schedule Site Visit Form' : 'Property Sidebar Form',
+        serviceVertical: property.category === 'primary' ? 'Primary Market' : (property.category === 'rental' ? 'Rental' : 'Secondary Market'),
         propertyId: property.id,
         propertyTitle: property.title,
+        developerName: property.developer,
+        projectSlug: property.slug,
+        pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
+        selectedConfig: selectedConfig || undefined,
+        selectedFloorRange: selectedFloorRange || undefined,
         propertyRequirement: isSiteVisit ? 'Schedule a Site Visit' : 'Buy a New Property (Primary Market)',
         preferredLocation: property.location,
         budgetRange: budget || property.priceDisplay,
@@ -668,11 +674,11 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({ property
                   <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
                   <h4 className="font-serif text-lg text-white font-semibold">Enquiry Received</h4>
                   <p className="text-xs text-warmGray-100 leading-relaxed">
-                    Thank you. Our senior property advisor will reach out to you shortly regarding {property.title}.
+                    Thank you for contacting <strong>KLOUD REALTY</strong>. Your enquiry has been successfully received. Our team will review your requirements and get in touch with you.
                   </p>
                   <button
                     onClick={() => setSubmitSuccess(false)}
-                    className="text-xs text-gold-400 underline font-medium"
+                    className="text-xs text-gold-400 underline font-medium cursor-pointer"
                   >
                     Submit another request
                   </button>

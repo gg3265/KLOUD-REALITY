@@ -740,10 +740,45 @@ VITE_ADMIN_ACCESS_PIN=kloud2026`}
                 </div>
               </div>
 
-              {selectedLead.propertyTitle && (
-                <div className="p-3 rounded bg-charcoal-900 border border-white/5">
-                  <span className="text-warmGray block">Associated Property:</span>
-                  <span className="text-gold-300 font-medium">{selectedLead.propertyTitle}</span>
+              {/* Associated Property / Project Details */}
+              {(selectedLead.propertyTitle || selectedLead.developerName || selectedLead.pageUrl) && (
+                <div className="p-3.5 rounded bg-charcoal-900 border border-gold-500/30 space-y-1.5 text-xs">
+                  <div className="flex justify-between items-center border-b border-white/5 pb-1">
+                    <span className="text-[10px] uppercase font-mono tracking-wider text-gold-400">Project &amp; Source Details</span>
+                    {selectedLead.emailDeliveryStatus && (
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${
+                        selectedLead.emailDeliveryStatus === 'SENT' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                        selectedLead.emailDeliveryStatus === 'SIMULATED' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                        'bg-red-500/20 text-red-400 border border-red-500/30'
+                      }`}>
+                        Email: {selectedLead.emailDeliveryStatus}
+                      </span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <div>
+                      <span className="text-warmGray block text-[10px]">Project:</span>
+                      <span className="text-gold-300 font-medium">{selectedLead.propertyTitle || 'General Consultation'}</span>
+                    </div>
+                    {selectedLead.developerName && (
+                      <div>
+                        <span className="text-warmGray block text-[10px]">Developer:</span>
+                        <span className="text-white font-medium">{selectedLead.developerName}</span>
+                      </div>
+                    )}
+                    {selectedLead.selectedConfig && (
+                      <div>
+                        <span className="text-warmGray block text-[10px]">Configuration:</span>
+                        <span className="text-cyanBrand font-medium">{selectedLead.selectedConfig}</span>
+                      </div>
+                    )}
+                    {selectedLead.pageUrl && (
+                      <div className="col-span-2">
+                        <span className="text-warmGray block text-[10px]">Source Page:</span>
+                        <span className="text-warmGray font-mono text-[11px] truncate block">{selectedLead.pageUrl}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 

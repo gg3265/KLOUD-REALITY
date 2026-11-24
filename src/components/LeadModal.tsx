@@ -122,6 +122,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
     else if (lookingTo.includes('Sell')) mappedVertical = 'Secondary Market';
 
     const source: LeadSource = initialPropertyId ? 'Property Details' : 'Entry Modal';
+    const buttonSource = initialPropertyTitle ? `Enquiry: ${initialPropertyTitle}` : 'Consultation Modal';
 
     try {
       const result = await leadService.createLead({
@@ -129,6 +130,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
         phone,
         email,
         enquirySource: source,
+        enquiryButtonSource: buttonSource,
         serviceVertical: mappedVertical,
         propertyRequirement: lookingTo,
         preferredLocation: location,
@@ -136,6 +138,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
         preferredContactMethod: contactMethod,
         propertyId: initialPropertyId,
         propertyTitle: initialPropertyTitle,
+        pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
         message: customMessage ? `Requirement: ${lookingTo} | ${customMessage}` : `Requirement: ${lookingTo} in ${location}`
       });
 
@@ -192,12 +195,12 @@ export const LeadModal: React.FC<LeadModalProps> = ({
               Enquiry ID: {submittedLeadId}
             </span>
 
-            <h3 className="font-serif text-3xl font-semibold text-charcoal-950 mb-3">
-              We Have Received Your Enquiry.
+            <h3 className="font-serif text-2xl sm:text-3xl font-semibold text-charcoal-950 mb-3">
+              Enquiry Received
             </h3>
 
             <p className="text-sm text-charcoal-700 max-w-md mx-auto leading-relaxed mb-6 font-sans">
-              Thank you, <strong className="text-charcoal-950">{fullName}</strong>. Our senior real estate advisor, Abhishek Gupta, has been notified and will connect with you via <strong className="text-gold-700">{contactMethod}</strong> shortly to share tailored opportunities.
+              Thank you for contacting <strong className="text-charcoal-950">KLOUD REALTY</strong>. Your enquiry has been successfully received. Our team will review your requirements and get in touch with you.
             </p>
 
             <div className="p-4 rounded bg-white border border-charcoal-900/10 max-w-md w-full text-left text-xs space-y-2 mb-8 shadow-sm">

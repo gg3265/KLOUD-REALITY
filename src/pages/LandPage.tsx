@@ -106,11 +106,18 @@ export const LandPage: React.FC<LandPageProps> = ({ onOpenConsultation }) => {
         phone,
         email,
         enquirySource: 'Land',
+        enquiryButtonSource: 'Land Acquisition Vision Form',
         serviceVertical: 'Second Homes & Land',
-        propertyRequirement: 'Purchase a Second Home or Plot',
+        propertyRequirement: `Strategic Land Acquisition (${selectedVisionCategory})`,
         preferredLocation,
         budgetRange: budget,
         preferredContactMethod: 'Phone Call',
+        pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
+        customFields: {
+          visionCategory: selectedVisionCategory,
+          intendedUse,
+          plotSize
+        },
         message: detailedMessage
       });
 
@@ -466,10 +473,10 @@ export const LandPage: React.FC<LandPageProps> = ({ onOpenConsultation }) => {
                   Enquiry ID: {submittedLeadId}
                 </span>
                 <h3 className="font-serif text-2xl sm:text-3xl font-light text-white mt-4 mb-2">
-                  Consultation Request Confirmed.
+                  Enquiry Received
                 </h3>
                 <p className="text-sm text-warmGray max-w-lg mx-auto leading-relaxed mb-6 font-sans">
-                  Thank you, <strong className="text-white">{fullName}</strong>. Your requirement for <strong className="text-gold-400">{selectedVisionCategory}</strong> in <strong className="text-white">{preferredLocation}</strong> has been assigned to our land advisory division. Abhishek Gupta will reach out to schedule your private briefing.
+                  Thank you for contacting <strong className="text-white">KLOUD REALTY</strong>. Your enquiry has been successfully received. Our team will review your requirements and get in touch with you.
                 </p>
                 <button
                   onClick={() => setSubmittedLeadId(null)}

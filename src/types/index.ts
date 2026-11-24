@@ -206,6 +206,17 @@ export interface Lead {
   gstStatus?: string;
   paymentMilestones?: string;
   specialTerms?: string;
+  // Extended Project & Lead Metadata
+  developerName?: string;
+  projectSlug?: string;
+  pageUrl?: string;
+  selectedConfig?: string;
+  selectedFloorPlan?: string;
+  selectedFloorRange?: string;
+  enquiryButtonSource?: string;
+  emailDeliveryStatus?: 'SENT' | 'SIMULATED' | 'FAILED';
+  emailError?: string;
+  customFields?: Record<string, any>;
 }
 
 export interface FilterState {

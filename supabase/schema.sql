@@ -40,7 +40,18 @@ CREATE TABLE IF NOT EXISTS leads (
   city_pin TEXT,
   pan_number TEXT,
   purpose_of_engagement TEXT[],
-  accepted_fee_terms BOOLEAN DEFAULT false
+  accepted_fee_terms BOOLEAN DEFAULT false,
+  -- Extended Project & Submission Metadata
+  developer TEXT,
+  project_slug TEXT,
+  page_url TEXT,
+  selected_config TEXT,
+  selected_floor_plan TEXT,
+  selected_floor_range TEXT,
+  enquiry_button_source TEXT,
+  custom_fields JSONB,
+  email_delivery_status TEXT DEFAULT 'PENDING',
+  email_error TEXT
 );
 
 -- Index for searching and filtering leads

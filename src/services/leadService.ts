@@ -1,6 +1,7 @@
 import { Lead, LeadSource, ServiceVertical, ContactMethod, LeadStatus } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { emailService } from './emailService';
+import { propertyService } from './propertyService';
 
 const LOCAL_STORAGE_LEADS_KEY = 'kloud_realty_leads_v1';
 
@@ -14,7 +15,7 @@ export function generateEnquiryId(prefix: string = 'KR'): string {
 export interface CreateLeadInput {
   fullName: string;
   phone: string;
-  email: string;
+  email?: string;
   enquirySource: LeadSource;
   serviceVertical: ServiceVertical;
   preferredLocation?: string;
@@ -22,6 +23,14 @@ export interface CreateLeadInput {
   preferredContactMethod?: ContactMethod;
   propertyId?: string;
   propertyTitle?: string;
+  developerName?: string;
+  projectSlug?: string;
+  pageUrl?: string;
+  selectedConfig?: string;
+  selectedFloorPlan?: string;
+  selectedFloorRange?: string;
+  enquiryButtonSource?: string;
+  customFields?: Record<string, any>;
   message?: string;
   propertyRequirement?: string;
   roleInSociety?: string;
@@ -145,27 +154,56 @@ export const leadService = {
   },
 
   async createLead(input: CreateLeadInput): Promise<SubmissionResult> {
-    // Client-side validation
+    // Client-side validation: Full name
     if (!input.fullName || input.fullName.trim().length < 2) {
       return { success: false, error: 'Please enter your full name.', isBackendConnected: isSupabaseConfigured };
     }
-    const cleanPhone = input.phone.replace(/[\s-]/g, '');
+
+    // Client-side validation: Phone number
+    const cleanPhone = input.phone ? input.phone.replace(/[\s-]/g, '') : '';
     if (!cleanPhone || cleanPhone.length < 8) {
-      return { success: false, error: 'Please enter a valid telephone or mobile number.', isBackendConnected: isSupabaseConfigured };
+      return { success: false, error: 'Please enter a valid telephone or mobile number (minimum 8 digits).', isBackendConnected: isSupabaseConfigured };
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!input.email || !emailRegex.test(input.email.trim())) {
-      return { success: false, error: 'Please provide a valid email address.', isBackendConnected: isSupabaseConfigured };
+
+    // Client-side validation: Email (if provided and not 'Not provided')
+    let normalizedEmail = 'Not provided';
+    if (input.email && input.email.trim()) {
+      const candidate = input.email.trim().toLowerCase();
+      if (candidate !== 'not provided') {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(candidate)) {
+          return { success: false, error: 'Please provide a valid email address.', isBackendConnected: isSupabaseConfigured };
+        }
+        normalizedEmail = candidate;
+      }
     }
+
+    // Resolve property details automatically if propertyId or propertyTitle is supplied
+    let resolvedProperty = input.propertyId ? propertyService.getPropertyById(input.propertyId) : undefined;
+    if (!resolvedProperty && input.propertyTitle) {
+      resolvedProperty = propertyService.getAllProperties().find(
+        p => p.title.toLowerCase() === input.propertyTitle?.toLowerCase() ||
+             input.propertyTitle?.toLowerCase().includes(p.title.toLowerCase())
+      );
+    }
+
+    const resolvedDeveloper = input.developerName || resolvedProperty?.developer || undefined;
+    const resolvedProjectTitle = input.propertyTitle || resolvedProperty?.title || undefined;
+    const resolvedSlug = input.projectSlug || resolvedProperty?.slug || undefined;
+    const resolvedLocation = input.preferredLocation?.trim() || resolvedProperty?.location || 'Mazgaon / Mumbai';
+    const resolvedPageUrl = input.pageUrl || (typeof window !== 'undefined' ? window.location.href : 'https://kloud-reality.vercel.app');
 
     // Anti-duplicate protection: check for identical submission in last 120 seconds
     const existingLeads = this.getAllLeads();
     const twoMinutesAgo = Date.now() - 120000;
     const isDuplicate = existingLeads.find(l => {
-      const isSameClient = (l.phone === input.phone.trim() || l.email === input.email.trim().toLowerCase());
+      const isSamePhone = l.phone === input.phone.trim();
+      const isSameEmail = (normalizedEmail !== 'Not provided' && l.email === normalizedEmail);
+      const isSameClient = isSamePhone || isSameEmail;
       const isRecent = new Date(l.createdAt).getTime() > twoMinutesAgo;
       const isSameVertical = l.serviceVertical === input.serviceVertical;
-      return isSameClient && isRecent && isSameVertical;
+      const isSameProject = l.propertyId === input.propertyId;
+      return isSameClient && isRecent && isSameVertical && isSameProject;
     });
 
     if (isDuplicate) {
@@ -176,7 +214,9 @@ export const leadService = {
       };
     }
 
-    const prefix = input.serviceVertical === 'Finance & Home Loan' ? 'KR-HL' : (input.serviceVertical === 'Client Registration' ? 'KR-REG' : 'KR');
+    const prefix = input.serviceVertical === 'Finance & Home Loan' 
+      ? 'KR-HL' 
+      : (input.serviceVertical === 'Client Registration' ? 'KR-REG' : 'KR');
     const leadId = generateEnquiryId(prefix);
 
     const newLead: Lead = {
@@ -184,14 +224,22 @@ export const leadService = {
       createdAt: new Date().toISOString(),
       fullName: input.fullName.trim(),
       phone: input.phone.trim(),
-      email: input.email.trim().toLowerCase(),
+      email: normalizedEmail,
       enquirySource: input.enquirySource,
       serviceVertical: input.serviceVertical,
-      preferredLocation: input.preferredLocation?.trim() || 'Mazgaon / Mumbai',
+      preferredLocation: resolvedLocation,
       budgetRange: input.budgetRange || 'Not Decided Yet',
       preferredContactMethod: input.preferredContactMethod || 'Phone Call',
       propertyId: input.propertyId,
-      propertyTitle: input.propertyTitle,
+      propertyTitle: resolvedProjectTitle,
+      developerName: resolvedDeveloper,
+      projectSlug: resolvedSlug,
+      pageUrl: resolvedPageUrl,
+      selectedConfig: input.selectedConfig,
+      selectedFloorPlan: input.selectedFloorPlan,
+      selectedFloorRange: input.selectedFloorRange,
+      enquiryButtonSource: input.enquiryButtonSource,
+      customFields: input.customFields,
       message: input.message?.trim(),
       leadStatus: 'New',
       assignedTo: 'Abhishek Gupta',
@@ -222,10 +270,14 @@ export const leadService = {
       feeStructure: input.feeStructure,
       gstStatus: input.gstStatus,
       paymentMilestones: input.paymentMilestones,
-      specialTerms: input.specialTerms
+      specialTerms: input.specialTerms,
+      emailDeliveryStatus: 'SIMULATED'
     };
 
-    // 1. Try Supabase if configured
+    // 1. Save locally first (guarantees zero lead loss under any network condition)
+    this.saveLocalLead(newLead);
+
+    // 2. Try Supabase if configured
     if (isSupabaseConfigured && supabase) {
       try {
         const { error } = await supabase.from('leads').insert([{
@@ -241,6 +293,14 @@ export const leadService = {
           preferred_contact_method: newLead.preferredContactMethod,
           property_id: newLead.propertyId,
           property_title: newLead.propertyTitle,
+          developer: newLead.developerName,
+          project_slug: newLead.projectSlug,
+          page_url: newLead.pageUrl,
+          selected_config: newLead.selectedConfig,
+          selected_floor_plan: newLead.selectedFloorPlan,
+          selected_floor_range: newLead.selectedFloorRange,
+          enquiry_button_source: newLead.enquiryButtonSource,
+          custom_fields: newLead.customFields,
           message: newLead.message,
           lead_status: newLead.leadStatus,
           assigned_to: newLead.assignedTo,
@@ -258,29 +318,30 @@ export const leadService = {
           city_pin: newLead.cityPin,
           pan_number: newLead.panNumber,
           purpose_of_engagement: newLead.purposeOfEngagement,
-          accepted_fee_terms: newLead.acceptedFeeTerms
+          accepted_fee_terms: newLead.acceptedFeeTerms,
+          email_delivery_status: newLead.emailDeliveryStatus
         }]);
 
         if (error) {
-          console.warn('Supabase insert failed, falling back to local persistent store:', error.message);
-          this.saveLocalLead(newLead);
-        } else {
-          // Keep local store in sync
-          this.saveLocalLead(newLead);
+          console.warn('Supabase insert failed, local storage maintained:', error.message);
         }
       } catch (err) {
-        console.warn('Supabase network issue, falling back to local storage:', err);
-        this.saveLocalLead(newLead);
+        console.warn('Supabase network issue, local storage maintained:', err);
       }
-    } else {
-      // Local persistent storage
-      this.saveLocalLead(newLead);
     }
 
-    // 2. Trigger notification & confirmation email engine
-    emailService.sendNotificationAndAcknowledgment(newLead).catch((err) => {
+    // 3. Dispatch notification to kloudrealty@gmail.com and acknowledgment to client
+    try {
+      const emailRes = await emailService.sendNotificationAndAcknowledgment(newLead);
+      newLead.emailDeliveryStatus = emailRes.deliveryStatus;
+      newLead.emailError = emailRes.error;
+      this.saveLocalLead(newLead);
+    } catch (err: any) {
       console.warn('Email dispatch notice:', err);
-    });
+      newLead.emailDeliveryStatus = 'FAILED';
+      newLead.emailError = err?.message;
+      this.saveLocalLead(newLead);
+    }
 
     return {
       success: true,
@@ -326,11 +387,15 @@ export const leadService = {
       'Email',
       'Source',
       'Vertical',
+      'Project Title',
+      'Developer',
       'Location',
+      'Config',
       'Budget',
       'Contact Method',
-      'Property Title',
       'Status',
+      'Email Status',
+      'Page URL',
       'Employment Type',
       'Property Value',
       'Loan Required',
@@ -350,11 +415,15 @@ export const leadService = {
       `"${l.email}"`,
       `"${l.enquirySource}"`,
       `"${l.serviceVertical}"`,
+      `"${(l.propertyTitle || 'N/A').replace(/"/g, '""')}"`,
+      `"${(l.developerName || 'N/A').replace(/"/g, '""')}"`,
       `"${(l.preferredLocation || '').replace(/"/g, '""')}"`,
+      `"${(l.selectedConfig || l.configuration || 'N/A').replace(/"/g, '""')}"`,
       `"${l.budgetRange || ''}"`,
       `"${l.preferredContactMethod || ''}"`,
-      `"${(l.propertyTitle || 'N/A').replace(/"/g, '""')}"`,
       `"${l.leadStatus}"`,
+      `"${l.emailDeliveryStatus || 'N/A'}"`,
+      `"${(l.pageUrl || 'N/A').replace(/"/g, '""')}"`,
       `"${l.employmentType || 'N/A'}"`,
       `"${l.approxPropertyValue || 'N/A'}"`,
       `"${l.requiredLoanAmount || 'N/A'}"`,

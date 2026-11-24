@@ -9,12 +9,13 @@ export default async function handler(req: any, res: any) {
 
   const { lead, subject, ownerEmail, clientEmail, ownerHtml, clientHtml } = req.body || {};
 
-  if (!lead || !lead.fullName || !lead.email) {
-    return res.status(400).json({ error: 'Invalid lead payload. Full name and email are required.' });
+  if (!lead || !lead.fullName) {
+    return res.status(400).json({ error: 'Invalid lead payload. Full name is required.' });
   }
 
   const resendApiKey = process.env.RESEND_API_KEY;
-  const ownerRecipient = ownerEmail || 'kloudrealty@gmail.com';
+  const ownerRecipient = process.env.KLOUD_REALTY_NOTIFICATION_EMAIL || ownerEmail || 'kloudrealty@gmail.com';
+  const defaultFrom = process.env.RESEND_FROM_EMAIL || 'KLOUD REALTY Portal <onboarding@resend.dev>';
 
   // If RESEND_API_KEY is configured on the server
   if (resendApiKey) {
@@ -27,35 +28,63 @@ export default async function handler(req: any, res: any) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          from: 'KLOUD REALTY Portal <notifications@kloudrealty.in>',
+          from: defaultFrom,
           to: [ownerRecipient],
-          subject: subject || `New Enquiry from ${lead.fullName}`,
+          subject: subject || `[KLOUD REALTY] New Lead from ${lead.fullName}`,
           html: ownerHtml
         })
       });
 
-      // 2. Send Acknowledgment to Client if email provided
-      if (clientEmail) {
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${resendApiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            from: 'KLOUD REALTY <advisory@kloudrealty.in>',
-            to: [clientEmail],
-            subject: `Acknowledgement: Your Enquiry with KLOUD REALTY [${lead.id}]`,
-            html: clientHtml
-          })
+      const ownerData = await ownerRes.json();
+
+      // 2. Send Acknowledgment to Client if valid client email provided
+      let clientData = null;
+      const isValidClientEmail = clientEmail && typeof clientEmail === 'string' && clientEmail.includes('@') && clientEmail.toLowerCase() !== 'not provided';
+
+      if (isValidClientEmail && clientHtml && ownerRes.ok) {
+        try {
+          const clientRes = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${resendApiKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              from: defaultFrom,
+              to: [clientEmail],
+              subject: `Acknowledgement: Your Enquiry with KLOUD REALTY [${lead.id}]`,
+              html: clientHtml
+            })
+          });
+          clientData = await clientRes.json();
+        } catch (clientErr) {
+          console.warn('Client acknowledgment dispatch warning:', clientErr);
+        }
+      }
+
+      if (!ownerRes.ok) {
+        console.error('Resend dispatch API error:', ownerData);
+        return res.status(ownerRes.status || 500).json({
+          success: false,
+          error: ownerData?.message || 'Failed to dispatch email via Resend',
+          details: ownerData
         });
       }
 
-      const ownerData = await ownerRes.json();
-      return res.status(200).json({ success: true, provider: 'Resend', data: ownerData });
+      return res.status(200).json({
+        success: true,
+        provider: 'Resend',
+        deliveryStatus: 'SENT',
+        ownerMessageId: ownerData?.id,
+        clientMessageId: clientData?.id
+      });
     } catch (err: any) {
-      console.error('Resend dispatch error:', err);
-      return res.status(500).json({ error: 'Email service error', details: err?.message });
+      console.error('Resend dispatch network error:', err);
+      return res.status(500).json({
+        success: false,
+        error: 'Email service error',
+        details: err?.message
+      });
     }
   }
 
@@ -64,12 +93,14 @@ export default async function handler(req: any, res: any) {
     leadId: lead.id,
     name: lead.fullName,
     vertical: lead.serviceVertical,
+    project: lead.propertyTitle || 'N/A',
     timestamp: new Date().toISOString()
   });
 
   return res.status(200).json({
     success: true,
     simulated: true,
+    deliveryStatus: 'SIMULATED',
     message: 'Enquiry received and logged to server. Set RESEND_API_KEY in environment for live external SMTP/API dispatch.'
   });
 }
