@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, MapPin, Home, IndianRupee, ArrowRight } from 'lucide-react';
+import { leadService } from '../services/leadService';
 
 interface SearchBarProps {
   onSearch: (params: {
@@ -27,6 +28,15 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, initialIntent = 
       locality,
       budget
     });
+
+    // Fire search tracking notification to kloudrealty@gmail.com
+    leadService.recordPropertySearch({
+      intent,
+      propertyType,
+      locality,
+      budget,
+      searchSource: 'Homepage Search Bar'
+    }).catch(err => console.warn('Search lead tracking note:', err));
   };
 
   return (

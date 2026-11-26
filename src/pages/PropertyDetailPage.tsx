@@ -108,6 +108,7 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({ property
         email: email.trim() || 'Not provided',
         enquirySource: 'Property Details',
         enquiryButtonSource: isSiteVisit ? 'Schedule Site Visit Form' : 'Property Sidebar Form',
+        isSiteVisit,
         serviceVertical: property.category === 'primary' ? 'Primary Market' : (property.category === 'rental' ? 'Rental' : 'Secondary Market'),
         propertyId: property.id,
         propertyTitle: property.title,

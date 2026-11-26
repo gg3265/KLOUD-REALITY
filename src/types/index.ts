@@ -137,7 +137,8 @@ export type LeadSource =
   | 'Contact Page' 
   | 'Navbar CTA'
   | 'Finance Page'
-  | 'Registration Form';
+  | 'Registration Form'
+  | 'Property Search';
 
 export type ServiceVertical = 
   | 'Primary Market' 
@@ -147,7 +148,8 @@ export type ServiceVertical =
   | 'Rental' 
   | 'Finance & Home Loan'
   | 'Client Registration'
-  | 'General Consultation';
+  | 'General Consultation'
+  | 'Property Search Interest';
 
 export type ContactMethod = 'Phone Call' | 'WhatsApp' | 'Email';
 
@@ -214,6 +216,7 @@ export interface Lead {
   selectedFloorPlan?: string;
   selectedFloorRange?: string;
   enquiryButtonSource?: string;
+  isSiteVisit?: boolean;
   emailDeliveryStatus?: 'SENT' | 'SIMULATED' | 'FAILED';
   emailError?: string;
   customFields?: Record<string, any>;

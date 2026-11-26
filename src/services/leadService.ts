@@ -30,6 +30,7 @@ export interface CreateLeadInput {
   selectedFloorPlan?: string;
   selectedFloorRange?: string;
   enquiryButtonSource?: string;
+  isSiteVisit?: boolean;
   customFields?: Record<string, any>;
   message?: string;
   propertyRequirement?: string;
@@ -239,6 +240,7 @@ export const leadService = {
       selectedFloorPlan: input.selectedFloorPlan,
       selectedFloorRange: input.selectedFloorRange,
       enquiryButtonSource: input.enquiryButtonSource,
+      isSiteVisit: input.isSiteVisit,
       customFields: input.customFields,
       message: input.message?.trim(),
       leadStatus: 'New',
@@ -300,12 +302,17 @@ export const leadService = {
           selected_floor_plan: newLead.selectedFloorPlan,
           selected_floor_range: newLead.selectedFloorRange,
           enquiry_button_source: newLead.enquiryButtonSource,
+          is_site_visit: newLead.isSiteVisit,
           custom_fields: newLead.customFields,
           message: newLead.message,
           lead_status: newLead.leadStatus,
           assigned_to: newLead.assignedTo,
           notes: newLead.notes,
           consent_status: newLead.consentStatus,
+          property_requirement: newLead.propertyRequirement,
+          property_type: newLead.propertyType,
+          configuration: newLead.configuration,
+          preferred_timeline: newLead.preferredTimeline,
           role_in_society: newLead.roleInSociety,
           building_age: newLead.buildingAge,
           number_of_units: newLead.numberOfUnits,
@@ -314,11 +321,20 @@ export const leadService = {
           required_loan_amount: newLead.requiredLoanAmount,
           existing_loan_obligations: newLead.existingLoanObligations,
           preferred_callback_time: newLead.preferredCallbackTime,
+          date_of_birth: newLead.dateOfBirth,
+          whatsapp_number: newLead.whatsappNumber,
           residential_address: newLead.residentialAddress,
           city_pin: newLead.cityPin,
           pan_number: newLead.panNumber,
           purpose_of_engagement: newLead.purposeOfEngagement,
           accepted_fee_terms: newLead.acceptedFeeTerms,
+          client_signature: newLead.clientSignature,
+          declaration_place: newLead.declarationPlace,
+          declaration_date: newLead.declarationDate,
+          fee_structure: newLead.feeStructure,
+          gst_status: newLead.gstStatus,
+          payment_milestones: newLead.paymentMilestones,
+          special_terms: newLead.specialTerms,
           email_delivery_status: newLead.emailDeliveryStatus
         }]);
 
@@ -341,6 +357,108 @@ export const leadService = {
       newLead.emailDeliveryStatus = 'FAILED';
       newLead.emailError = err?.message;
       this.saveLocalLead(newLead);
+    }
+
+    return {
+      success: true,
+      leadId,
+      isBackendConnected: isSupabaseConfigured
+    };
+  },
+
+  /**
+   * Tracks active property searches when a visitor clicks "Search Properties"
+   * Sends a dedicated NEW PROPERTY SEARCH notification to kloudrealty@gmail.com
+   */
+  async recordPropertySearch(params: {
+    intent: string;
+    propertyType: string;
+    locality: string;
+    budget: string;
+    searchSource?: string;
+  }): Promise<SubmissionResult> {
+    const leadId = generateEnquiryId('KR-SRCH');
+    const intentLabel = params.intent.toUpperCase();
+    const typeLabel = params.propertyType === 'all' ? 'All Configurations' : params.propertyType;
+    const locLabel = params.locality === 'all' ? 'All Locations (Mumbai & Beyond)' : params.locality;
+    const budgetLabel = params.budget === 'all' ? 'Any Budget' : params.budget;
+    const source = params.searchSource || 'Homepage Search Bar';
+
+    const searchLead: Lead = {
+      id: leadId,
+      createdAt: new Date().toISOString(),
+      fullName: 'Website Visitor (Search)',
+      phone: 'Property Filter Search',
+      email: 'Not provided',
+      enquirySource: 'Property Search',
+      enquiryButtonSource: `${source} — "Search Properties" Click`,
+      serviceVertical: 'Property Search Interest',
+      preferredLocation: locLabel,
+      budgetRange: budgetLabel,
+      propertyType: typeLabel,
+      preferredContactMethod: 'Phone Call',
+      propertyRequirement: `Search Intent: ${intentLabel} | Property Type: ${typeLabel}`,
+      message: `Visitor initiated active property search for ${intentLabel} properties.\n• Intent: ${intentLabel}\n• Property Type: ${typeLabel}\n• Preferred Location: ${locLabel}\n• Budget Range: ${budgetLabel}\n• Source: ${source}`,
+      leadStatus: 'New',
+      assignedTo: 'Abhishek Gupta',
+      notes: [`Search filters applied: [Intent: ${intentLabel}] [Type: ${typeLabel}] [Locality: ${locLabel}] [Budget: ${budgetLabel}]`],
+      consentStatus: true,
+      customFields: {
+        searchIntent: params.intent,
+        propertyType: params.propertyType,
+        locality: params.locality,
+        budget: params.budget,
+        searchSource: source,
+        searchTimestamp: new Date().toISOString()
+      },
+      pageUrl: typeof window !== 'undefined' ? window.location.href : 'https://kloud-reality.vercel.app',
+      emailDeliveryStatus: 'SIMULATED'
+    };
+
+    // 1. Save locally
+    this.saveLocalLead(searchLead);
+
+    // 2. Save to Supabase if configured
+    if (isSupabaseConfigured && supabase) {
+      try {
+        await supabase.from('leads').insert([{
+          id: searchLead.id,
+          created_at: searchLead.createdAt,
+          full_name: searchLead.fullName,
+          phone: searchLead.phone,
+          email: searchLead.email,
+          enquiry_source: searchLead.enquirySource,
+          service_vertical: searchLead.serviceVertical,
+          preferred_location: searchLead.preferredLocation,
+          budget_range: searchLead.budgetRange,
+          preferred_contact_method: searchLead.preferredContactMethod,
+          property_type: searchLead.propertyType,
+          property_requirement: searchLead.propertyRequirement,
+          enquiry_button_source: searchLead.enquiryButtonSource,
+          custom_fields: searchLead.customFields,
+          message: searchLead.message,
+          lead_status: searchLead.leadStatus,
+          assigned_to: searchLead.assignedTo,
+          notes: searchLead.notes,
+          consent_status: searchLead.consentStatus,
+          email_delivery_status: searchLead.emailDeliveryStatus
+        }]);
+      } catch (err) {
+        console.warn('Supabase search lead insert notice:', err);
+      }
+    }
+
+    // 3. Trigger email notification to kloudrealty@gmail.com
+    try {
+      const emailRes = await emailService.sendNotificationAndAcknowledgment(searchLead);
+      searchLead.emailDeliveryStatus = emailRes.deliveryStatus;
+      searchLead.emailError = emailRes.error;
+      this.saveLocalLead(searchLead);
+    } catch (err: any) {
+      console.warn('Search email dispatch notice:', err);
+      searchLead.emailDeliveryStatus = 'FAILED';
+      searchLead.emailError = err?.message;
+      this.saveLocalLead(searchLead);
     }
 
     return {

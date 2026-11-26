@@ -14,7 +14,7 @@ export default async function handler(req: any, res: any) {
   }
 
   const resendApiKey = process.env.RESEND_API_KEY;
-  const ownerRecipient = process.env.KLOUD_REALTY_NOTIFICATION_EMAIL || ownerEmail || 'kloudrealty@gmail.com';
+  const ownerRecipient = process.env.LEAD_NOTIFICATION_EMAIL || process.env.KLOUD_REALTY_NOTIFICATION_EMAIL || ownerEmail || 'kloudrealty@gmail.com';
   const defaultFrom = process.env.RESEND_FROM_EMAIL || 'KLOUD REALTY Portal <onboarding@resend.dev>';
 
   // If RESEND_API_KEY is configured on the server

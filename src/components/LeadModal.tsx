@@ -123,6 +123,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
 
     const source: LeadSource = initialPropertyId ? 'Property Details' : 'Entry Modal';
     const buttonSource = initialPropertyTitle ? `Enquiry: ${initialPropertyTitle}` : 'Consultation Modal';
+    const isSiteVisit = initialVertical === 'Site Visit Scheduling' || lookingTo.toLowerCase().includes('site visit');
 
     try {
       const result = await leadService.createLead({
@@ -131,6 +132,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
         email,
         enquirySource: source,
         enquiryButtonSource: buttonSource,
+        isSiteVisit,
         serviceVertical: mappedVertical,
         propertyRequirement: lookingTo,
         preferredLocation: location,

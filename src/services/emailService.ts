@@ -15,7 +15,45 @@ export interface EmailDispatchRecord {
 }
 
 const LOCAL_STORAGE_OUTBOX_KEY = 'kloud_realty_email_outbox_v1';
-const OWNER_DESIGNATED_EMAIL = 'kloudrealty@gmail.com';
+export const OWNER_DESIGNATED_EMAIL = 'kloudrealty@gmail.com';
+
+/**
+ * Mask PAN number for privacy in emails while keeping full value in database
+ * Example: ABCDE1234F -> ABCDE••••F
+ */
+export function maskPan(pan?: string): string {
+  if (!pan || !pan.trim()) return 'Not provided';
+  const clean = pan.trim().toUpperCase();
+  if (clean.length === 10) {
+    return `${clean.slice(0, 5)}••••${clean.slice(9)}`;
+  }
+  if (clean.length > 4) {
+    return `${clean.slice(0, 2)}${'•'.repeat(Math.max(4, clean.length - 4))}${clean.slice(-2)}`;
+  }
+  return '••••••';
+}
+
+/**
+ * Mask Date of Birth for privacy in emails while keeping full value in database
+ * Example: 1988-05-14 -> ••/••/1988, 14/05/1988 -> ••/••/1988
+ */
+export function maskDob(dob?: string): string {
+  if (!dob || !dob.trim()) return 'Not provided';
+  const clean = dob.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) {
+    const parts = clean.split('-');
+    return `••/••/${parts[0]}`;
+  }
+  if (/^\d{2}[/-]\d{2}[/-]\d{4}$/.test(clean)) {
+    const year = clean.slice(-4);
+    return `••/••/${year}`;
+  }
+  const yearMatch = clean.match(/\d{4}/);
+  if (yearMatch) {
+    return `••/••/${yearMatch[0]}`;
+  }
+  return '••/••/••••';
+}
 
 export const emailService = {
   getOwnerEmail(): string {
@@ -44,32 +82,56 @@ export const emailService = {
   },
 
   /**
-   * Generates formatted subject line according to enquiry vertical and project
+   * Generates exact subject lines matching client specification:
+   * - NEW PROPERTY ENQUIRY — [Project Name] — [Lead ID]
+   * - NEW SITE VISIT REQUEST — [Project Name] — [Lead ID]
+   * - NEW CLIENT REGISTRATION — [Lead ID]
+   * - NEW HOME LOAN ENQUIRY — [Lead ID]
+   * - NEW LAND CONSULTATION — [Lead ID]
+   * - NEW REDEVELOPMENT ENQUIRY — [Lead ID]
+   * - NEW GENERAL CONSULTATION — [Lead ID]
+   * - NEW PROPERTY SEARCH — [Lead ID]
    */
   getSubjectLine(lead: Lead): string {
-    const loc = lead.preferredLocation ? lead.preferredLocation.trim().toUpperCase() : 'MUMBAI';
-    
-    if (lead.propertyTitle) {
-      const proj = lead.propertyTitle.trim().toUpperCase();
-      return `[KLOUD REALTY] NEW PROPERTY LEAD — ${proj}, ${loc}`;
+    const leadId = lead.id;
+
+    // 1. Site Visit Request with Project
+    if (lead.isSiteVisit && lead.propertyTitle) {
+      return `NEW SITE VISIT REQUEST — ${lead.propertyTitle.trim()} — ${leadId}`;
     }
-    if (lead.serviceVertical === 'Client Registration') {
-      return `[KLOUD REALTY] NEW CLIENT REGISTRATION — ${lead.fullName.trim().toUpperCase()}`;
+
+    // 2. Property Enquiry with Project
+    if (lead.propertyTitle && (lead.serviceVertical === 'Primary Market' || lead.serviceVertical === 'Secondary Market' || lead.serviceVertical === 'Rental' || lead.enquirySource === 'Property Details')) {
+      return `NEW PROPERTY ENQUIRY — ${lead.propertyTitle.trim()} — ${leadId}`;
     }
-    if (lead.serviceVertical === 'Finance & Home Loan') {
-      return `[KLOUD REALTY] NEW HOME LOAN ENQUIRY — ${lead.fullName.trim().toUpperCase()}`;
+
+    // 3. Client Registration
+    if (lead.serviceVertical === 'Client Registration' || lead.enquirySource === 'Registration Form') {
+      return `NEW CLIENT REGISTRATION — ${leadId}`;
     }
-    if (lead.serviceVertical === 'Redevelopment Consulting') {
-      const society = lead.roleInSociety ? `${lead.roleInSociety.toUpperCase()} (${loc})` : loc;
-      return `[KLOUD REALTY] NEW REDEVELOPMENT ENQUIRY — ${society}`;
+
+    // 4. Home Loan Enquiry
+    if (lead.serviceVertical === 'Finance & Home Loan' || lead.enquirySource === 'Finance Page') {
+      return `NEW HOME LOAN ENQUIRY — ${leadId}`;
     }
-    if (lead.serviceVertical === 'Second Homes & Land') {
-      return `[KLOUD REALTY] NEW LAND / RETREAT ENQUIRY — ${loc}`;
+
+    // 5. Land Consultation
+    if (lead.serviceVertical === 'Second Homes & Land' || lead.enquirySource === 'Land') {
+      return `NEW LAND CONSULTATION — ${leadId}`;
     }
-    if (lead.serviceVertical === 'Rental') {
-      return `[KLOUD REALTY] NEW RENTAL ENQUIRY — ${lead.fullName.trim().toUpperCase()} (${loc})`;
+
+    // 6. Redevelopment Enquiry
+    if (lead.serviceVertical === 'Redevelopment Consulting' || lead.enquirySource === 'Redevelopment') {
+      return `NEW REDEVELOPMENT ENQUIRY — ${leadId}`;
     }
-    return `[KLOUD REALTY] NEW CONSULTATION REQUEST — ${lead.fullName.trim().toUpperCase()}`;
+
+    // 7. Property Search Interest
+    if (lead.serviceVertical === 'Property Search Interest' || lead.enquirySource === 'Property Search') {
+      return `NEW PROPERTY SEARCH — ${leadId}`;
+    }
+
+    // 8. General Consultation / Entry Popup / Other
+    return `NEW GENERAL CONSULTATION — ${leadId}`;
   },
 
   /**
@@ -84,6 +146,7 @@ export const emailService = {
 
   /**
    * Generates a luxury, dark-themed responsive HTML notification for the consultancy owner
+   * Structured with Sections A through F
    */
   generateOwnerEmailHtml(lead: Lead): string {
     const timeFormatted = new Date(lead.createdAt).toLocaleString('en-IN', {
@@ -95,11 +158,16 @@ export const emailService = {
     const isLoan = lead.serviceVertical === 'Finance & Home Loan';
     const isReg = lead.serviceVertical === 'Client Registration';
     const isRedev = lead.serviceVertical === 'Redevelopment Consulting';
+    const isSearch = lead.serviceVertical === 'Property Search Interest' || lead.enquirySource === 'Property Search';
     const hasProject = Boolean(lead.propertyTitle || lead.developerName || lead.propertyId);
     const subject = this.getSubjectLine(lead);
     const cleanPhone = (lead.phone || '').replace(/[^0-9+]/g, '');
+    const hasCallablePhone = Boolean(cleanPhone && cleanPhone.length >= 8);
     const cleanWa = (lead.whatsappNumber || lead.phone || '').replace(/[^0-9]/g, '').slice(-10);
     const hasValidEmail = lead.email && lead.email.toLowerCase() !== 'not provided' && lead.email.includes('@');
+
+    const maskedPanVal = maskPan(lead.panNumber);
+    const maskedDobVal = maskDob(lead.dateOfBirth);
 
     return `
 <!DOCTYPE html>
@@ -137,11 +205,11 @@ export const emailService = {
             </td>
           </tr>
 
-          <!-- Notification Notice -->
+          <!-- Notification Title Banner -->
           <tr>
             <td style="padding: 24px 32px 14px 32px;">
               <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #C8A45D; font-weight: 700; margin-bottom: 6px;">
-                KLOUD REALTY — NEW WEBSITE ENQUIRY
+                KLOUD REALTY — LEAD NOTIFICATION DISPATCH
               </div>
               <h2 style="margin: 0 0 8px 0; font-size: 19px; color: #ffffff; font-weight: 600; line-height: 1.35;">
                 ${subject}
@@ -152,79 +220,13 @@ export const emailService = {
             </td>
           </tr>
 
-          <!-- SECTION 1: SUBMISSION OVERVIEW -->
-          <tr>
-            <td style="padding: 10px 32px;">
-              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: #01B6E5; font-weight: 700; margin-bottom: 8px;">
-                SUBMISSION OVERVIEW
-              </div>
-              <table width="100%" cellpadding="8" cellspacing="0" style="background-color: #0b1019; border-radius: 6px; border: 1px solid #1f293d; font-size: 13px;">
-                <tr>
-                  <td width="38%" style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Lead ID</td>
-                  <td style="color: #e5c57a; font-family: monospace; font-weight: 700; border-bottom: 1px solid #1a2233;">${lead.id}</td>
-                </tr>
-                <tr>
-                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Enquiry Category</td>
-                  <td style="color: #01B6E5; font-weight: 600; border-bottom: 1px solid #1a2233;">${lead.serviceVertical}</td>
-                </tr>
-                <tr>
-                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Form / Source</td>
-                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">
-                    ${lead.enquirySource}${lead.enquiryButtonSource ? ` • <span style="color: #C8A45D;">${lead.enquiryButtonSource}</span>` : ''}
-                  </td>
-                </tr>
-                <tr>
-                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Source Page URL</td>
-                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233; word-break: break-all;">
-                    ${lead.pageUrl ? `<a href="${lead.pageUrl}" style="color: #C8A45D; text-decoration: underline;">${lead.pageUrl}</a>` : 'https://kloud-reality.vercel.app'}
-                  </td>
-                </tr>
-                <tr>
-                  <td style="color: #9ca3af; font-weight: 500;">Submission Date & Time</td>
-                  <td style="color: #9ca3af; font-family: monospace; font-size: 12px;">${timeFormatted} (IST)</td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          ${hasProject ? `
-          <!-- SECTION 2: PROJECT DETAILS -->
-          <tr>
-            <td style="padding: 14px 32px 10px 32px;">
-              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: #C8A45D; font-weight: 700; margin-bottom: 8px;">
-                PROJECT DETAILS
-              </div>
-              <table width="100%" cellpadding="8" cellspacing="0" style="background-color: #0b1019; border-radius: 6px; border: 1px solid #1f293d; font-size: 13px;">
-                <tr>
-                  <td width="38%" style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Project Name</td>
-                  <td style="color: #ffffff; font-weight: 700; border-bottom: 1px solid #1a2233;">${this.formatField(lead.propertyTitle)}</td>
-                </tr>
-                <tr>
-                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Developer</td>
-                  <td style="color: #C8A45D; font-weight: 600; border-bottom: 1px solid #1a2233;">${this.formatField(lead.developerName)}</td>
-                </tr>
-                <tr>
-                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Project Location</td>
-                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">${this.formatField(lead.preferredLocation)}</td>
-                </tr>
-                <tr>
-                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Selected Configuration</td>
-                  <td style="color: #01B6E5; border-bottom: 1px solid #1a2233;">${this.formatField(lead.selectedConfig || lead.configuration)}</td>
-                </tr>
-                <tr>
-                  <td style="color: #9ca3af; font-weight: 500;">Selected Floor Range / Plan</td>
-                  <td style="color: #ffffff;">${this.formatField(lead.selectedFloorRange || lead.selectedFloorPlan)}</td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          ` : ''}
-
-          <!-- SECTION 3: CUSTOMER DETAILS -->
+          <!-- ============================================== -->
+          <!-- SECTION A: VISITOR DETAILS                    -->
+          <!-- ============================================== -->
           <tr>
             <td style="padding: 14px 32px 10px 32px;">
               <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: #01B6E5; font-weight: 700; margin-bottom: 8px;">
-                CUSTOMER DETAILS
+                SECTION A: VISITOR DETAILS
               </div>
               <table width="100%" cellpadding="8" cellspacing="0" style="background-color: #0b1019; border-radius: 6px; border: 1px solid #1f293d; font-size: 13px;">
                 <tr>
@@ -234,13 +236,13 @@ export const emailService = {
                 <tr>
                   <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Mobile Number</td>
                   <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">
-                    <a href="tel:${cleanPhone}" style="color: #C8A45D; text-decoration: none; font-weight: 700;">${lead.phone}</a>
+                    ${hasCallablePhone ? `<a href="tel:${cleanPhone}" style="color: #C8A45D; text-decoration: none; font-weight: 700;">${lead.phone}</a>` : `<span style="color: #9ca3af;">${lead.phone}</span>`}
                   </td>
                 </tr>
                 <tr>
                   <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">WhatsApp Number</td>
                   <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">
-                    ${lead.whatsappNumber ? `<a href="https://wa.me/91${cleanWa}" style="color: #10B981; text-decoration: none; font-weight: 600;">${lead.whatsappNumber}</a>` : `<span style="color: #9ca3af;">Same as Mobile (${lead.phone})</span>`}
+                    ${lead.whatsappNumber && cleanWa ? `<a href="https://wa.me/91${cleanWa}" style="color: #10B981; text-decoration: none; font-weight: 600;">${lead.whatsappNumber}</a>` : (hasCallablePhone ? `<span style="color: #9ca3af;">Same as Mobile (${lead.phone})</span>` : '<span style="color: #6b7280; font-style: italic;">Not provided</span>')}
                   </td>
                 </tr>
                 <tr>
@@ -268,60 +270,63 @@ export const emailService = {
                 ${lead.panNumber ? `
                 <tr>
                   <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">PAN Number</td>
-                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233; font-family: monospace;">${lead.panNumber}</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233; font-family: monospace;">
+                    <span style="letter-spacing: 2px; color: #10B981; font-weight: 700;">${maskedPanVal}</span>
+                    <span style="font-size: 11px; color: #9ca3af; margin-left: 8px;">(Protected in Database)</span>
+                  </td>
                 </tr>
                 ` : ''}
                 ${lead.dateOfBirth ? `
                 <tr>
                   <td style="color: #9ca3af; font-weight: 500;">Date of Birth</td>
-                  <td style="color: #ffffff;">${lead.dateOfBirth}</td>
+                  <td style="color: #ffffff;">
+                    <span style="letter-spacing: 1.5px; color: #10B981; font-weight: 700;">${maskedDobVal}</span>
+                    <span style="font-size: 11px; color: #9ca3af; margin-left: 8px;">(Protected in Database)</span>
+                  </td>
                 </tr>
                 ` : ''}
               </table>
             </td>
           </tr>
 
-          <!-- SECTION 4: PROPERTY REQUIREMENTS & SELECTIONS -->
+          <!-- ============================================== -->
+          <!-- SECTION B: ENQUIRY DETAILS                    -->
+          <!-- ============================================== -->
           <tr>
             <td style="padding: 14px 32px 10px 32px;">
               <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: #C8A45D; font-weight: 700; margin-bottom: 8px;">
-                PROPERTY REQUIREMENTS
+                SECTION B: ENQUIRY DETAILS
               </div>
               <table width="100%" cellpadding="8" cellspacing="0" style="background-color: #0b1019; border-radius: 6px; border: 1px solid #1f293d; font-size: 13px;">
                 <tr>
-                  <td width="38%" style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Requirement / Objective</td>
-                  <td style="color: #01B6E5; font-weight: 600; border-bottom: 1px solid #1a2233;">${this.formatField(lead.propertyRequirement || lead.purposeOfEngagement || lead.serviceVertical)}</td>
+                  <td width="38%" style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Lead Reference ID</td>
+                  <td style="color: #e5c57a; font-family: monospace; font-weight: 700; border-bottom: 1px solid #1a2233;">${lead.id}</td>
                 </tr>
                 <tr>
-                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Configuration / Type</td>
-                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">${this.formatField(lead.configuration || lead.selectedConfig || lead.propertyType)}</td>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Enquiry Category</td>
+                  <td style="color: #01B6E5; font-weight: 600; border-bottom: 1px solid #1a2233;">${lead.serviceVertical}</td>
                 </tr>
                 <tr>
-                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Approximate Budget</td>
-                  <td style="color: #C8A45D; font-weight: 700; border-bottom: 1px solid #1a2233;">${this.formatField(lead.budgetRange)}</td>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Request Type</td>
+                  <td style="color: ${lead.isSiteVisit ? '#10B981' : '#ffffff'}; font-weight: 600; border-bottom: 1px solid #1a2233;">
+                    ${lead.isSiteVisit ? '🎯 Priority Site Visit Request' : '📋 General Property Enquiry / Consultation'}
+                  </td>
                 </tr>
                 <tr>
-                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Preferred Location</td>
-                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">${this.formatField(lead.preferredLocation)}</td>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Engagement Objective / Purpose</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">
+                    ${this.formatField(lead.propertyRequirement || lead.purposeOfEngagement || lead.serviceVertical)}
+                  </td>
                 </tr>
+                ${lead.preferredTimeline ? `
                 <tr>
-                  <td style="color: #9ca3af; font-weight: 500;">Preferred Timeline</td>
-                  <td style="color: #ffffff;">${this.formatField(lead.preferredTimeline)}</td>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Preferred Timeline</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">${lead.preferredTimeline}</td>
                 </tr>
-              </table>
-            </td>
-          </tr>
-
-          ${isLoan ? `
-          <!-- SECTION 5A: HOME LOAN & FINANCE SPECIFICATIONS -->
-          <tr>
-            <td style="padding: 14px 32px 10px 32px;">
-              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: #01B6E5; font-weight: 700; margin-bottom: 8px;">
-                FINANCE & HOME LOAN DETAILS
-              </div>
-              <table width="100%" cellpadding="8" cellspacing="0" style="background-color: #0b1019; border-radius: 6px; border: 1px solid #1f293d; font-size: 13px;">
+                ` : ''}
+                ${isLoan ? `
                 <tr>
-                  <td width="38%" style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Employment Profile</td>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Employment Profile</td>
                   <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">${this.formatField(lead.employmentType)}</td>
                 </tr>
                 <tr>
@@ -337,24 +342,13 @@ export const emailService = {
                   <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">${this.formatField(lead.existingLoanObligations, 'None reported')}</td>
                 </tr>
                 <tr>
-                  <td style="color: #9ca3af; font-weight: 500;">Preferred Callback Time</td>
-                  <td style="color: #C8A45D; font-weight: 600;">${this.formatField(lead.preferredCallbackTime, 'Anytime')}</td>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Preferred Callback Time</td>
+                  <td style="color: #C8A45D; font-weight: 600; border-bottom: 1px solid #1a2233;">${this.formatField(lead.preferredCallbackTime, 'Anytime')}</td>
                 </tr>
-              </table>
-            </td>
-          </tr>
-          ` : ''}
-
-          ${isRedev ? `
-          <!-- SECTION 5B: REDEVELOPMENT SOCIETY SPECIFICATIONS -->
-          <tr>
-            <td style="padding: 14px 32px 10px 32px;">
-              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: #C8A45D; font-weight: 700; margin-bottom: 8px;">
-                REDEVELOPMENT SOCIETY DETAILS
-              </div>
-              <table width="100%" cellpadding="8" cellspacing="0" style="background-color: #0b1019; border-radius: 6px; border: 1px solid #1f293d; font-size: 13px;">
+                ` : ''}
+                ${isRedev ? `
                 <tr>
-                  <td width="38%" style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Role in Society</td>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Role in Society</td>
                   <td style="color: #ffffff; font-weight: 600; border-bottom: 1px solid #1a2233;">${this.formatField(lead.roleInSociety)}</td>
                 </tr>
                 <tr>
@@ -362,28 +356,13 @@ export const emailService = {
                   <td style="color: #01B6E5; border-bottom: 1px solid #1a2233;">${this.formatField(lead.buildingAge)}</td>
                 </tr>
                 <tr>
-                  <td style="color: #9ca3af; font-weight: 500;">Number of Flats / Units</td>
-                  <td style="color: #ffffff;">${this.formatField(lead.numberOfUnits)}</td>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Number of Flats / Units</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">${this.formatField(lead.numberOfUnits)}</td>
                 </tr>
-              </table>
-            </td>
-          </tr>
-          ` : ''}
-
-          ${isReg ? `
-          <!-- SECTION 5C: CLIENT REGISTRATION & ENGAGEMENT TERMS -->
-          <tr>
-            <td style="padding: 14px 32px 10px 32px;">
-              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: #10B981; font-weight: 700; margin-bottom: 8px;">
-                FEE TERMS & DECLARATION
-              </div>
-              <table width="100%" cellpadding="8" cellspacing="0" style="background-color: #0b1019; border-radius: 6px; border: 1px solid #1f293d; font-size: 13px;">
+                ` : ''}
+                ${isReg ? `
                 <tr>
-                  <td width="38%" style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Engagement Objectives</td>
-                  <td style="color: #01B6E5; border-bottom: 1px solid #1a2233;">${this.formatField(lead.purposeOfEngagement)}</td>
-                </tr>
-                <tr>
-                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Fee Agreement Accepted</td>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Fee Terms Accepted</td>
                   <td style="color: #10B981; font-weight: 700; border-bottom: 1px solid #1a2233;">
                     ${lead.acceptedFeeTerms ? '✓ Yes — Confirmed & Accepted by Client' : 'Not Confirmed'}
                   </td>
@@ -395,9 +374,62 @@ export const emailService = {
                   </td>
                 </tr>
                 <tr>
-                  <td style="color: #9ca3af; font-weight: 500;">Client Signature / Execution</td>
-                  <td style="color: #ffffff;">
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Payment Milestones</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">${this.formatField(lead.paymentMilestones, 'Standard Execution Milestones')}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Client Signature / Execution</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">
                     ${this.formatField(lead.clientSignature, lead.fullName)} • ${this.formatField(lead.declarationPlace, 'Mumbai')} • ${this.formatField(lead.declarationDate, timeFormatted)}
+                  </td>
+                </tr>
+                ` : ''}
+                <tr>
+                  <td style="color: #9ca3af; font-weight: 500;">Consent Status</td>
+                  <td style="color: #10B981; font-weight: 600;">✓ Agreed to KLOUD REALTY Advisory Terms</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          ${hasProject ? `
+          <!-- ============================================== -->
+          <!-- SECTION C: PROJECT / PROPERTY DETAILS          -->
+          <!-- ============================================== -->
+          <tr>
+            <td style="padding: 14px 32px 10px 32px;">
+              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: #01B6E5; font-weight: 700; margin-bottom: 8px;">
+                SECTION C: PROJECT / PROPERTY DETAILS
+              </div>
+              <table width="100%" cellpadding="8" cellspacing="0" style="background-color: #0b1019; border-radius: 6px; border: 1px solid #1f293d; font-size: 13px;">
+                <tr>
+                  <td width="38%" style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Project Name</td>
+                  <td style="color: #ffffff; font-weight: 700; border-bottom: 1px solid #1a2233;">${this.formatField(lead.propertyTitle)}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Developer</td>
+                  <td style="color: #C8A45D; font-weight: 600; border-bottom: 1px solid #1a2233;">${this.formatField(lead.developerName)}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Property ID</td>
+                  <td style="color: #9ca3af; font-family: monospace; border-bottom: 1px solid #1a2233;">${this.formatField(lead.propertyId)}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Project Location</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">${this.formatField(lead.preferredLocation)}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Selected Configuration</td>
+                  <td style="color: #01B6E5; border-bottom: 1px solid #1a2233;">${this.formatField(lead.selectedConfig || lead.configuration)}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Selected Floor Range / Plan</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">${this.formatField(lead.selectedFloorRange || lead.selectedFloorPlan)}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; font-weight: 500;">Property Listing Page</td>
+                  <td style="color: #ffffff;">
+                    ${lead.pageUrl ? `<a href="${lead.pageUrl}" target="_blank" style="color: #C8A45D; text-decoration: underline;">View Live Project Page ↗</a>` : 'https://kloud-reality.vercel.app'}
                   </td>
                 </tr>
               </table>
@@ -405,33 +437,102 @@ export const emailService = {
           </tr>
           ` : ''}
 
-          <!-- SECTION 6: CLIENT MESSAGE & REQUIREMENTS -->
+          <!-- ============================================== -->
+          <!-- SECTION D: BUDGET AND PREFERENCES              -->
+          <!-- ============================================== -->
           <tr>
-            <td style="padding: 14px 32px;">
+            <td style="padding: 14px 32px 10px 32px;">
               <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: #C8A45D; font-weight: 700; margin-bottom: 8px;">
-                ADDITIONAL REQUIREMENTS / NOTES
+                SECTION D: BUDGET AND PREFERENCES
               </div>
-              <div style="background-color: #0b1019; border-left: 3px solid #C8A45D; padding: 14px 18px; border-radius: 0 6px 6px 0; font-size: 13px; color: #e5e7eb; line-height: 1.55;">
-                ${this.formatField(lead.message, 'No additional notes provided by client.')}
-              </div>
+              <table width="100%" cellpadding="8" cellspacing="0" style="background-color: #0b1019; border-radius: 6px; border: 1px solid #1f293d; font-size: 13px;">
+                <tr>
+                  <td width="38%" style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Approximate Budget</td>
+                  <td style="color: #C8A45D; font-weight: 700; border-bottom: 1px solid #1a2233;">${this.formatField(lead.budgetRange)}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Preferred Location</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">${this.formatField(lead.preferredLocation)}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; font-weight: 500;">Property Type / Configuration</td>
+                  <td style="color: #ffffff;">${this.formatField(lead.propertyType || lead.configuration || lead.selectedConfig, 'All Configurations')}</td>
+                </tr>
+              </table>
             </td>
           </tr>
 
+          <!-- ============================================== -->
+          <!-- SECTION E: ADDITIONAL REQUIREMENTS            -->
+          <!-- ============================================== -->
+          <tr>
+            <td style="padding: 14px 32px 10px 32px;">
+              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: #01B6E5; font-weight: 700; margin-bottom: 8px;">
+                SECTION E: ADDITIONAL REQUIREMENTS
+              </div>
+              <div style="background-color: #0b1019; border-left: 3px solid #C8A45D; padding: 14px 18px; border-radius: 0 6px 6px 0; font-size: 13px; color: #e5e7eb; line-height: 1.55;">
+                ${this.formatField(lead.message, 'No additional notes provided by visitor.')}
+              </div>
+              ${lead.customFields && Object.keys(lead.customFields).length > 0 ? `
+              <div style="margin-top: 10px; background-color: #0b1019; border: 1px solid #1f293d; border-radius: 6px; padding: 10px 14px; font-size: 12px;">
+                <span style="color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Custom Metadata:</span>
+                <pre style="margin: 6px 0 0 0; color: #C8A45D; font-family: monospace; white-space: pre-wrap; font-size: 11.5px;">${JSON.stringify(lead.customFields, null, 2)}</pre>
+              </div>
+              ` : ''}
+            </td>
+          </tr>
+
+          <!-- ============================================== -->
+          <!-- SECTION F: SUBMISSION SOURCE AND TIMESTAMP     -->
+          <!-- ============================================== -->
+          <tr>
+            <td style="padding: 14px 32px 10px 32px;">
+              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: #C8A45D; font-weight: 700; margin-bottom: 8px;">
+                SECTION F: SUBMISSION SOURCE AND TIMESTAMP
+              </div>
+              <table width="100%" cellpadding="8" cellspacing="0" style="background-color: #0b1019; border-radius: 6px; border: 1px solid #1f293d; font-size: 13px;">
+                <tr>
+                  <td width="38%" style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Submission Source</td>
+                  <td style="color: #ffffff; border-bottom: 1px solid #1a2233;">${lead.enquirySource}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Form / Action Button</td>
+                  <td style="color: #01B6E5; border-bottom: 1px solid #1a2233;">${this.formatField(lead.enquiryButtonSource, 'Direct Submission')}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; border-bottom: 1px solid #1a2233; font-weight: 500;">Submission Date & Time (IST)</td>
+                  <td style="color: #e5c57a; font-family: monospace; font-size: 12px; border-bottom: 1px solid #1a2233;">${timeFormatted}</td>
+                </tr>
+                <tr>
+                  <td style="color: #9ca3af; font-weight: 500;">Source Page URL</td>
+                  <td style="color: #ffffff; word-break: break-all;">
+                    ${lead.pageUrl ? `<a href="${lead.pageUrl}" target="_blank" style="color: #C8A45D; text-decoration: underline;">${lead.pageUrl}</a>` : 'https://kloud-reality.vercel.app'}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          ${hasCallablePhone || hasValidEmail ? `
           <!-- Quick Action Buttons -->
           <tr>
-            <td style="padding: 24px 32px;" align="center">
+            <td style="padding: 20px 32px 24px 32px;" align="center">
               <table cellpadding="0" cellspacing="0">
                 <tr>
+                  ${hasCallablePhone ? `
                   <td style="padding-right: 12px;">
                     <a href="tel:${cleanPhone}" style="display: inline-block; padding: 12px 20px; background-color: #C8A45D; color: #0b0f17; font-size: 12px; font-weight: 700; text-decoration: none; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
                       📞 Call Client
                     </a>
                   </td>
+                  ` : ''}
+                  ${cleanWa ? `
                   <td style="padding-right: 12px;">
                     <a href="https://wa.me/91${cleanWa}" target="_blank" style="display: inline-block; padding: 12px 20px; background-color: #10B981; color: #ffffff; font-size: 12px; font-weight: 700; text-decoration: none; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
                       💬 WhatsApp Client
                     </a>
                   </td>
+                  ` : ''}
                   ${hasValidEmail ? `
                   <td>
                     <a href="mailto:${lead.email}?subject=Regarding%20your%20KLOUD%20REALTY%20Enquiry%20${lead.id}" style="display: inline-block; padding: 12px 20px; background-color: #1f293d; color: #ffffff; font-size: 12px; font-weight: 600; text-decoration: none; border-radius: 4px; border: 1px solid #374151;">
@@ -443,14 +544,15 @@ export const emailService = {
               </table>
             </td>
           </tr>
+          ` : ''}
 
           <!-- Footer Credentials -->
           <tr>
             <td style="padding: 20px 32px; background-color: #0a0e16; border-top: 1px solid #1f293d; font-size: 11px; color: #9ca3af; text-align: center; line-height: 1.6;">
-              <strong style="color: #C8A45D; letter-spacing: 1px;">KLOUD REALTY — WEBSITE LEAD NOTIFICATION</strong><br>
-              Founder: Abhishek Gupta • MahaRERA Registration: A0311 72501659<br>
+              <strong style="color: #C8A45D; letter-spacing: 1px;">KLOUD REALTY — OFFICIAL ADVISORY DESK</strong><br>
+              Founder & Property Consultant: Abhishek Gupta • MahaRERA Registration: A0311 72501659<br>
               Shop No. 2, 321 R.B. Marg, Abdul Rauf Manzil, Opposite Piramal Aranya, Mazgaon, Mumbai – 400010<br>
-              Direct Lines: +91 86555 88880 / +91 96199 77171 | Email: kloudrealty@gmail.com
+              Direct Lines: +91 86555 88880 / +91 96199 77171 | Designated Email: kloudrealty@gmail.com
             </td>
           </tr>
 
@@ -469,14 +571,19 @@ export const emailService = {
   generateClientAcknowledgmentHtml(lead: Lead): string {
     const isLoan = lead.serviceVertical === 'Finance & Home Loan';
     const isReg = lead.serviceVertical === 'Client Registration';
-    const serviceTitle = isLoan ? 'Home Loan & Property Financing Advisory' : (isReg ? 'Client Registration & Professional Advisory' : lead.serviceVertical);
+    const isSiteVisit = Boolean(lead.isSiteVisit);
+    
+    let serviceTitle: string = lead.serviceVertical;
+    if (isSiteVisit) serviceTitle = `Site Visit Arrangement (${lead.propertyTitle || 'Property Selection'})`;
+    else if (isLoan) serviceTitle = 'Home Loan & Property Financing Advisory';
+    else if (isReg) serviceTitle = 'Client Registration & Professional Advisory';
 
     return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Acknowledgement: Your Enquiry with KLOUD REALTY</title>
+  <title>Acknowledgement: Your Enquiry with KLOUD REALTY [${lead.id}]</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #080c14; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f3f4f6;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #080c14; padding: 30px 15px;">
@@ -508,7 +615,7 @@ export const emailService = {
                 <p style="margin: 0; font-size: 17px; font-family: monospace; color: #C8A45D; font-weight: 700;">${lead.id}</p>
               </div>
               <p style="margin: 0 0 14px 0; font-size: 13px; color: #9ca3af; line-height: 1.6;">
-                Our principal advisory team led by Abhishek Gupta is reviewing your parameters. We will contact you via your preferred channel (${lead.preferredContactMethod || 'Phone'}) within 24 business hours with curated options and guidance.
+                Our principal advisory team led by Abhishek Gupta is reviewing your parameters. We will contact you via your preferred channel (${lead.preferredContactMethod || 'Phone Call'}) within 24 business hours with curated options and guidance.
               </p>
               <p style="margin: 0; font-size: 13px; color: #9ca3af; line-height: 1.6;">
                 For immediate priority assistance or to arrange an in-person meeting at our Mazgaon office, please reach our advisory desk at <a href="tel:8655588880" style="color: #C8A45D; text-decoration: none; font-weight: 600;">+91 86555 88880</a> or <a href="tel:9619977171" style="color: #C8A45D; text-decoration: none; font-weight: 600;">+91 96199 77171</a>.
