@@ -35,16 +35,17 @@ export const Footer: React.FC = () => {
               Professional RERA-registered real estate advisory firm positioned in Mazgaon, Mumbai. Guiding clients with clarity, discretion, and diligence across all real estate stages.
             </p>
 
-            <div className="p-3 rounded bg-charcoal-850/80 border border-gold-500/30 space-y-1">
+            {/* RERA Registration Details */}
+            <div className="p-3.5 rounded bg-charcoal-850/90 border border-gold-500/30 space-y-1.5 shadow-sm">
               <div className="flex items-center gap-1.5 text-xs text-gold-400 font-semibold uppercase tracking-wider">
                 <ShieldCheck className="w-4 h-4 text-cyanBrand" />
-                <span>RERA Registered Firm</span>
+                <span>RERA Registration Details</span>
               </div>
-              <p className="text-xs text-white font-mono tracking-wider">
-                A0311 72501659
+              <p className="text-xs sm:text-[13px] font-mono tracking-wider font-semibold">
+                <span className="text-gold-400">RERA REGISTERED</span> <span className="text-white/40">|</span> <span className="text-white">A031172501659</span>
               </p>
-              <p className="text-[10px] text-warmGray">
-                MahaRERA Registered Real Estate Consultant
+              <p className="text-[10px] text-warmGray/80">
+                Official MahaRERA Registered Real Estate Consultant
               </p>
             </div>
           </div>
@@ -183,7 +184,9 @@ export const Footer: React.FC = () => {
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-warmGray/80">
             <span>© {currentYear} KLOUD REALTY. All rights reserved.</span>
             <span className="hidden md:inline text-white/20">|</span>
-            <span className="text-gold-400 font-mono">RERA ID: A0311 72501659</span>
+            <span className="font-mono text-xs">
+              <span className="text-gold-400 font-semibold">RERA REGISTERED</span> <span className="text-white/40">|</span> <span className="text-white font-semibold">A031172501659</span>
+            </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">

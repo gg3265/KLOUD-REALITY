@@ -75,17 +75,22 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation, currentPath 
             <img 
               src="/images/logo_badge.png" 
               alt="KLOUD REALTY Logo" 
-              className="h-8 sm:h-8.5 lg:h-8.5 xl:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-102 drop-shadow shrink-0" 
+              className="h-8 sm:h-9 xl:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-102 drop-shadow shrink-0" 
             />
             <div className="flex flex-col justify-center">
               <div className="flex items-center leading-none">
-                <span className="font-serif tracking-wider font-semibold text-base sm:text-[17px] lg:text-[17px] xl:text-[19px] text-gold-400 group-hover:text-gold-300 transition-colors">
+                <span className="font-serif tracking-wider font-semibold text-sm sm:text-[16px] lg:text-[17px] xl:text-[19px] text-gold-400 group-hover:text-gold-300 transition-colors">
                   KLOUD <span className="text-cyanBrand">REALTY</span>
                 </span>
               </div>
-              <span className="text-[7.5px] sm:text-[8px] lg:text-[8px] xl:text-[8.5px] tracking-[0.14em] uppercase text-warmGray/75 font-sans font-medium mt-0.5 whitespace-nowrap">
+              <span className="text-[7px] sm:text-[7.5px] lg:text-[8px] xl:text-[8.5px] tracking-[0.12em] sm:tracking-[0.14em] uppercase text-warmGray/80 font-sans font-medium mt-0.5 whitespace-nowrap leading-tight">
                 The Place to Find Your Place
               </span>
+              <div className="text-[6.5px] sm:text-[7px] lg:text-[7.5px] xl:text-[8px] tracking-[0.08em] sm:tracking-[0.1em] uppercase font-sans font-medium mt-0.5 whitespace-nowrap flex items-center gap-1 sm:gap-1.5 leading-tight">
+                <span className="text-gold-400 font-semibold">RERA REGISTERED</span>
+                <span className="text-white/40 font-normal">|</span>
+                <span className="text-softWhite font-mono font-medium tracking-wider">A031172501659</span>
+              </div>
             </div>
           </a>
 
@@ -223,9 +228,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation, currentPath 
             <div className="flex items-center justify-between pb-5 border-b border-white/10">
               <div className="flex items-center gap-2">
                 <img src="/images/logo_badge.png" alt="KLOUD REALTY" className="h-7 w-auto object-contain" />
-                <span className="font-serif font-semibold text-white tracking-wide text-sm">
-                  KLOUD <span className="text-cyanBrand">REALTY</span>
-                </span>
+                <div className="flex flex-col">
+                  <span className="font-serif font-semibold text-white tracking-wide text-sm leading-none">
+                    KLOUD <span className="text-cyanBrand">REALTY</span>
+                  </span>
+                  <span className="text-[7.5px] uppercase tracking-wider text-warmGray/75 mt-0.5">
+                    The Place to Find Your Place
+                  </span>
+                  <span className="text-[7px] uppercase tracking-wider font-mono mt-0.5">
+                    <span className="text-gold-400 font-semibold">RERA REGISTERED</span> <span className="text-white/40">|</span> <span className="text-white">A031172501659</span>
+                  </span>
+                </div>
               </div>
               <button 
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -316,9 +329,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenConsultation, currentPath 
               Book a Consultation
             </button>
             
-            <div className="flex items-center justify-center gap-1.5 text-[10px] text-warmGray">
+            <div className="flex items-center justify-center gap-1.5 text-[10px] text-warmGray font-mono">
               <ShieldCheck className="w-3.5 h-3.5 text-cyanBrand" />
-              <span>RERA ID: A0311 72501659</span>
+              <span><span className="text-gold-400 font-semibold">RERA REGISTERED</span> | <span className="text-white">A031172501659</span></span>
             </div>
           </div>
 
